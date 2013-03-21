@@ -9,7 +9,7 @@ var express = require('express')
 module.exports = function (app, config) {
     app.configure(function(){
     app.set('port', process.env.PORT || 3000);
-    app.set('views', config.root_path + '/../app/views');
+    app.set('views', config.root_path + '/app/views');
     app.set('view engine', 'jade');
     app.use(express.favicon());
     app.use(express.logger('dev'));
@@ -19,7 +19,7 @@ module.exports = function (app, config) {
     app.use(express.session());
     app.use(app.router);
     app.use(require('less-middleware')({ src: __dirname + '/public' }));
-    app.use(express.static(path.join(__dirname, 'public')));
+    app.use(express.static(config.root_path + '/public'));
   });
   
   app.configure('development', function(){
