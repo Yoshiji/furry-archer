@@ -6,11 +6,14 @@
 var express = require('express')
   , http = require('http')
   , fs = require('fs')
-  , path = require('path');
+  , path = require('path')
+  , mongoose = require('mongoose');
 
 // Loads the /config/config.js
 exports = module.exports = config = require('./config/config');
 
+// Establish connection with the DB following the credentials in config/config.js[development][db]
+mongoose.connect(config.development.db);
 
 // Loads the models in /app/models/*.js
 var models_path = __dirname + '/app/models';
