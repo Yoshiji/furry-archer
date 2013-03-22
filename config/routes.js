@@ -16,4 +16,7 @@ module.exports = function (app) {
   // Game root route
   app.get('/game', game_controller.index);
 
+  // Game login route
+  app.get('/game/login', game_controller.login);
+
 }

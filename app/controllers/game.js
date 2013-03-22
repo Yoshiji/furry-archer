@@ -10,3 +10,7 @@
 exports.index = function(req, res, next) {
     res.render('game/index');
 }
+
+exports.login = function(req, res, next) {
+    res.render('game/login');
+}
