@@ -18,5 +18,9 @@ module.exports = function (app) {
 
   // Game login route
   app.get('/game/login', game_controller.login);
+  app.post('/game/login', game_controller.login_post);
 
+
+  // Game logout route
+  app.get('/game/logout', game_controller.logout);
 }

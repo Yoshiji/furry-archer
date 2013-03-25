@@ -1,9 +1,10 @@
 extend ../layout/game
 
 block main
-    h1 Please login
-    form
+    h1 Please login (u:admin p:admin)
+    form(method="post", enctype='multipart/form-data')
       label(for='login') Login
-      input(type='text', id='login')
+      input(type='text', id='login', name='login')
       label(for='password') Password
-      input(type='password', id='password')
+      input(type='password', id='password', name='password')
+      input(type='submit', class='buttoned')
