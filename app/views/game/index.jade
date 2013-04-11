@@ -3,3 +3,28 @@ extend ../layout/game
 block main
     h1 Welcome to Furry Archer!
     canvas(id='mainCanvas', width=500, height=300)
+    input(id='button', type='button', value='ping the server')
+    #msgbox
+    
+    
+    script(type='text/javascript')
+    
+      var socket = io.connect('http://localhost:3000');
+      
+      socket.on("connection",function(data){
+        console.log('Connected to the server through Socket.io!');
+      });
+      
+      socket.on('welcome', function(data){
+        console.log(data.txt);
+        $("#msgbox").append(data.txt + "<br>");
+      })
+      
+      socket.on('pong', function(data){
+        $("#msgbox").append(data.txt + "<br>");
+      })
+      
+      $("#button").click(function(){
+        $("#msgbox").append("->Ping server<br>");
+        socket.emit("ping",{txt:"this is a message from client" });
+      });

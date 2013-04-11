@@ -3,7 +3,13 @@ html(lang='en')
   head
     link(href='/stylesheets/reset.css', rel='stylesheet', type='text/css')
     link(href='/stylesheets/style.css', rel='stylesheet', type='text/css')
+    
     title Furry Archer
+    
+    script(type='text/javascript', src='/libs/sheetengine-src-1.2.0.js')
+    script(type='text/javascript', src='/libs/jquery-1.9.1.js')
+    script(type='text/javascript', src='/libs/jquery.easing.1.3.js')
+    script(type='text/javascript', src='/socket.io/socket.io.js')
 
   body
     - if (locals.flash)
@@ -14,10 +20,9 @@ html(lang='en')
         - if (locals.user)
           .user Welcome #{locals.user.name} 
             a.logout.buttoned(href="/game/logout") logout
+            
       block main
       
-    script(type='text/javascript', src='/javascripts/sheetengine-src-1.2.0.js')
+
     script(type='text/javascript', src='/javascripts/try.js')
-    script(type='text/javascript', src='/javascripts/jquery-1.9.1.js')
-    script(type='text/javascript', src='/javascripts/jquery.easing.1.3.js')
     script(type='text/javascript', src='/javascripts/application.js')
