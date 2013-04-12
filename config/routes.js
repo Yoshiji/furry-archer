@@ -20,6 +20,10 @@ module.exports = function (app) {
   app.get('/game/login', game_controller.login);
   app.post('/game/login', game_controller.login_post);
 
+  // Game signup route
+  app.get('/game/signup', game_controller.signup);
+  app.post('/game/signup', game_controller.signup_post);
+
 
   // Game logout route
   app.get('/game/logout', game_controller.logout);

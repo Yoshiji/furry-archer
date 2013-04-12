@@ -13,6 +13,7 @@
     "connect-mongo": "latest",
     "connect-flash": "latest",
     "mongodb": "latest",
-    "socket.io": "*"
+    "socket.io": "*",
+    "bcrypt": "latest"
   }
 }
