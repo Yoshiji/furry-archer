@@ -32,7 +32,7 @@ module.exports = function (app, config, mongoose, express) {
     //MODE DEVELOPMENT
     app.use(lessMiddleware({ 
       src: config.root_path + '/public',
-      debug: true,
+      debug: false,
       once: true,
       force: true
       }));
@@ -40,8 +40,6 @@ module.exports = function (app, config, mongoose, express) {
     app.use(express.static(config.root_path + '/public'));
 
     app.use(app.router);
-
-    console.log(config.root_path + '/public/stylesheets');
   });
   
   app.configure('development', function(){

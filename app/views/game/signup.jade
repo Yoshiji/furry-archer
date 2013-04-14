@@ -3,8 +3,17 @@ extend ../layout/game
 block main
     h1 Sign Up Now!
     form(method="post", enctype='multipart/form-data')
-      label(for='login') Login
-      input(type='text', id='login', name='login')
-      label(for='password') Password
-      input(type='password', id='password', name='password')
-      input(type='submit', class='buttoned')
+      p
+        label(for='username') Username
+        input(type='text', id='username', name='username')
+      p
+        label(for='lastname') E-mail
+        input(type='text', id='email', name='email')
+      p
+        label(for='password') password
+        input(type='password', id='password', name='password')
+      p
+        label(for='retyped_password') Re-type password
+        input(type='password', id='retyped_password', name='retyped_password')
+      p
+        input(type='submit', class='buttoned', value="Register")

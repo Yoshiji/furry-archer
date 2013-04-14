@@ -18,7 +18,7 @@ html(lang='en')
     .container
       header
         - if (locals.user)
-          .user Welcome #{locals.user.name} 
+          .user Welcome #{locals.user.username} 
             a.logout.buttoned(href="/game/logout") logout
             
       block main
