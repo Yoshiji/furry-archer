@@ -1,6 +1,7 @@
 // list of restricted urls
 var restricted = [
-'/game'
+'/game',
+'/game/'
 ];
 
 // middleware enabled or not
@@ -13,9 +14,6 @@ module.exports = function(onoff) {
 
   console.log("chat");
   return function(req, res, next) {
-    console.log(req.url);
-    console.log(req.session.flash);
-
     if(req.session.flash){
       res.locals.flash = req.session.flash;
       delete req.session.flash;
@@ -25,9 +23,7 @@ module.exports = function(onoff) {
     }
     if(enabled  && !req.session.user && restricted.indexOf(req.url) > -1){
       res.redirect("/game/login");
-      console.log("chat redirect");
     }else{
-      console.log("chat");
       next();
     }
     

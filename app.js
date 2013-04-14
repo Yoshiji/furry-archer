@@ -13,18 +13,15 @@ var express = require('express')
 // Loads the /config/config.js
 exports = module.exports = config = require('./config/config.js');
 
-// Establish connection with the DB following the credentials in config/config.js[development][db]
-var connected = mongoose.connect(config.development.db);
-
-// Loads the models in /app/models/*.js
-var models_path = __dirname + '/app/models';
-fs.readdirSync(models_path).forEach(function (file) {
-  require(models_path+'/'+file);
-})
+// Loads the Models
+fs.readdirSync('./app/models/').forEach(function (file) {
+  var model = require('./app/models/' + file);
+  model(mongoose);
+});
 
 // Loads Express with the /config/config.js and deployes routes with /config/routes.js
 var app = express();
-require('./config/express.js')(app, config);
+require('./config/express.js')(app, config, mongoose, express);
 require('./config/routes.js')(app);
 
 // Creates the server and listen to the port 3000
