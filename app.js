@@ -34,15 +34,16 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 
 // Creates the socket Input/Output
 var io = socket.listen(server);
-io.sockets.on('connection', function(socket) {
-  
-  console.log("connected");
-  socket.emit("welcome", {txt: "Welcome message from the server"})
-  socket.on('disconnect', function (client) {
+io.sockets.on('connection', function(client) {
+  client.emit('connection');
+
+  client.on('disconnect', function (data) {
     console.log("disconnected");
   });
   
-  socket.on('ping', function (data) {
-    socket.emit("pong",{txt:"Pong (from server)"});
+  client.on('chat_message', function (data) {
+    client.broadcast.emit("chat_message", {author: data.author, message: data.message});
+    client.emit("chat_message", {author: data.author, message: data.message});
   });
+
 });

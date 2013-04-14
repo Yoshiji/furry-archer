@@ -5,6 +5,8 @@ body {
 a {
   color: #00B7FF;
 }
+
+
 /*LAYOUT*/
 .container{
   padding: 15px;
@@ -65,4 +67,51 @@ h1{
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#242628', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
 }
 
+.hidden { display: none; }
+.bolded { font-weight: bold; }
+.centered { text-align: center; }
+.righted { text-align: right; }
+.lefted { text-align: left; }
+
+
+
 /*TWEAKS*/
+
+
+
+/*GAME*/
+
+table#game_chat {
+  width: 300px;
+  float: right;
+  margin: 5px;
+
+    thead {
+      th {
+        font-size: 17px;
+        font-weight: bold;
+        text-align: center;
+        border: 1px solid silver;
+        padding: 5px;
+      }
+    }
+
+    tbody {
+      tr {
+        td {
+          border: 1px solid silver;
+          padding: 5px;
+        }
+
+        td.author {
+          width: 30%;
+          font-weight: bold;
+        }
+
+        td.message {
+          width: 70%;
+        }
+      }
+    }
+  
+}

@@ -1,11 +1,52 @@
-extend ../layout/game
-
-block main
-    h1 Welcome to Furry Archer!
-    canvas(id='mainCanvas', width=500, height=300)
-    input(id='button', type='button', value='ping the server')
-    #msgbox
+doctype 5
+html(lang='en')
+  head
+    link(href='/stylesheets/reset.css', rel='stylesheet', type='text/css')
+    link(href='/stylesheets/style.css', rel='stylesheet', type='text/css')
     
+    title Furry Archer
+    
+    script(type='text/javascript', src='/libs/sheetengine-src-1.2.0.js')
+    script(type='text/javascript', src='/libs/jquery-1.9.1.js')
+    script(type='text/javascript', src='/libs/jquery.easing.1.3.js')
+    script(type='text/javascript', src='/socket.io/socket.io.js')
+
+
+
+  body
+    // flash messages
+    - if (locals.flash)
+      each message, type in locals.flash
+        .flash(class=type)= message
+    .container
+      header
+        - if (locals.user)
+          .user Welcome #{locals.user.name} 
+            a.logout.buttoned(href="/game/logout") logout
+
+    h1 Welcome to Furry Archer!
+    
+    // Game board
+    canvas#game_board( width=1200, height=500, style='border: 1px solid gray; margin: 10px;' )
+
+    table#game_chat
+      thead
+        tr
+          th(colspan=2) Online chat
+        tr
+          th Author
+          th message
+      tbody
+        tr#message_template.hidden
+          td.author
+          td.message    
+        tr#new_message
+          td.author
+            input(type='text', value='Bob', name='author', id='author')
+          td.message
+            input(type='text', value='message de bob', name='message', id='message')
+            input(type='button', value='Send', id='submit')
+
     
     script(type='text/javascript')
     
@@ -14,17 +55,10 @@ block main
       socket.on("connection",function(data){
         console.log('Connected to the server through Socket.io!');
       });
-      
-      socket.on('welcome', function(data){
-        console.log(data.txt);
-        $("#msgbox").append(data.txt + "<br>");
-      })
-      
-      socket.on('pong', function(data){
-        $("#msgbox").append(data.txt + "<br>");
-      })
-      
-      $("#button").click(function(){
-        $("#msgbox").append("->Ping server<br>");
-        socket.emit("ping",{txt:"this is a message from client" });
-      });
+
+    script(type='text/javascript', src='/javascripts/game_logic.js')
+    script(type='text/javascript', src='/javascripts/game_chat.js')
+    script(type='text/javascript', src='/javascripts/game_view.js')
+    script(type='text/javascript', src='/javascripts/application.js')
+
+block main

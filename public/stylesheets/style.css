@@ -88,4 +88,43 @@ h1 {
   /* IE6-9 */
 
 }
+.hidden {
+  display: none;
+}
+.bolded {
+  font-weight: bold;
+}
+.centered {
+  text-align: center;
+}
+.righted {
+  text-align: right;
+}
+.lefted {
+  text-align: left;
+}
 /*TWEAKS*/
+/*GAME*/
+table#game_chat {
+  width: 300px;
+  float: right;
+  margin: 5px;
+}
+table#game_chat thead th {
+  font-size: 17px;
+  font-weight: bold;
+  text-align: center;
+  border: 1px solid silver;
+  padding: 5px;
+}
+table#game_chat tbody tr td {
+  border: 1px solid silver;
+  padding: 5px;
+}
+table#game_chat tbody tr td.author {
+  width: 30%;
+  font-weight: bold;
+}
+table#game_chat tbody tr td.message {
+  width: 70%;
+}
