@@ -1,6 +1,6 @@
 function init() {
   // initialize the sheetengine
-  var canvasElement = document.getElementById('mainCanvas');
+  var canvasElement = document.getElementById('game_board');
   sheetengine.scene.init(canvasElement, {w:600,h:400});
   
   // define a basesheet

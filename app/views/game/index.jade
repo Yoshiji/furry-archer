@@ -16,23 +16,19 @@ html(lang='en')
   body
     // flash messages
     - if (locals.flash)
-      each message, type in locals.flash
-        .flash(class=type)= message
-    .container
-      header
-        - if (locals.user)
-          .user Welcome #{locals.user.name} 
-            a.logout.buttoned(href="/game/logout") logout
-
-    h1 Welcome to Furry Archer!
-    
+      .flash_container
+        each message, type in locals.flash
+          .flash(class=type)= message
     // Game board
-    canvas#game_board( width=1200, height=500, style='border: 1px solid gray; margin: 10px;' )
+    canvas#game_board
 
     table#game_chat
       thead
         tr
-          th(colspan=2) Online chat
+          th(colspan=2) Online chat - 
+            - if (locals.user)
+                = locals.user.username + " "
+                a.logout.buttoned(href="/game/logout") logout
         tr
           th Author
           th message

@@ -9,7 +9,12 @@ function init_game() {
 
 $(document).ready(function() {
   //remove flash messages after an amount of time
-  $(".flash").delay(2000).slideUp(600, "easeOutCirc");
+  $(".flash").delay(2000).fadeOut(1000, "easeInExpo");
+  $(".flash").click(function(){
+    $(this).stop(true, true).fadeOut(300, "easeInExpo");
+  });
+
+  
   
   init_game();
   

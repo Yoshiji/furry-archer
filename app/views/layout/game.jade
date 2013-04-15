@@ -1,4 +1,4 @@
-doctype 5
+!!!
 html(lang='en')
   head
     link(href='/stylesheets/reset.css', rel='stylesheet', type='text/css')
@@ -13,17 +13,17 @@ html(lang='en')
 
   body
     - if (locals.flash)
-      each message, type in locals.flash
-        .flash(class=type)= message
+      .flash_container
+        each message, type in locals.flash
+          .flash(class=type)= message
     .container
       header
         - if (locals.user)
-          .user Welcome #{locals.user.username} 
+          .user Welcome locals.user.username
             a.logout.buttoned(href="/game/logout") logout
             
       block main
       
-
     script(type='text/javascript', src='/javascripts/try.js')
     script(type='text/javascript', src='/javascripts/game_logic.js')
     script(type='text/javascript', src='/javascripts/game_view.js')

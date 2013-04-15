@@ -12,18 +12,27 @@ a {
   padding: 15px;
 }
 
-.flash{
-  text-align: center;
-  color: white;
-  background: silver;
-  padding: 15px;
-  font-size: 20px;
-
-  &.notice{
-    background: #62C513;
-  }
-  &.error{
-    background: #C51313;
+.flash_container{
+  position: absolute;
+  width: 100%;
+  top: 40%;
+  z-index: 200;
+  .flash{
+    text-align: center;
+    color: white;
+    background: rgba(0, 0, 0, .7);
+    padding: 15px 0;
+    font-size: 20px;
+    &:hover{
+      background: rgba(0, 0, 0, 0.8);
+      cursor: pointer;
+    }
+    &.notice{
+      color: #62C513;
+    }
+    &.error{
+      color: red;
+    }
   }
 }
 
@@ -36,8 +45,38 @@ header{
 
 /*STYLE*/
 h1{
-  font-size: 30px;
+  font-size: 25px;
+  padding-bottom: 5px;
+  width: 250px;
+  margin: 0 auto;
+  border-bottom: 1px solid grey;
 }
+input[type='text'], input[type='password'], textarea{
+  outline: none;
+  background: white;
+  border: 1px solid silver;
+  padding: 3px 6px;
+  &:focus{
+    background: #f9f9f9;
+    border-color: grey;
+  }
+}
+form{
+  margin-top: 15px;
+  p{
+    text-align: right;
+    width: 250px;
+    margin: 0 auto;
+    label{
+      width: 120px;
+      text-align: right;
+      margin-right: 10px;
+    }
+  }
+
+}
+
+
 .buttoned {
   text-decoration: none;
   color: white;
@@ -81,10 +120,22 @@ h1{
 
 /*GAME*/
 
+canvas#game_board{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+
+}
+
 table#game_chat {
   width: 300px;
-  float: right;
-  margin: 5px;
+  position: absolute;
+  right: 10px;
+  top: 50px;
+  z-index: 100;
 
     thead {
       th {

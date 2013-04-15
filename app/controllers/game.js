@@ -87,8 +87,8 @@ exports.signup_post = function(req, res, next) {
               if (err){
                 Object.keys(err.errors).forEach(function(key){
                   res.locals.flash['error ' + key] = err.errors[key].type;
-                  render();
                 });
+                render();
               }else{
                 req.flash('notice', "Signup Successful! Please login now.");
                 res.redirect('game/login');
