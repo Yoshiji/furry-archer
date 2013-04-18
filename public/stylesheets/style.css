@@ -154,28 +154,10 @@ canvas#game_board {
   height: 100%;
   z-index: 10;
 }
-table#game_chat {
+div#game_chat {
   width: 300px;
   position: absolute;
   right: 10px;
   top: 50px;
   z-index: 100;
-}
-table#game_chat thead th {
-  font-size: 17px;
-  font-weight: bold;
-  text-align: center;
-  border: 1px solid silver;
-  padding: 5px;
-}
-table#game_chat tbody tr td {
-  border: 1px solid silver;
-  padding: 5px;
-}
-table#game_chat tbody tr td.author {
-  width: 30%;
-  font-weight: bold;
-}
-table#game_chat tbody tr td.message {
-  width: 70%;
 }

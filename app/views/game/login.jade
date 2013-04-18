@@ -1,15 +1,15 @@
 extend ../layout/game
 
 block main
-    h1 Please login
-    form(method="post", enctype='multipart/form-data')
-      p
-        label(for='username') Username
-        input(type='text', id='username', name='username')
-      p
-        label(for='password') Password
-        input(type='password', id='password', name='password')
-      p
-        input(type='submit', class='buttoned')
-      p.switch
-        a(href="/game/signup") Want to Signup?
+  h1 Please login
+  form(method="post", enctype='multipart/form-data')
+    p
+      label(for='username') Username
+      input(type='text', id='username', name='username')
+    p
+      label(for='password') Password
+      input(type='password', id='password', name='password')
+    p
+      input(type='submit', class='buttoned')
+    p.switch
+      a(href="/game/signup") Want to Signup?

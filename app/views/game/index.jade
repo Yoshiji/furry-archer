@@ -22,35 +22,26 @@ html(lang='en')
     // Game board
     canvas#game_board
 
-    table#game_chat
-      thead
-        tr
-          th(colspan=2) Online chat - 
-            - if (locals.user)
-                = locals.user.username + " "
-                a.logout.buttoned(href="/game/logout") logout
-        tr
-          th Author
-          th message
-      tbody
-        tr#message_template.hidden
-          td.author
-          td.message    
-        tr#new_message
-          td.author
-            input(type='text', value='Bob', name='author', id='author')
-          td.message
-            input(type='text', value='message de bob', name='message', id='message')
-            input(type='button', value='Send', id='submit')
+    div#game_chat
+      p#header Online chat - 
+        - if (locals.user)
+            = locals.user.username + " "
+            a.logout.buttoned(href="/game/logout") logout
+      div#conversation
+        p#message_template.hidden
+          span.author
+          span  - 
+          span.message 
+      p#new_message
+        span.author
+          input(type='text', value='Bob', name='author', id='author')
+        span.message
+          input(type='text', value='message de bob', name='message', id='message')
+          input(type='button', value='Send', id='submit')
 
     
     script(type='text/javascript')
-    
-      var socket = io.connect('http://localhost:3000');
-      
-      socket.on("connection",function(data){
-        console.log('Connected to the server through Socket.io!');
-      });
+
 
     script(type='text/javascript', src='/javascripts/game_logic.js')
     script(type='text/javascript', src='/javascripts/game_chat.js')
