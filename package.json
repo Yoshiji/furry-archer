@@ -14,6 +14,8 @@
     "connect-flash": "latest",
     "mongodb": "latest",
     "socket.io": "*",
+    "session.socket.io": "*",
+    "connect": "2.7.1",
     "bcrypt": "latest"
   }
 }

@@ -12,7 +12,6 @@ module.exports = function(onoff) {
 
   enabled = (onoff == 'on') ? true : false;
 
-  console.log("chat");
   return function(req, res, next) {
     if(req.session.flash){
       res.locals.flash = req.session.flash;
@@ -26,6 +25,5 @@ module.exports = function(onoff) {
     }else{
       next();
     }
-    
   }
 };

@@ -1,4 +1,4 @@
-module.exports = function (app, config, mongoose, express) {
+module.exports = function (app, config, mongoose, express, session_store) {
 
   // Express configuration file
   var flash = require('connect-flash')
@@ -6,16 +6,13 @@ module.exports = function (app, config, mongoose, express) {
     , lessMiddleware = require('less-middleware')
     , authorization = require('./middlewares/authorization.js');
 
-
-
   // Database
   mongoose.connect('mongodb://localhost/furry_archer');
 
   var db = mongoose.connection;
   db.on('error', console.error.bind(console, 'connection error:'));
 
-
-    app.configure(function(){
+  app.configure(function(){
 
     app.set('port', process.env.PORT || 3000);
     app.set('views', config.root_path + '/app/views');
@@ -23,8 +20,14 @@ module.exports = function (app, config, mongoose, express) {
     app.set('mongoose', mongoose);
     app.use(express.favicon());
     app.use(express.logger('dev'));
-    app.use(express.cookieParser('your secret here'));
-    app.use(express.session());
+    app.use(express.cookieParser('lapin'));
+    app.use(express.session({
+      store: session_store,
+      secret: 'lapin',
+      key: 'connect.sid',
+      httpOnly: false,
+      cookie: { httpOnly: false, maxAge: 60000 }
+    }));
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(flash());
@@ -45,6 +48,4 @@ module.exports = function (app, config, mongoose, express) {
   app.configure('development', function(){
     app.use(express.errorHandler());
   });
-
-
 }

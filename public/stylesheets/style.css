@@ -145,7 +145,7 @@ form p label {
   text-align: left;
 }
 /*TWEAKS*/
-/*GAME*/
+/* GAME */
 canvas#game_board {
   position: absolute;
   top: 0;
@@ -154,10 +154,36 @@ canvas#game_board {
   height: 100%;
   z-index: 10;
 }
-div#game_chat {
+/* CHAT */
+table#game_chat {
   width: 300px;
   position: absolute;
   right: 10px;
   top: 50px;
   z-index: 100;
+}
+table#game_chat thead#header {
+  height: 20px;
+}
+table#game_chat tbody#conversation {
+  overflow-y: scroll;
+  display: block;
+  height: 300px;
+  min-height: 300px;
+  border: 1px solid gray;
+}
+table#game_chat tbody#conversation tr td {
+  padding: 3px;
+}
+table#game_chat tbody#conversation tr td.author {
+  width: 80px;
+  font-weight: bold;
+  border-right: 1px solid gray;
+}
+table#game_chat tbody#conversation tr td.message {
+  width: 220px;
+  color: blue;
+}
+table#game_chat tfoot#message_form tr#new_message input#message {
+  width: 76%;
 }

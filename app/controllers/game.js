@@ -17,13 +17,10 @@ exports.login = function(req, res, next) {
 exports.login_post = function(req, res, next) {
   //req.session.user['id'] = 1
 
-  // est-il loggé ?
   if(req.session.user){
     res.redirect('game');
-
-  // non ?
-  }else{
-
+    
+  } else {
     User = mongoose.model('User');
     // mais il veut se logguer avec un bon password ? ok on le loggue ...
     User.findOne({username: req.param('username').trim().toLowerCase()}, function (err, user) {
@@ -31,7 +28,7 @@ exports.login_post = function(req, res, next) {
         console.log(err);
       }
       if(user && bcrypt.compareSync(req.param('password'), user.password)){
-        req.session.user = {}
+        req.session.user = {};
         req.session.user = user;
         req.flash('notice', "You're logged Bitch!");
         res.redirect('game');

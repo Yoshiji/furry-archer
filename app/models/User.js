@@ -5,7 +5,7 @@ module.exports = function (mongoose) {
       username: String,
       email: String,
       password: String
-  })
+  });
 
 
   function validateUsername (username) {

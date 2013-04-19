@@ -1,20 +1,20 @@
 GameView = (function() {
   
-  function GameView() {}
-
-  GameView.prototype.init = function() {
+  function GameView() {
+    // This constructor is called when we make an instance of GameLogic, 
+    // which is called on the DOM ready (all HTML elements will be fully loaded)
     this.game_board = $('#game_board');
-    this.game_chat = new GameChat();
-    this.draw_tiles();
-  };
+    this.socket = null;
+  }
 
-  GameView.prototype.reset = function() {
-  };
+  GameView.prototype.init = function(socket) {
+    // This is called when the socket is connected
+    this.socket = socket;
+  }
 
-  GameView.prototype.draw_tiles = function() {
-    this.game_chat.write_message('System', 'Drawing tiles !');
-  };
 
+
+  GameView.prototype.reset = function() {  }
 
   return GameView;
 })();

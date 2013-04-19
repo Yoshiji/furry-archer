@@ -118,7 +118,7 @@ form{
 
 
 
-/*GAME*/
+/* GAME */
 
 canvas#game_board{
   position: absolute;
@@ -130,12 +130,39 @@ canvas#game_board{
 
 }
 
-div#game_chat {
+/* CHAT */
+
+table#game_chat {
   width: 300px;
   position: absolute;
   right: 10px;
   top: 50px;
   z-index: 100;
 
-  
+  thead#header {
+    height: 20px;
+  }
+
+  tbody#conversation {
+    overflow-y: scroll;
+    display:block;
+    height: 300px;
+    min-height: 300px;
+    border: 1px solid gray;
+
+    tr {
+      td {
+        padding: 3px;
+
+        &.author{ width: 80px; font-weight: bold; border-right: 1px solid gray; }
+        &.message{ width: 220px; color: blue; }
+      }
+    }
+  }
+
+  tfoot#message_form {
+    tr#new_message {
+      input#message { width: 76%; }
+    }
+  }
 }

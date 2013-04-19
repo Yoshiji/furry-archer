@@ -14,35 +14,40 @@ html(lang='en')
 
 
   body
-    // flash messages
+    // Flash messages
     - if (locals.flash)
       .flash_container
         each message, type in locals.flash
           .flash(class=type)= message
+
+
     // Game board
     canvas#game_board
 
-    div#game_chat
-      p#header Online chat - 
-        - if (locals.user)
-            = locals.user.username + " "
-            a.logout.buttoned(href="/game/logout") logout
-      div#conversation
-        p#message_template.hidden
-          span.author
-          span  - 
-          span.message 
-      p#new_message
-        span.author
-          input(type='text', value='Bob', name='author', id='author')
-        span.message
-          input(type='text', value='message de bob', name='message', id='message')
-          input(type='button', value='Send', id='submit')
-
-    
-    script(type='text/javascript')
+    a.logout.buttoned(href="/game/logout") logout
 
 
+    // Game chat
+    form#game_chat_form
+      table#game_chat
+        thead#header
+          tr
+            th(colspan='2') Online chat - #{locals.user.username}
+                
+        tbody#conversation
+          tr#message_template.hidden
+            td.author
+            td.message
+
+        tfoot#message_form
+          tr#new_message
+            td(colspan='2')
+              input(type='text', value='message de bob', name='message', id='message')
+              &nbsp;&nbsp;
+              input(type='submit', value='Send')
+
+
+    // JavaScript to load
     script(type='text/javascript', src='/javascripts/game_logic.js')
     script(type='text/javascript', src='/javascripts/game_chat.js')
     script(type='text/javascript', src='/javascripts/game_view.js')
