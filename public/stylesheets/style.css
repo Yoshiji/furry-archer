@@ -56,15 +56,18 @@ textarea:focus {
   background: #f9f9f9;
   border-color: grey;
 }
-form {
+form#signup,
+form#login {
   margin-top: 15px;
 }
-form p {
+form#signup p,
+form#login p {
   text-align: right;
   width: 250px;
   margin: 0 auto;
 }
-form p label {
+form#signup p label,
+form#login p label {
   width: 120px;
   text-align: right;
   margin-right: 10px;
@@ -155,35 +158,62 @@ canvas#game_board {
   z-index: 10;
 }
 /* CHAT */
-table#game_chat {
-  width: 300px;
+#game_chat {
+  width: 200px;
+  height: 50%;
   position: absolute;
-  right: 10px;
-  top: 50px;
+  right: 0;
+  top: 0;
   z-index: 100;
+  min-height: 150px;
 }
-table#game_chat thead#header {
-  height: 20px;
+#game_chat #header {
+  padding: 5px 0;
+  text-align: center;
+  color: white;
+  background-color: #222;
 }
-table#game_chat tbody#conversation {
-  overflow-y: scroll;
+#game_chat #conversation {
+  position: absolute;
+  bottom: 20px;
+  top: 24px;
+  width: 100%;
+  overflow-y: auto;
   display: block;
-  height: 300px;
-  min-height: 300px;
-  border: 1px solid gray;
+  background: #f7f7f7;
 }
-table#game_chat tbody#conversation tr td {
-  padding: 3px;
+#game_chat #conversation p {
+  padding: 5px 10px;
+  word-wrap: break-word;
 }
-table#game_chat tbody#conversation tr td.author {
-  width: 80px;
+#game_chat #conversation p span {
+  display: block;
+}
+#game_chat #conversation p span.author {
   font-weight: bold;
-  border-right: 1px solid gray;
+  color: #222;
+  font-size: 13px;
 }
-table#game_chat tbody#conversation tr td.message {
-  width: 220px;
-  color: blue;
+#game_chat #conversation p span.message {
+  color: #333;
+  font-size: 11px;
+  padding-left: 15px;
 }
-table#game_chat tfoot#message_form tr#new_message input#message {
-  width: 76%;
+#game_chat p#new_message {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 1px;
+  right: 0;
+}
+#game_chat p#new_message input#message {
+  width: 100%;
+  border: none;
+  border-top: 1px solid gray;
+  width: 188px;
+  background: #f7f7f7;
+  margin: 0;
+}
+#game_chat p#new_message input#message:focus {
+  background: #e1e1e1;
 }
