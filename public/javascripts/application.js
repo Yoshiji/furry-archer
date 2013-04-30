@@ -21,6 +21,7 @@ function init_game() {
   game_logic.init();
 }
 
+
 function handle_flash_messages() {
   //remove flash messages after an amount of time
   $(".flash").delay(2000).fadeOut(1000, "easeInExpo");
@@ -28,6 +29,7 @@ function handle_flash_messages() {
     $(this).stop(true, true).fadeOut(300, "easeInExpo");
   });
 }
+
 
 function resizedw(){
   sheetengine.canvas.width = sheetengine.canvas.clientWidth;
