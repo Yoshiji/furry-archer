@@ -28,3 +28,17 @@ function handle_flash_messages() {
     $(this).stop(true, true).fadeOut(300, "easeInExpo");
   });
 }
+
+function resizedw(){
+  sheetengine.canvas.width = sheetengine.canvas.clientWidth;
+  sheetengine.canvas.height = sheetengine.canvas.clientHeight;
+
+  sheetengine.calc.calculateAllSheets();
+  sheetengine.drawing.drawScene(true);
+}
+
+var doit;
+$(window).resize(function(){
+  clearTimeout(doit);
+  doit = setTimeout(resizedw, 300);
+});
