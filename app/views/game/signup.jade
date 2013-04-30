@@ -2,7 +2,7 @@ extend ../layout/game
 
 block main
   h1 Sign Up Now!
-  form(method="post", enctype='multipart/form-data')
+  form#signup(method="post", enctype='multipart/form-data')
     p
       label(for='username') Username
       input(type='text', id='username', name='username')

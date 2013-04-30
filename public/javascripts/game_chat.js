@@ -35,7 +35,7 @@ GameChat = (function() {
 
   GameChat.prototype.write_message = function(author, message) {
   	var new_message = this.message_template.clone();
-  	$('.author', new_message).text(author);
+  	$('.author', new_message).text(author + " says:");
   	$('.message', new_message).text(message);
   	$(new_message).removeClass('hidden');
   	$(new_message).addClass('message');

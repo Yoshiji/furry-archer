@@ -24,27 +24,24 @@ html(lang='en')
     // Game board
     canvas#game_board
 
-    a.logout.buttoned(href="/game/logout") logout
+    
 
 
     // Game chat
     form#game_chat_form
-      table#game_chat
-        thead#header
-          tr
-            th(colspan='2') Online chat - #{locals.user.username}
+      div#game_chat
+        p#header #{locals.user.username} - Online Chat - 
+          a.logout.buttoned(href="/game/logout") logout
                 
-        tbody#conversation
-          tr#message_template.hidden
-            td.author
-            td.message
+        div#conversation
+          p#message_template.hidden
+            span.author
+            span.message
 
-        tfoot#message_form
-          tr#new_message
-            td(colspan='2')
-              input(type='text', value='message de bob', name='message', id='message')
-              &nbsp;&nbsp;
-              input(type='submit', value='Send')
+
+        p#new_message
+          input(type='text', value='message de bob', name='message', id='message')
+          //input(type='submit', value='Send')
 
 
     // JavaScript to load

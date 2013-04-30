@@ -61,7 +61,7 @@ input[type='text'], input[type='password'], textarea{
     border-color: grey;
   }
 }
-form{
+form#signup, form#login{
   margin-top: 15px;
   p{
     text-align: right;
@@ -132,39 +132,59 @@ canvas#game_board{
 
 /* CHAT */
 
-table#game_chat {
-  width: 300px;
+#game_chat {
+  width: 200px;
+  height: 50%;
   position: absolute;
-  right: 10px;
-  top: 50px;
+  right: 0;
+  top: 0;
   z-index: 100;
+  min-height: 150px;
 
-  thead#header {
-    height: 20px;
-    th { background-color: white; }
+  #header {
+    padding: 5px 0;
+    text-align: center;
+    color: white;
+    background-color: #222;
   }
 
-  tbody#conversation {
-    overflow-y: scroll;
+  #conversation {
+    position: absolute;
+    bottom: 20px;
+    top: 24px;
+    width: 100%;
+    overflow-y: auto;
     display:block;
-    height: 300px;
-    min-height: 300px;
-    border: 1px solid gray;
-    background-color: white;
+    background: #f7f7f7;
 
-    tr {
-      td {
-        padding: 3px;
+    p {
+      padding: 5px 10px;
+      word-wrap: break-word;
+      span {
+        display: block;
 
-        &.author{ width: 80px; font-weight: bold; border-right: 1px solid gray; }
-        &.message{ width: 220px; color: blue; }
+        &.author{font-weight: bold; color: #222; font-size: 13px;}
+        &.message{color: #333; font-size: 11px; padding-left: 15px;}
       }
     }
   }
 
-  tfoot#message_form {
-    tr#new_message {
-      input#message { width: 76%; }
+  p#new_message {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 1px;
+    right: 0;
+    input#message { 
+      width: 100%;
+      border: none;
+      border-top: 1px solid gray;
+      width: 188px;
+      background: #f7f7f7;
+      margin: 0;
+      &:focus{
+        background: #e1e1e1;
+      }
     }
   }
 }
