@@ -4,15 +4,20 @@ $(document).ready(function() {
 
   handle_flash_messages();
   init_game();
-  
+
 });
 
 // Implicit instanciation of GameChat and GameView
 // in the GameLogic constructor
 var game_logic = new GameLogic();
-
+SCREEN_SIZE = {};
 // Should be called only when the DOM is ready
 function init_game() {
+  SCREEN_SIZE = {
+    height: $("#game_board").height(),
+    width: $("#game_board").width()
+  }
+  
   game_logic.init();
 }
 

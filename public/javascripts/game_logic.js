@@ -1,16 +1,17 @@
 GameLogic = (function() {
 
   function GameLogic() {
-  	// This constructor is called before the DOM is ready 
-		// we call game_logic.init() when DOM is ready
+  	// This constructor is called BEfORE the DOM is ready 
     this.my_socket_id = 0;
     this.player_list = [];
-    this.game_view = new GameView();
-    this.game_chat = new GameChat();
+    
   }
 
   GameLogic.prototype.init = function() {
-  	this.connect();
+    // we call game_logic.init() when DOM is ready
+    this.game_view = new GameView();
+    this.game_chat = new GameChat();
+    this.connect();
   }
 
   GameLogic.prototype.connect = function() {

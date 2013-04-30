@@ -165,12 +165,16 @@ table#game_chat {
 table#game_chat thead#header {
   height: 20px;
 }
+table#game_chat thead#header th {
+  background-color: white;
+}
 table#game_chat tbody#conversation {
   overflow-y: scroll;
   display: block;
   height: 300px;
   min-height: 300px;
   border: 1px solid gray;
+  background-color: white;
 }
 table#game_chat tbody#conversation tr td {
   padding: 3px;

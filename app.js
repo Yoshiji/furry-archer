@@ -91,6 +91,7 @@ PlayerList = (function() {
     this.list = [];
     for (var i = 0, len = io.sockets.clients().length; i < len; i++) {
       var client = io.sockets.clients()[i];
+      if(client.session.user == undefined){ client.session.user = {username: 'Toby', id: '0' }}
       var player = {
         'socketID': client.id,
         'username': client.session.user.username,
