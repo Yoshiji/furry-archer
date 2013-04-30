@@ -1,11 +1,15 @@
 Map = (function(){
 
 	function Map() {
-		var canvasElement = document.getElementById('game_board');
+    var canvasElement = document.getElementById('game_board');
+    // Constants for the game_view
+    BACKGROUND_BUFFER_SIZE = { w: 2000, h: 2000 };
+    TILE_WIDTH = 100;
+    this.tiles = [];
 
     // Scene
-		sheetengine.scene.init(canvasElement, {w: 2000, h: 2000});
-    sheetengine.scene.tilewidth = 50; // Usefull ? Does not seem to affect anything
+    sheetengine.scene.init(canvasElement, BACKGROUND_BUFFER_SIZE);
+    sheetengine.scene.tilewidth = TILE_WIDTH; // Usefull ? Does not seem to affect anything
     sheetengine.scene.setCenter({x: 0, y: 0, z: 0});
 
     // Canvas
@@ -13,16 +17,18 @@ Map = (function(){
     sheetengine.canvas.height = sheetengine.canvas.clientHeight;
 
     // Context
-		var zoom = 1;
-		sheetengine.context.scale(zoom,zoom);
-		sheetengine.context.translate(-sheetengine.canvas.clientWidth/(2*zoom)*(zoom-1),-sheetengine.canvas.clientHeight/(2*zoom)*(zoom-1));
+    var zoom = 1;
+    sheetengine.context.scale(zoom,zoom);
+    sheetengine.context.translate(-sheetengine.canvas.clientWidth/(2*zoom)*(zoom-1),-sheetengine.canvas.clientHeight/(2*zoom)*(zoom-1));
 
-    // Tiles
-		this.tiles = [];
-    for (var x=-10; x<=10; x++) {
-      for (var y=-10; y<=10; y++) {
-      	var tile = new Tile(x, y);
-      	this.tiles.push(tile);
+    // Tiles generation
+    var a = BACKGROUND_BUFFER_SIZE.w / TILE_WIDTH;
+    a = Math.round( a / 2 );
+    for (var x=-a; x<=a; x++) {
+      for (var y=-a; y<=a; y++) {
+        var tile = new Tile(x*TILE_WIDTH, y*TILE_WIDTH, TILE_WIDTH);
+        this.tiles[x] = this.tiles[x] || [];
+        this.tiles[x][y] = tile;
       }
     }
 
@@ -34,6 +40,7 @@ Map = (function(){
 	Map.prototype.init = function() {
 
 	}
+
 
 	return Map;
 })();

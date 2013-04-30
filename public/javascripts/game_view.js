@@ -3,7 +3,6 @@ GameView = (function() {
   function GameView() {
     // This constructor is called when we call init() of GameLogic, 
     // which is called on the DOM ready (all HTML elements will be fully loaded)
-    this.game_board = $('#game_board');
     this.socket = null;
     this.map = new Map();
   }
