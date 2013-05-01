@@ -4,7 +4,7 @@ Map = (function(){
     var canvasElement = document.getElementById('game_board');
     // Constants for the game_view
     BACKGROUND_BUFFER_SIZE = { w: 2000, h: 2000 };
-    TILE_WIDTH = 100;
+    TILE_WIDTH = 80;
     this.tiles = [];
 
     // Scene
@@ -15,11 +15,6 @@ Map = (function(){
     // Canvas
     sheetengine.canvas.width = sheetengine.canvas.clientWidth;
     sheetengine.canvas.height = sheetengine.canvas.clientHeight;
-
-    // Context
-    var zoom = 1;
-    sheetengine.context.scale(zoom,zoom);
-    sheetengine.context.translate(-sheetengine.canvas.clientWidth/(2*zoom)*(zoom-1),-sheetengine.canvas.clientHeight/(2*zoom)*(zoom-1));
 
     // Tiles generation
     var a = BACKGROUND_BUFFER_SIZE.w / TILE_WIDTH;
