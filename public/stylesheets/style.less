@@ -1,5 +1,9 @@
-body {
+body, html {
   font: 12px Arial, Helvetica, sans-serif;
+  height: 100%;
+  position: relative
+  width: 100%;
+  overflow: hidden;
 }
 
 a {
@@ -128,6 +132,24 @@ canvas#game_board{
   height: 100%;
   z-index: 10;
 
+}
+
+div#game_hidder{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  background: #000;
+  display:none;
+  p.message{
+    position: relative;
+    font-size: 18px;
+    text-align: center;
+    color: #FFF;
+    top: 40%;
+  }
 }
 
 /* CHAT */
