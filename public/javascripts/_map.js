@@ -1,6 +1,20 @@
 Map = (function(){
 
 	function Map() {
+    Crafty.init();
+    Crafty.canvas.init();
+    var iso = Crafty.diamondIso.init(64,128,40,20);
+    for(var i = 0; i < 10; i++) {
+      for(var j = 0; j < 10; j++) {
+        var myEnt = Crafty.e("2D, Canvas, Tile, Color").color("green").attr({w: 64, h: 64});
+        iso.place(myEnt, i, j);
+      }
+    }
+	}
+
+
+
+  Map.prototype.only_for_sheetengine = function() {
     var canvasElement = document.getElementById('game_board');
     // Constants for the game_view
     BACKGROUND_BUFFER_SIZE = { w: 2000, h: 2000 };
@@ -35,7 +49,7 @@ Map = (function(){
     // Calculate & Render
     sheetengine.calc.calculateAllSheets();
     sheetengine.drawing.drawScene(true);
-	}
+  }
 
 	Map.prototype.init = function() {
 
