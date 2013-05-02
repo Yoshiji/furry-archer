@@ -3,10 +3,15 @@ Map = (function(){
 	function Map() {
     Crafty.init();
     Crafty.canvas.init();
-    var iso = Crafty.diamondIso.init(64,128,40,20);
+    var iso = Crafty.diamondIso.init(128,64,10,10);
+    iso.centerAt(5,5);
+    Crafty.sprite(64, "images/grasstile.png", {
+        grass: [0,0,2,1]
+    });
     for(var i = 0; i < 10; i++) {
       for(var j = 0; j < 10; j++) {
-        var myEnt = Crafty.e("2D, Canvas, Tile, Color").color("green").attr({w: 64, h: 64});
+        var myEnt = Crafty.e("2D, Canvas, grass");
+
         iso.place(myEnt, i, j);
       }
     }
