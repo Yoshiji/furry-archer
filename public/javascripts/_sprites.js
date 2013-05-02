@@ -3,6 +3,12 @@ Crafty.sprite(64, "images/grasstile.png", {
 });
 
 Crafty.sprite(8, "images/players.png", {
-	player1: [6,8,3,4],
-	player2: [12,16,3,4]
-})
+	player1: [3, 8,3,4],
+	player2: [12,8,3,4],
+	player3: [21,8,3,4],
+	player4: [30,8,3,4],
+	player5: [3, 24,3,4],
+	player6: [12,24,3,4],
+	player7: [21,24,3,4],
+	player8: [30,24,3,4]
+});
