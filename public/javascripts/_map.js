@@ -5,17 +5,23 @@ Map = (function(){
     Crafty.canvas.init();
     
     Crafty.viewport.init();
-    Crafty.viewport.mouselook(true);
+    Crafty.viewport.mouselook(false);
 
     var iso = Crafty.diamondIso.init(128,64,10,10);
-
-    
+    iso.centerAt(0,0);
 
     for(var i = 0; i < 10; i++) {
       for(var j = 0; j < 10; j++) {
         var tile = Crafty.e("Tile");
-        iso.place(tile, i, j);
+        iso.place(tile, i, j, 0);
       }
+    }
+    
+    iso.place(Crafty.e('Player, player1'), 0, 0, 2);
+
+    for(var i = 1; i < 5; i++) {
+      iso.place(Crafty.e('Player, player2'), 0, i, 2);
+      iso.place(Crafty.e('Player, player1'), i, 0, 2);
     }
 	}
 

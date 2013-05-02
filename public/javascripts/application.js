@@ -25,31 +25,6 @@ function handle_flash_messages() {
 }
 
 
-function resizedw(){
-  $("div#game_hidder").fadeIn(200);
-  var time = setTimeout(function(){
-    sheetengine.canvas.width = sheetengine.canvas.clientWidth;
-    sheetengine.canvas.height = sheetengine.canvas.clientHeight;
-    sheetengine.calc.calculateAllSheets();
-    sheetengine.drawing.drawScene(true);
-    $("div#game_hidder").delay(30).fadeOut(400);
-    faddedIn = false;
-  }, 210);
-
-}
-
-var doit;
-var faddedIn = false
-$(window).resize(function(){
-  if(!faddedIn){
-    $("div#game_hidder").stop(true, true).fadeIn(200);
-    faddedIn = true;
-  }
-  clearTimeout(doit);
-  doit = setTimeout(resizedw, 300);
-});
-
-
 var lastScrollTop = 0;
 var zoom = 1;
 $(window).scroll(function(event){
