@@ -80,11 +80,15 @@ Crafty.extend({
                 marginX = obj.__margin[0];
                 marginY = obj.__margin[1];
             }
-          
-            obj.x = pos.left+(marginX);
-            obj.y = (pos.top+marginY)-obj.h;
+            if(obj.__c.Tile) {
+              obj.x = pos.left+(marginX);
+              obj.y = (pos.top+marginY)-obj.h;
+            } else {
+              obj.x = pos.left+(marginX) + this._tile.width/4 + 3;
+              obj.y = (pos.top+marginY)-obj.h - this._tile.height/4;
+            }
+            
             obj.z = (pos.top)*layer;
-           
             
         },
         centerAt:function(x,y){
