@@ -1,12 +1,12 @@
-Crafty.sprite(64, "images/grasstile.png", {
+Crafty.sprite(64, 64, "images/grasstile.png", {
 	grass: [0,0,2,1]
 });
 
-Crafty.sprite(32, "images/smallgrass.png", {
+Crafty.sprite(32, 32, "images/smallgrass.png", {
 	smallgrass: [0,0,2,1]
 });
 
-Crafty.sprite(8, "images/players.png", {
+Crafty.sprite(8, 8, "images/players.png", {
 	player1: [3, 8,3,4],
 	player2: [12,8,3,4],
 	player3: [21,8,3,4],

@@ -30,7 +30,7 @@ Map = (function(){
           
         }
       }
-      iso.place(Crafty.e('Player, player2'), 0, 0, 2);
+      iso.place(Crafty.e('Player'), 0, 0, 2);
     });
 
     Crafty.scene("loading");   

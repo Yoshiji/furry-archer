@@ -4476,7 +4476,6 @@ Crafty.extend({
             y = temp[1] * (tileh + paddingY);
             w = temp[2] * tile || tile;
             h = temp[3] * tileh || tileh;
-
             //generates sprite components for each tile in the map
             Crafty.c(spriteName, {
                 ready: false,
@@ -6972,7 +6971,6 @@ Crafty.c("SpriteAnimation", {
 	*/
 	animate: function (reelId, fromx, y, tox) {
 		var reel, i, tile, tileh, duration, pos;
-
 		//play a reel
 		//.animate('PlayerRunning', 15, -1) // start animation
 		if (arguments.length < 4 && typeof fromx === "number") {
@@ -6980,7 +6978,6 @@ Crafty.c("SpriteAnimation", {
 
 			//make sure not currently animating
 			this._currentReelId = reelId;
-
 			currentReel = this._reels[reelId];
 
 			this._frame = {
@@ -7006,9 +7003,14 @@ Crafty.c("SpriteAnimation", {
 		// .animate('PlayerRunning', 0, 0, 3) //setup animation
 		if (typeof fromx === "number") {
 			// Defind in Sprite component.
-			tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
-			tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
-
+      if(this.__padding) {
+        tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
+        tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
+      } else {
+        tile = this.__tile + parseInt(0, 10);
+        tileh = this.__tileh + parseInt(0, 10);
+      }
+			
 			reel = [];
 			i = fromx;
 			if (tox > fromx) {
@@ -7027,9 +7029,14 @@ Crafty.c("SpriteAnimation", {
 			i = 0;
 			reel = [];
 			tox = fromx.length - 1;
-			tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
-			tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
-
+      if(this.__padding) {
+        tile = this.__tile + parseInt(this.__padding[0] || 0, 10);
+        tileh = this.__tileh + parseInt(this.__padding[1] || 0, 10);
+      } else {
+        tile = this.__tile;
+        tileh = this.__tileh;
+      }
+      
 			for (; i <= tox; i++) {
 				pos = fromx[i];
 				reel.push([pos[0] * tile, pos[1] * tileh]);
