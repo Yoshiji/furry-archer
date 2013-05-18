@@ -1,4 +1,3 @@
-
 var express = require('express')
   , http = require('http')
   , fs = require('fs')
@@ -31,24 +30,24 @@ var io = socket_io.listen(server);
 // Map generation
 // TODO move this code somewhere else
 Tile = mongoose.model('Tile');
+var types = ["grass", "water"]
 Tile.find(function (err, tiles) {
 
   console.log("Tiles in Database: " + tiles.length);
-
   if (tiles.length < 1){
     for(var i = 0; i < 20; i++) {
       for(var j = 0; j < 20; j++) {
+        var random = Math.floor((Math.random()*types.length));
         Tile.create({ 
           x: i,
           y: j,
-          type: "grass"
+          type: types[random]
         }, function (err, user) {
           if (err){
             console.log(err);
-          }else{
-            console.log("Tile created x: " + i + " y: " + j );
           }
         });
+        console.log("Tile created x: " + i + " y: " + j + " type: " + random);
       }
     }
   }

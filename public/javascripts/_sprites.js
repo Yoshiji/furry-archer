@@ -1,5 +1,6 @@
 Crafty.sprite(128, 128, "images/grasstile.png", {
-	grass: [0,0,2,1]
+	grass: [0,0,2,1],
+	water: [2,0,2,1]
 });
 
 Crafty.sprite(32, 32, "images/smallgrass.png", {
