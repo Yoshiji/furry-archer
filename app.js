@@ -28,6 +28,32 @@ require('./config/routes.js')(app);
 var server = http.createServer(app);
 var io = socket_io.listen(server);
 
+// Map generation
+// TODO move this code somewhere else
+Tile = mongoose.model('Tile');
+Tile.find(function (err, tiles) {
+
+  console.log("Tiles in Database: " + tiles.length);
+
+  if (tiles.length < 1){
+    for(var i = 0; i < 20; i++) {
+      for(var j = 0; j < 20; j++) {
+        Tile.create({ 
+          x: i,
+          y: j,
+          type: "grass"
+        }, function (err, user) {
+          if (err){
+            console.log(err);
+          }else{
+            console.log("Tile created x: " + i + " y: " + j );
+          }
+        });
+      }
+    }
+  }
+});
+// TODO END move this code somewhere else
 
 // Handle the connection and the events
 io.on('connection', function(socket) {
@@ -37,6 +63,19 @@ io.on('connection', function(socket) {
   socket.on('chat_message', function (data) {
     UTILS.Chat.broadcast(socket, data, socket.session.user.username);
   });
+
+  // TODO move this code somewhere else
+  socket.on('tile_request', function (data) {
+    Tile.find({x: data.x, y: data.y}, function (err, tiles) {
+      if (tiles.length > 0){
+        socket.emit('tile', tiles[0]);
+      }else{
+        socket.emit('tile', -1);
+      }
+    });
+  });
+  // TODO END move this code somewhere else
+
 });
 
 // Links the socket with the session

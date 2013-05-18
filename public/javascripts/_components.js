@@ -2,7 +2,7 @@
 Crafty.c("Tile", {
 
   init: function() {
-    this.addComponent("2D, Canvas, grass, Mouse").areaMap([0,16], [32,0], [64,16], [32,16]);
+    this.addComponent("2D, Canvas, Mouse").areaMap([0,16], [32,0], [64,16], [32,16]);
 
     this.bind('Click', function(event) {
     	
