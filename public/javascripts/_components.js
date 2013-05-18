@@ -2,7 +2,7 @@
 Crafty.c("Tile", {
 
   init: function() {
-    this.addComponent("2D, Canvas, smallgrass, Mouse").areaMap([0,16], [32,0], [64,16], [32,16]);
+    this.addComponent("2D, Canvas, grass, Mouse").areaMap([0,16], [32,0], [64,16], [32,16]);
 
     this.bind('Click', function(event) {
     	
@@ -20,7 +20,7 @@ Crafty.c("Player", {
 			.animate('walk_right', [[9,4],[12,4],[15,4]])
 			.animate('walk_up', [[9,0],[12,0],[15,0]])
 			.animate('walk_down', [[9,8],[12,8],[15,8]])
-			.CustomControls(1)
+			.CustomControls(10)
 			.bind("EnterFrame", function(e) {
 		    if (this.__move.left) {
 		      if (!this.isPlaying("walk_left"))

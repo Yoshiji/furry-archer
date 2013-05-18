@@ -1,7 +1,7 @@
 Map = (function(){
 
 	function Map() {
-    Crafty.init();
+    Crafty.init(800,600);
     
 
     Crafty.scene("loading", function() {
@@ -17,10 +17,10 @@ Map = (function(){
     Crafty.scene("main", function() {
       Crafty.canvas.init();
 
-      Crafty.viewport.init();
+      Crafty.viewport.init(800,600);
       Crafty.viewport.mouselook(false);
 
-      iso = Crafty.diamondIso.init(64,32,20,20);
+      iso = Crafty.diamondIso.init(256,128,20,20);
       iso.centerAt(5,5);
 
       for(var i = 0; i < 20; i++) {
@@ -30,7 +30,10 @@ Map = (function(){
           
         }
       }
-      iso.place(Crafty.e('Player'), 0, 0, 2);
+      var player = Crafty.e('Player');
+      iso.place(player, 0, 0, 2);
+      Crafty.viewport.clampToEntities = false;
+      Crafty.viewport.follow(player);
     });
 
     Crafty.scene("loading");   
