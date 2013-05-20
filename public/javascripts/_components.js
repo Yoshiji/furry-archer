@@ -60,7 +60,6 @@ Crafty.c('CustomControls', {
   CustomControls: function(speed) {
     if (speed) this._speed = speed;
     var move = this.__move;
-
     this.bind('EnterFrame', function() {
       if (move.right || move.left || move.up || move.down){
         var from = {x: this.x, y: this.y}
@@ -70,10 +69,11 @@ Crafty.c('CustomControls', {
         else if (move.up) this.y -= this._speed;
         else if (move.down) this.y += this._speed;
 
-        if(this.hit('water')){
-          this.x = from.x;
-          this.y = from.y; 
-        }
+        // if(this.hit('water')){
+        //   this.x = from.x;
+        //   this.y = from.y; 
+        // }
+        console.log(iso.px2pos(this.x, this.y));
       }
     })
     .bind('KeyDown', function(e) {
