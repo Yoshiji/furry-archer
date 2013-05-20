@@ -22,6 +22,10 @@ module.exports.listen = function(app){
 	    });
 	  });
 
+	  socket.on('get_player', function() {
+	  	socket.emit('set_player', {username: socket.session.user.username, _id: socket.session.user._id});
+	  });
+
 	});
 
     return io;

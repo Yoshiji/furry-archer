@@ -5,7 +5,7 @@ GameLogic = (function() {
     this.socket = null;
     this.player_list = [];
     this.game_chat = null;
-    this.map = null;    
+    this.map = null;  
   }
 
   GameLogic.prototype.init = function() {
@@ -26,7 +26,6 @@ GameLogic = (function() {
     var socket = this.socket = io.connect(url);
     this.game_chat.init(socket);
     this.map = new Map(socket);
-    console.log(this.map);
   }
 
   

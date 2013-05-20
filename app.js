@@ -42,14 +42,14 @@ UTILS = {
         if (tiles.length < 1) {
           var map_size = 20;
           var water_tiles = [];
-          var lakes_number = 5 + Math.floor(Math.random()*5);
+          var lakes_number = 8;
 
           for( var k = 0; k < lakes_number; k++ ) {
-            var water_width = Math.floor(Math.random()*2) + 2;
+            var water_width = Math.floor(Math.random()) + 2;
             var offset_x = Math.floor(Math.random()*10)*Math.floor(map_size/10) + 1;
             var offset_y = Math.floor(Math.random()*10)*Math.floor(map_size/10) + 1;
             for( var l = 0; l < water_width; l++ ) {
-              var water_height = Math.floor(Math.random()*2) + 2;
+              var water_height = Math.floor(Math.random()) + 3;
               for( var m = 0; m < water_height; m++) {
                 water_tiles.push({ x: l+offset_x, y: m+offset_y });
               }

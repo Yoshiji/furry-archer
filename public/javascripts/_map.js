@@ -1,11 +1,11 @@
 Map = (function(){
 	function Map(socket) {
     this.tiles = [];
+    this.player = null;
     var self = this;
 
     Crafty.init(800,600);
     
-
     Crafty.scene("loading", function() {
       Crafty.load(["images/grasstile.png", "images/players.png"], function() {
         Crafty.scene("main");
@@ -18,12 +18,10 @@ Map = (function(){
 
     Crafty.scene("main", function() {
       Crafty.canvas.init();
-
       Crafty.viewport.init(800,600);
       Crafty.viewport.mouselook(false);
 
       iso = Crafty.diamondIso.init(256,128,20,20);
-      iso.centerAt(5,5);
 
       // TODO déterminer la zone de tile à demander en fonction de la position du joueur
       for(var i = 0; i < 20; i++) {
@@ -31,11 +29,10 @@ Map = (function(){
           socket.emit('get_tile', {x: i, y: j});
         }
       }
-      // TODO déterminer ou placer le player en fonction du user
-      var player = Crafty.e('Player');
-      iso.place(player, 0, 0, 2);
+
+      socket.emit('get_player');
+
       Crafty.viewport.clampToEntities = false;
-      Crafty.viewport.follow(player);
     });
 
     Crafty.scene("loading");
@@ -43,22 +40,18 @@ Map = (function(){
     // Réception et affichage d'une tile
     socket.on('set_tile', function(data){
       var tile = Crafty.e("Tile").addComponent(data.type);
-      if(data && data.type == "water"){
-        tile.addComponent("Collision").collision(
-          new Crafty.polygon([0,64], [128,0], [256,64], [128,128])
-        );
-      }
       //console.log(data, data.x, data.y);
-      iso.place(tile, data.x, data.y, -1, true);
+      iso.place(tile, data.x, data.y, -1);
       self.tiles.push(tile);
     });
 
+    socket.on('set_player', function(data){
+      var player = this.player = Crafty.e('Player').set_socket(socket).set_attributes(data);
+      iso.place(player, 0, 0, 2);
+      Crafty.viewport.follow(player);
+    });
+
     return this;
-	}
-
-
-	Map.prototype.init = function() {
-
 	}
 
 
