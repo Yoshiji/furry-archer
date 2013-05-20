@@ -20,7 +20,7 @@ GameLogic = (function() {
     if(window.location.href.indexOf('localhost') != -1){
       var url = 'http://localhost';
     } else {
-      var url = 'http://192.168.2.32';
+      var url = 'http://192.168.2.30';
     }
     var socket = this.socket = io.connect(url);
     this.game_chat.init(socket);

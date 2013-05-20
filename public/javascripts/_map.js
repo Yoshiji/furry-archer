@@ -41,6 +41,12 @@ Map = (function(){
     // Réception et affichage d'une tile
     socket.on('tile', function(data){
       var tile = Crafty.e("Tile").addComponent(data.type);
+      if(data && data.type == "water"){
+        tile.addComponent("Collision").collision(
+          new Crafty.polygon([0,64], [128,0], [256,64], [128,128])
+        );
+        console.log("wateeeeeerrrr");
+      }
       console.log(data, data.x, data.y);
       iso.place(tile, data.x, data.y, -1, true);
     });

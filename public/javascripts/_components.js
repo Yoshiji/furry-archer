@@ -15,7 +15,7 @@ Crafty.c("Tile", {
 Crafty.c("Player", {
 
 	init: function() {
-		this.addComponent("2D, Canvas, Mouse, Sprite, SpriteAnimation, Collision, CustomControls, Controls, player2")
+		this.addComponent("2D, Canvas, Mouse, Sprite, SpriteAnimation, Collision, CustomControls, Controls, player2, SolidHitBox")
 			.animate('walk_left', [[9,12],[12,12],[15,12]])
 			.animate('walk_right', [[9,4],[12,4],[15,4]])
 			.animate('walk_up', [[9,0],[12,0],[15,0]])
@@ -43,7 +43,10 @@ Crafty.c("Player", {
 		    this.stop();
 		  })
 		  .bind('Click', function(e){
-			});
+			})
+      .collision(
+        new Crafty.polygon([11,31], [12,31], [12,32], [11,32])
+      );
 			
 		return this;
 	}
@@ -59,10 +62,19 @@ Crafty.c('CustomControls', {
     var move = this.__move;
 
     this.bind('EnterFrame', function() {
-      if (move.right) this.x += this._speed; 
-      else if (move.left) this.x -= this._speed; 
-      else if (move.up) this.y -= this._speed;
-      else if (move.down) this.y += this._speed;
+      if (move.right || move.left || move.up || move.down){
+        var from = {x: this.x, y: this.y}
+
+        if (move.right) this.x += this._speed; 
+        else if (move.left) this.x -= this._speed; 
+        else if (move.up) this.y -= this._speed;
+        else if (move.down) this.y += this._speed;
+
+        if(this.hit('water')){
+          this.x = from.x;
+          this.y = from.y; 
+        }
+      }
     })
     .bind('KeyDown', function(e) {
       move.right = move.left = move.down = move.up = false;
