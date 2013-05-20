@@ -48,7 +48,7 @@ Map = (function(){
           new Crafty.polygon([0,64], [128,0], [256,64], [128,128])
         );
       }
-      console.log(data, data.x, data.y);
+      //console.log(data, data.x, data.y);
       iso.place(tile, data.x, data.y, -1, true);
       self.tiles.push(tile);
     });
