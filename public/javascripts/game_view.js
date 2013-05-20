@@ -10,7 +10,7 @@ GameView = (function() {
   GameView.prototype.init = function(socket) {
     // This is called when the socket is connected
     this.socket = socket;
-    this.map = new Map(this.socket);
+    //this.map = new Map(this.socket);
   }
 
 

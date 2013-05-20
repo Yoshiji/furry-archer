@@ -1,6 +1,8 @@
 Map = (function(){
-
 	function Map(socket) {
+    this.tiles = [];
+    var self = this;
+
     Crafty.init(800,600);
     
 
@@ -26,7 +28,7 @@ Map = (function(){
       // TODO déterminer la zone de tile à demander en fonction de la position du joueur
       for(var i = 0; i < 20; i++) {
         for(var j = 0; j < 20; j++) {
-          socket.emit('tile_request', {x: i, y: j});
+          socket.emit('get_tile', {x: i, y: j});
         }
       }
       // TODO déterminer ou placer le player en fonction du user
@@ -39,11 +41,13 @@ Map = (function(){
     Crafty.scene("loading");
 
     // Réception et affichage d'une tile
-    socket.on('tile', function(data){
+    socket.on('set_tile', function(data){
       var tile = Crafty.e("Tile").addComponent(data.type);
-      console.log(data, data.x, data.y);
       iso.place(tile, data.x, data.y, -1, true);
+      self.tiles.push(tile);
     });
+
+    return this;
 	}
 
 

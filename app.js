@@ -3,97 +3,10 @@ var express = require('express')
   , fs = require('fs')
   , path = require('path')
   , mongoose = require('mongoose')
-  , socket_io = require('socket.io')
   , connect = require('connect')
   , session_store = new express.session.MemoryStore()
   , cookieParser = express.cookieParser('lapin')
   , app = express();
-
-
-// Loads the /config/config.js
-exports = module.exports = config = require('./config/config.js');
-
-// Loads the Models
-fs.readdirSync('./app/models/').forEach(function (file) {
-  var model = require('./app/models/' + file);
-  model(mongoose);
-});
-
-// Loads Express with the /config/express.js and deploys routes with /config/routes.js
-require('./config/express.js')(app, config, mongoose, express, session_store);
-require('./config/routes.js')(app);
-
-// Creates the HTTP server and the Socket.io
-var server = http.createServer(app);
-var io = socket_io.listen(server);
-
-// Map generation
-// TODO move this code somewhere else
-Tile = mongoose.model('Tile');
-var types = ["grass", "water"]
-Tile.find(function (err, tiles) {
-
-  console.log("Tiles in Database: " + tiles.length);
-  if (tiles.length < 1){
-    for(var i = 0; i < 20; i++) {
-      for(var j = 0; j < 20; j++) {
-        var random = Math.floor((Math.random()*types.length));
-        Tile.create({ 
-          x: i,
-          y: j,
-          type: types[random]
-        }, function (err, user) {
-          if (err){
-            console.log(err);
-          }
-        });
-        console.log("Tile created x: " + i + " y: " + j + " type: " + random);
-      }
-    }
-  }
-});
-// TODO END move this code somewhere else
-
-// Handle the connection and the events
-io.on('connection', function(socket) {
-  UTILS.Routines.connection(socket);
-  UTILS.Routines.disconnection(socket);
-  
-  socket.on('chat_message', function (data) {
-    UTILS.Chat.broadcast(socket, data, socket.session.user.username);
-  });
-
-  // TODO move this code somewhere else
-  socket.on('tile_request', function (data) {
-    Tile.find({x: data.x, y: data.y}, function (err, tiles) {
-      if (tiles.length > 0){
-        socket.emit('tile', tiles[0]);
-      }else{
-        socket.emit('tile', -1);
-      }
-    });
-  });
-  // TODO END move this code somewhere else
-
-});
-
-// Links the socket with the session
-io.set('authorization', function(data, accept) {
-  cookieParser(data, {}, function(err) {
-    if (err) {
-      accept(err, false);
-    } else {
-      session_store.get(data.signedCookies['connect.sid'], function(err, session) {
-        if (err || !session) {
-          accept('Session error', false);
-        } else {
-          data.session = session;
-          accept(null, true);
-        }
-      });
-    }
-  });
-});
 
 // Hash of several functions
 UTILS = {
@@ -119,8 +32,90 @@ UTILS = {
         client.broadcast.emit('player_list', player_list.list);
       });
     }
+  },
+  Map: {
+    generate: function() {
+      Tile = mongoose.model('Tile');
+
+
+      Tile.find(function (err, tiles) {
+        if (tiles.length < 1) {
+          var map_size = 20;
+
+          var water_tiles = [];
+          var lakes_number = Math.floor(Math.random()*10) + 1;
+          console.log("LAKES number: " + lakes_number);
+          for( var k = 0; k < lakes_number; k++ ) {
+            var water_width = Math.floor(Math.random()*3) + 1;
+            var offset_x = Math.floor(Math.random()*10)*Math.floor(map_size/10) + 1;
+            var offset_y = Math.floor(Math.random()*10)*Math.floor(map_size/10) + 1;
+
+            for( var l = 0; l < water_width; l++ ) {
+              var water_height = Math.floor(Math.random()*3) + 1;
+              for( var m = 0; m < water_height; m++) {
+                water_tiles.push({ x: l+offset_x, y: m+offset_y, type: 'water' });
+                console.log('water tile x:' + (l+offset_x) + ' y: ' + (m+offset_y));
+              }
+            }
+          }
+          console.log(water_tiles);
+          for(var i = 0; i < map_size; i++) {
+            for(var j = 0; j < map_size; j++) {
+              if(water_tiles.indexOf({x: i, y: i, type: 'water'}) != -1) {
+                type = 'water';
+              } else {
+                type = 'grass';
+              }
+              Tile.create(
+                { x: i, y: j, type: type }
+                , function (err, user) {
+                if(err) { console.log(err); }
+              });
+            }
+          }
+        }
+      });
+    }
   }
 }
+
+// Loads the /config/config.js
+exports = module.exports = config = require('./config/config.js');
+
+// Loads the Models
+fs.readdirSync('./app/models/').forEach(function (file) {
+  var model = require('./app/models/' + file);
+  model(mongoose);
+});
+
+// Loads Express with the /config/express.js and deploys routes with /config/routes.js
+require('./config/express.js')(app, config, mongoose, express, session_store);
+require('./config/routes.js')(app);
+
+// Creates the HTTP server and the Socket.io
+var server = http.createServer(app);
+var io = require('./app/libs/sockets').listen(server);
+
+// Links the socket with the session
+io.set('authorization', function(data, accept) {
+  cookieParser(data, {}, function(err) {
+    if (err) {
+      accept(err, false);
+    } else {
+      session_store.get(data.signedCookies['connect.sid'], function(err, session) {
+        if (err || !session) {
+          accept('Session error', false);
+        } else {
+          data.session = session;
+          accept(null, true);
+        }
+      });
+    }
+  });
+});
+
+UTILS.Map.generate();
+
 
 // Models but not really models, needs to be clarified because not a Mongoose Model, neither a controller ...!
 PlayerList = (function() {
