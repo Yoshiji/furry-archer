@@ -41,36 +41,37 @@ UTILS = {
       Tile.find(function (err, tiles) {
         if (tiles.length < 1) {
           var map_size = 20;
-
           var water_tiles = [];
-          var lakes_number = Math.floor(Math.random()*10) + 1;
-          console.log("LAKES number: " + lakes_number);
+          var lakes_number = 8;
+
           for( var k = 0; k < lakes_number; k++ ) {
-            var water_width = Math.floor(Math.random()*3) + 1;
+            var water_width = Math.floor(Math.random()) + 2;
             var offset_x = Math.floor(Math.random()*10)*Math.floor(map_size/10) + 1;
             var offset_y = Math.floor(Math.random()*10)*Math.floor(map_size/10) + 1;
-
             for( var l = 0; l < water_width; l++ ) {
-              var water_height = Math.floor(Math.random()*3) + 1;
+              var water_height = Math.floor(Math.random()) + 3;
               for( var m = 0; m < water_height; m++) {
-                water_tiles.push({ x: l+offset_x, y: m+offset_y, type: 'water' });
-                console.log('water tile x:' + (l+offset_x) + ' y: ' + (m+offset_y));
+                water_tiles.push({ x: l+offset_x, y: m+offset_y });
               }
             }
           }
-          console.log(water_tiles);
+
           for(var i = 0; i < map_size; i++) {
             for(var j = 0; j < map_size; j++) {
-              if(water_tiles.indexOf({x: i, y: i, type: 'water'}) != -1) {
-                type = 'water';
-              } else {
-                type = 'grass';
+              var type = 'grass';
+              for(k = 0; k < water_tiles.length; k++) {
+                if(water_tiles[k].x == i && water_tiles[k].y == j) {
+                  type = 'water';
+                  water_tiles.splice(k, 1);
+                  break;
+                }
               }
               Tile.create(
-                { x: i, y: j, type: type }
-                , function (err, user) {
-                if(err) { console.log(err); }
+                { x: i, y: j, type: type }, function (err, user) {
+                    if(err) { console.log(err); 
+                  }
               });
+              console.log("Tile created: { x: "+i+", y: "+j+", type: "+type+" }");
             }
           }
         }
