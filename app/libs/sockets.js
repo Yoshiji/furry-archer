@@ -30,8 +30,9 @@ module.exports.listen = function(app){
 	  	Tile.find({x: data.x, y: data.y}, function(err, tiles){
 	  		if(tiles.length > 0) {
 	  			tile = tiles[0];
-	  			socket.emit('set_tile', {x: tile.x, y: tile.y, type: 'my_grass'});
-	  			socket.broadcast.emit('set_tile', {x: tile.x, y: tile.y, type: 'grass'})
+	  			//TODO : coder la fonction update_tile coté client
+	  			socket.emit('update_tile', {x: tile.x, y: tile.y, type: 'my_grass'});
+	  			socket.broadcast.emit('update_tile', {x: tile.x, y: tile.y, type: 'grass'})
 	  		}
 	  	});
 	  });
