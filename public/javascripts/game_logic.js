@@ -25,7 +25,7 @@ GameLogic = (function() {
     }
     var socket = this.socket = io.connect(url);
     this.game_chat.init(socket);
-    this.map = new Map(socket);
+    this.map = map = new Map(socket);
   }
 
   

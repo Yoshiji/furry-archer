@@ -36,9 +36,19 @@ Map = (function(){
 
     // Réception et affichage d'une tile
     socket.on('set_tile', function(data){
-      var tile = Crafty.e("Tile").addComponent(data.type);
-      iso.place(data.x, data.y, 1, tile);
-      self.tiles.push(tile);
+      var already_loaded = false;
+      for(k = 0; k < self.tiles.length; k++) {
+        if(self.tiles[k].x == data.x && self.tiles[k].y == data.y) {
+          already_loaded = true;
+          break;
+        }
+      }
+      if(!already_loaded){
+        var tile = Crafty.e("Tile").addComponent(data.type);
+        iso.place(data.x, data.y, 1, tile);
+        self.tiles.push(tile);
+        console.log("push tiiiillllleeeeee");
+      }
     });
 
     socket.on('set_player', function(data){
@@ -48,7 +58,7 @@ Map = (function(){
       Crafty.viewport.follow(player);
 
       var pos_player = iso.px2pos(player.x, player.y);
-      var area = iso.area();
+      area = iso.area();
 
       for(var y = area.y.start; y <= area.y.end; y++){
         for(var x = area.x.start; x <= area.x.end; x++){
