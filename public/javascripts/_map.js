@@ -1,6 +1,6 @@
 Map = (function(){
 	function Map(socket) {
-    this.tiles = [];
+    this.tiles = {};
     this.player = null;
     var self = this;
 
@@ -37,7 +37,9 @@ Map = (function(){
     socket.on('set_tile', function(data){
       var tile = Crafty.e("Tile").addComponent(data.type).set_socket(socket);
       iso.place(data.x, data.y, 1, tile);
-      self.tiles.push(tile);
+      var key = "x" + data.x + "y" + data.y
+      self.tiles[key] = data;
+      console.log("push tiiiillllleeeeee");
     });
 
     socket.on('set_player', function(data){
@@ -47,11 +49,11 @@ Map = (function(){
       Crafty.viewport.follow(player);
 
       var pos_player = iso.px2pos(player.x, player.y);
-      var area = iso.area();
+      area = iso.area();
 
       for(var y = area.y.start; y <= area.y.end; y++){
         for(var x = area.x.start; x <= area.x.end; x++){
-            socket.emit('get_tile', {x: x, y: y});
+          socket.emit('get_tile', {x: x, y: y});
         }
       }
     });

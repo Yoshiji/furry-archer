@@ -17,7 +17,7 @@ module.exports.listen = function(app){
 	      if (tiles.length > 0){
 	        socket.emit('set_tile', tiles[0]);
 	      } else {
-	        socket.emit('set_tile', -1);
+	        socket.emit('set_tile', {x: data.x, y: data.y, type: "voided"});
 	      }
 	    });
 	  });
