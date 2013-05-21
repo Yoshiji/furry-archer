@@ -61,7 +61,7 @@ Crafty.c("Player", {
         }
         var new_area = iso.area()
         if(area.x.start != new_area.x.start || area.x.end != new_area.x.end || area.y.start != new_area.y.start || area.y.end != new_area.y.end){
-          console.log("new area different", area, new_area)
+          //console.log("new area different", area, new_area)
           area = new_area;
           var map_size = map.tiles.length;
           for(var y = area.y.start; y <= area.y.end; y++){
@@ -70,7 +70,7 @@ Crafty.c("Player", {
               var key = "x" + x + "y" + y;
               if(!map.tiles[key]) {
                 this.socket.emit('get_tile', {x: x, y: y});
-                console.log("emiiiiittt");
+                //console.log("emiiiiittt");
               }
             }
           }

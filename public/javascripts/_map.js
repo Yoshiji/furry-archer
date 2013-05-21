@@ -39,7 +39,7 @@ Map = (function(){
       iso.place(data.x, data.y, 1, tile);
       var key = "x" + data.x + "y" + data.y
       self.tiles[key] = data;
-      console.log("push tiiiillllleeeeee");
+      //console.log("push tiiiillllleeeeee");
     });
 
     socket.on('set_player', function(data){
