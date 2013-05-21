@@ -5,10 +5,14 @@ Crafty.c("Tile", {
     this.owner_name = null;
     this.addComponent("2D, Canvas, Mouse").areaMap([0,16], [32,0], [64,16], [32,16]);
     this.addComponent("Collision").collision(new Crafty.polygon([0,64], [128,0], [256,64], [128,128]));
+    this.addComponent("Socketed");
   },
   set_owner: function(owner_name) {
     this.owner_name = owner_name;
     this.removeComponent('grass').addComponent('my_grass');
+    var socket = this.socket;
+    attributes = { x: this._x, y: this._y, owner_name: this.owner_name };
+    socket.emit('sync_tile', attributes);
   }
 
 });

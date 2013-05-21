@@ -7,27 +7,19 @@ html(lang='en')
     title Furry Archer
     
     script(type='text/javascript', src='/libs/crafty-src.js')
-    script(type='text/javascript', src='/libs/crafty-diamond-iso.js')
+    //script(type='text/javascript', src='/libs/crafty-diamond-iso.js')
     script(type='text/javascript', src='/libs/jquery-1.9.1.js')
     script(type='text/javascript', src='/libs/jquery.easing.1.3.js')
     script(type='text/javascript', src='/socket.io/socket.io.js')
 
-
-
   body
-    // Flash messages
     - if (locals.flash)
       .flash_container
         each message, type in locals.flash
           .flash(class=type)= message
 
+    div#panel_control(style='float:left;width:150px;height:600px;border:1px solid black;')
 
-    // Game board
-    //canvas#game_board
-    
-
-
-    // Game chat
     form#game_chat_form
       div#game_chat
         p#header #{locals.user.username} - Online Chat - 
@@ -38,20 +30,12 @@ html(lang='en')
             span.author
             span.message
 
-
         p#new_message
           input(type='text', value='message de bob', name='message', id='message')
-          //input(type='submit', value='Send')
 
-
-    // JavaScript to load
     script(type='text/javascript', src='/javascripts/_sprites.js')
     script(type='text/javascript', src='/javascripts/_map.js')
     script(type='text/javascript', src='/javascripts/_components.js')
     script(type='text/javascript', src='/javascripts/game_logic.js')
     script(type='text/javascript', src='/javascripts/game_chat.js')
-    
-    // Always let this applications.js at the end, it triggers the init() !
     script(type='text/javascript', src='/javascripts/application.js')
-
-block main

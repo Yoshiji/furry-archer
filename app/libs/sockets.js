@@ -26,6 +26,16 @@ module.exports.listen = function(app){
 	  	socket.emit('set_player', {username: socket.session.user.username, _id: socket.session.user._id});
 	  });
 
+	  socket.on('sync_tile', function(data) {
+	  	Tile.find({x: data.x, y: data.y}, function(err, tiles){
+	  		if(tiles.length > 0) {
+	  			tile = tiles[0];
+	  			socket.emit('set_tile', {x: tile.x, y: tile.y, type: 'my_grass'});
+	  			socket.broadcast.emit('set_tile', {x: tile.x, y: tile.y, type: 'my_grass'})
+	  		}
+	  	});
+	  });
+
 	});
 
     return io;

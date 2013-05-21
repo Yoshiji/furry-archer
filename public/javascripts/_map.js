@@ -7,7 +7,6 @@ Map = (function(){
     Crafty.init(800,600);
 
     
-    
     Crafty.scene("loading", function() {
       Crafty.load(["images/grasstile.png", "images/players.png"], function() {
         Crafty.scene("main");
@@ -36,7 +35,7 @@ Map = (function(){
 
     // Réception et affichage d'une tile
     socket.on('set_tile', function(data){
-      var tile = Crafty.e("Tile").addComponent(data.type);
+      var tile = Crafty.e("Tile").addComponent(data.type).set_socket(socket);
       iso.place(data.x, data.y, 1, tile);
       self.tiles.push(tile);
     });
