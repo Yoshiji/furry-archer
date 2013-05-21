@@ -1,6 +1,6 @@
 Map = (function(){
 	function Map(socket) {
-    this.tiles = [];
+    this.tiles = {};
     this.player = null;
     var self = this;
 
@@ -36,19 +36,11 @@ Map = (function(){
 
     // Réception et affichage d'une tile
     socket.on('set_tile', function(data){
-      var already_loaded = false;
-      for(k = 0; k < self.tiles.length; k++) {
-        if(self.tiles[k].x == data.x && self.tiles[k].y == data.y) {
-          already_loaded = true;
-          break;
-        }
-      }
-      if(!already_loaded){
-        var tile = Crafty.e("Tile").addComponent(data.type);
-        iso.place(data.x, data.y, 1, tile);
-        self.tiles.push(tile);
-        console.log("push tiiiillllleeeeee");
-      }
+      var tile = Crafty.e("Tile").addComponent(data.type);
+      iso.place(data.x, data.y, 1, tile);
+      var key = "x" + data.x + "y" + data.y
+      self.tiles[key] = data;
+      console.log("push tiiiillllleeeeee");
     });
 
     socket.on('set_player', function(data){
@@ -62,7 +54,7 @@ Map = (function(){
 
       for(var y = area.y.start; y <= area.y.end; y++){
         for(var x = area.x.start; x <= area.x.end; x++){
-            socket.emit('get_tile', {x: x, y: y});
+          socket.emit('get_tile', {x: x, y: y});
         }
       }
     });

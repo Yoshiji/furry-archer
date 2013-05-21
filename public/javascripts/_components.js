@@ -47,7 +47,7 @@ Crafty.c("Player", {
         }
       })
       .bind('Moved', function(from) {
-        if(this.hit('water')){
+        if(this.hit('voided') || this.hit('water')){
           this.x = from.x;
           this.y = from.y;
         } else if(this.hit('grass')){
@@ -60,18 +60,14 @@ Crafty.c("Player", {
         if(area.x.start != new_area.x.start || area.x.end != new_area.x.end || area.y.start != new_area.y.start || area.y.end != new_area.y.end){
           console.log("new area different", area, new_area)
           area = new_area;
+          var map_size = map.tiles.length;
           for(var y = area.y.start; y <= area.y.end; y++){
             for(var x = area.x.start; x <= area.x.end; x++){
 
-              var already_loaded = false;
-              for(k = 0; k < map.tiles.length; k++) {
-                if(map.tiles[k].x == x && map.tiles[k].y == y) {
-                  already_loaded = true;
-                  break;
-                }
-              }
-              if(!already_loaded){
+              var key = "x" + x + "y" + y;
+              if(!map.tiles[key]) {
                 this.socket.emit('get_tile', {x: x, y: y});
+                console.log("emiiiiittt");
               }
             }
           }
