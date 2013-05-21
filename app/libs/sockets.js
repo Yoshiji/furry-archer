@@ -31,7 +31,7 @@ module.exports.listen = function(app){
 	  		if(tiles.length > 0) {
 	  			tile = tiles[0];
 	  			socket.emit('set_tile', {x: tile.x, y: tile.y, type: 'my_grass'});
-	  			socket.broadcast.emit('set_tile', {x: tile.x, y: tile.y, type: 'my_grass'})
+	  			socket.broadcast.emit('set_tile', {x: tile.x, y: tile.y, type: 'grass'})
 	  		}
 	  	});
 	  });

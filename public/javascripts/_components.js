@@ -10,11 +10,10 @@ Crafty.c("Tile", {
   set_owner: function(owner_name) {
     this.owner_name = owner_name;
     this.removeComponent('grass').addComponent('my_grass');
-    var socket = this.socket;
-    attributes = { x: this._x, y: this._y, owner_name: this.owner_name };
-    socket.emit('sync_tile', attributes);
+    attributes = iso.px2pos(this._x, this._y);
+    attributes.owner_name = this.owner_name;
+    this.socket.emit('sync_tile', attributes);
   }
-
 });
 
 
