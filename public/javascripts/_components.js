@@ -2,16 +2,18 @@
 Crafty.c("Tile", {
 
   init: function() {
-    this.owner_name = null;
+    //this.owner_name = null;
     this.addComponent("2D, Canvas, Mouse").areaMap([0,16], [32,0], [64,16], [32,16]);
     this.addComponent("Collision").collision(new Crafty.polygon([0,64], [128,0], [256,64], [128,128]));
     this.addComponent("Socketed");
   },
   set_owner: function(owner_name) {
-    this.owner_name = owner_name;
-    this.removeComponent('grass').addComponent('my_grass');
+    //this.owner_name = owner_name;
+    //this.removeComponent('grass').addComponent('my_grass');
     attributes = iso.px2pos(this._x, this._y);
-    attributes.owner_name = this.owner_name;
+    attributes.owner_name = owner_name;
+    map.getTileSettings(attributes, true).owner_name = owner_name;
+    console.log("SET OWNER");
     this.socket.emit('sync_tile', attributes);
   }
 });
@@ -55,22 +57,20 @@ Crafty.c("Player", {
           this.y = from.y;
         } else if(this.hit('grass')){
           tile = this.hit('grass')[0].obj;
-          if(tile.owner_name != this.username) {
-            tile.set_owner(this.username);
+          if(map.getTileSettings({x: tile._x, y: tile._y}, true).owner_name != user.username) {
+            tile.set_owner(user.username);
           }
         }
         var new_area = iso.area()
         if(area.x.start != new_area.x.start || area.x.end != new_area.x.end || area.y.start != new_area.y.start || area.y.end != new_area.y.end){
-          //console.log("new area different", area, new_area)
           area = new_area;
           var map_size = map.tiles.length;
+
           for(var y = area.y.start; y <= area.y.end; y++){
             for(var x = area.x.start; x <= area.x.end; x++){
 
-              var key = "x" + x + "y" + y;
-              if(!map.tiles[key]) {
+              if(!map.getTileSettings({x: x,y: y})) {
                 this.socket.emit('get_tile', {x: x, y: y});
-                //console.log("emiiiiittt");
               }
             }
           }
@@ -82,12 +82,13 @@ Crafty.c("Player", {
 			
 		return this;
 	},
-  set_attributes: function(attributes) {
-    this.username = attributes.username;
-    this._id = attributes._id;
+  // set_attributes: function(attributes) {
+  //   this.username = attributes.username;
+  //   this._id = attributes._id;
+  //   console.log("SET ATTRIBUTES", attributes, this.username, this._id);
 
-    return this;
-  }
+  //   return this;
+  // }
 });
 
 

@@ -23,16 +23,21 @@ module.exports.listen = function(app){
 	  });
 
 	  socket.on('get_player', function() {
-	  	socket.emit('set_player', {username: socket.session.user.username, _id: socket.session.user._id});
+	  	console.log(socket.session.user);
+	  	socket.emit('set_player', socket.session.user);
 	  });
 
 	  socket.on('sync_tile', function(data) {
+	  	Tile.update({x: data.x, y: data.y}, data, {}, function(err, tiles){
+	  		if(err)
+	  			console.log(err);
+	  	});
+
 	  	Tile.find({x: data.x, y: data.y}, function(err, tiles){
 	  		if(tiles.length > 0) {
 	  			tile = tiles[0];
-	  			//TODO : coder la fonction update_tile coté client
-	  			socket.emit('update_tile', {x: tile.x, y: tile.y, type: 'my_grass'});
-	  			socket.broadcast.emit('update_tile', {x: tile.x, y: tile.y, type: 'grass'})
+	  			socket.emit('update_tile', tile);
+	  			socket.broadcast.emit('update_tile', tile);
 	  		}
 	  	});
 	  });

@@ -67,7 +67,7 @@ UTILS = {
                 }
               }
               Tile.create(
-                { x: i, y: j, type: type }, function (err, user) {
+                { x: i, y: j, type: type, owner_name: -1 }, function (err, user) {
                     if(err) { console.log(err); 
                   }
               });

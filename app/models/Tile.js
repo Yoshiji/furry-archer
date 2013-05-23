@@ -4,7 +4,8 @@ module.exports = function (mongoose) {
   var TileSchema = mongoose.Schema({
       x: Number,
       y: Number,
-      type: String
+      type: String,
+      owner_name: String
   });
 
   // Compile Model

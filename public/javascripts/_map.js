@@ -35,16 +35,40 @@ Map = (function(){
 
     // Réception et affichage d'une tile
     socket.on('set_tile', function(data){
-      var tile = Crafty.e("Tile").addComponent(data.type).set_socket(socket);
+      var tile = Crafty.e("Tile").set_socket(socket);
+      //var key = generateKey(data.x, data.y);
+      data.id = tile[0]; // save id of the Crafty.element to keep it linked with the tiles hash
+
+      if(data.owner_name == user.username)
+        data.type = "my_grass";
+
+      tile.addComponent(data.type);
       iso.place(data.x, data.y, 1, tile);
-      var key = "x" + data.x + "y" + data.y
-      self.tiles[key] = data;
-      //console.log("push tiiiillllleeeeee");
+      self.setTileSettings(data, false); // save tile
+
+      console.log("SET TILE", data, data.owner_name, user.username);
+    });
+
+    socket.on('update_tile', function(data){
+      //var key = generateKey(data.x, data.y);
+
+      if(self.getTileSettings(data)){
+        data.id = self.getTileSettings(data).id; // keep id of the Crafty.element to keep it linked with the tiles hash
+
+        if(data.owner_name == user.username)
+          data.type = "my_grass";
+
+        Crafty(data.id).removeComponent("grass, water, voided").addComponent(data.type);
+        self.setTileSettings(data);
+
+        console.log("UPDATE TILE", data, data.owner_name, user.username);
+      }
     });
 
     socket.on('set_player', function(data){
-      var player = this.player = Crafty.e('Player').set_socket(socket).set_attributes(data);
-      
+      console.log("SET PLAYER", data);
+      var player = this.player = Crafty.e('Player').set_socket(socket);
+      user = data;
       iso.place(10, 10, 20, player);
       Crafty.viewport.follow(player);
 
@@ -57,6 +81,34 @@ Map = (function(){
         }
       }
     });
+
+    this.getTileSettings = function(data, inputIsInPx){
+      var x = data.x;
+      var y = data.y;
+      if(inputIsInPx){
+        var pos = iso.px2pos(x, y);
+        x = pos.x;
+        y = pos.y;
+      }
+      var key = "x" + x + "y" + y;
+      if(self.tiles[key])
+        return self.tiles[key];
+      else
+        return false;
+    }
+
+    this.setTileSettings = function(data, inputIsInPx){
+      var x = data.x;
+      var y = data.y;
+      if(inputIsInPx){
+        var pos = iso.px2pos(x, y);
+        x = pos.left;
+        y = pos.top;
+      }
+      var key = "x" + x + "y" + y;
+      self.tiles[key] = data;
+      return self.tiles[key];
+    }
 
     return this;
 	}
