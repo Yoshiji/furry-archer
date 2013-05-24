@@ -11,7 +11,7 @@ Crafty.c("Tile", {
     var attributes = iso.px2pos(this._x, this._y);
     attributes.owner_name = owner_name;
     map.get_tile_settings(attributes, true).owner_name = owner_name;
-    console.log("SETING OWNER " + owner_name);
+    console.log("SETING OWNER");
     this.socket.emit('sync_tile', attributes);
   }
 });
@@ -46,8 +46,11 @@ Crafty.c("Player", {
             this.stop();
         }
       })
-      .bind('WalkingOnNewTile', function(data) {
-        console.log('WalkingOnNewTile Triggered!')
+      .bind('WalkingOnNewTile', function(tile) {
+        console.log('Walking On a New Tile!');
+        if(map.get_tile_settings({x: tile._x, y: tile._y}, true).owner_name != user.username) {
+          tile.set_owner(user.username);
+        }
       })
       .bind('Moved', function(from) {
         if(this.hit('voided') || this.hit('water')) {
@@ -56,16 +59,12 @@ Crafty.c("Player", {
         } else if(this.hit('grass')) {
           var tile = this.hit('grass')[0].obj;
           this.check_new_tile(tile);
-          tile.set_owner(user.username);
         } else if(this.hit('my_grass')) {
           var tile = this.hit('my_grass')[0].obj;
           this.check_new_tile(tile);
         } else if(this.hit('others_grass')) {
           var tile = this.hit('others_grass')[0].obj;
           this.check_new_tile(tile);
-          if(map.get_tile_settings({x: tile._x, y: tile._y}, true).owner_name != user.username) {
-            tile.set_owner(user.username);
-          }
         }
           
         var new_area = iso.area();
@@ -94,7 +93,7 @@ Crafty.c("Player", {
     this.current_tile_pos = this.current_tile_pos || pos;
     if(this.current_tile_pos.x != pos.x || this.current_tile_pos.y != pos.y) {
       this.current_tile_pos = pos;
-      Crafty.trigger('WalkingOnNewTile', pos);
+      Crafty.trigger('WalkingOnNewTile', tile);
     }
   }
 });
