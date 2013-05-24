@@ -6,8 +6,9 @@ Crafty.c("Tile", {
     this.addComponent("Collision").collision(new Crafty.polygon([0,64], [128,0], [256,64], [128,128]));
     this.addComponent("Socketed");
   },
+
   set_owner: function(owner_name) {
-    attributes = iso.px2pos(this._x, this._y);
+    var attributes = iso.px2pos(this._x, this._y);
     attributes.owner_name = owner_name;
     map.get_tile_settings(attributes, true).owner_name = owner_name;
     console.log("SETING OWNER " + owner_name);
@@ -15,12 +16,12 @@ Crafty.c("Tile", {
   }
 });
 
-
 Crafty.c("Player", {
 
 	init: function() {
     this.username = null;
     this._id = null;
+    this.current_tile_pos = null;
 		this.addComponent("2D, Canvas, player2, SpriteAnimation, Fourway, SolidHitBox, Collision, Socketed")
 			.animate('walk_left', [[9,12],[15,12]])
 			.animate('walk_right', [[9,4],[15,4]])
@@ -45,16 +46,28 @@ Crafty.c("Player", {
             this.stop();
         }
       })
+      .bind('WalkingOnNewTile', function(data) {
+        console.log('WalkingOnNewTile Triggered!')
+      })
       .bind('Moved', function(from) {
-        if(this.hit('voided') || this.hit('water')){
+        if(this.hit('voided') || this.hit('water')) {
           this.x = from.x;
           this.y = from.y;
-        } else if(this.hit('grass')){
-          tile = this.hit('grass')[0].obj;
+        } else if(this.hit('grass')) {
+          var tile = this.hit('grass')[0].obj;
+          this.check_new_tile(tile);
+          tile.set_owner(user.username);
+        } else if(this.hit('my_grass')) {
+          var tile = this.hit('my_grass')[0].obj;
+          this.check_new_tile(tile);
+        } else if(this.hit('others_grass')) {
+          var tile = this.hit('others_grass')[0].obj;
+          this.check_new_tile(tile);
           if(map.get_tile_settings({x: tile._x, y: tile._y}, true).owner_name != user.username) {
             tile.set_owner(user.username);
           }
         }
+          
         var new_area = iso.area();
         if(area.x.start != new_area.x.start || area.x.end != new_area.x.end || area.y.start != new_area.y.start || area.y.end != new_area.y.end){
           area = new_area;
@@ -74,9 +87,17 @@ Crafty.c("Player", {
       );
 			
 		return this;
-	}
-});
+	},
 
+  check_new_tile: function(tile) {
+    var pos = iso.px2pos(tile._x, tile._y);
+    this.current_tile_pos = this.current_tile_pos || pos;
+    if(this.current_tile_pos.x != pos.x || this.current_tile_pos.y != pos.y) {
+      this.current_tile_pos = pos;
+      Crafty.trigger('WalkingOnNewTile', pos);
+    }
+  }
+});
 
 Crafty.c("Socketed", {
   init: function() {

@@ -1,7 +1,7 @@
 var socketio = require('socket.io');
 
 module.exports.listen = function(app){
-  io = socketio.listen(app);
+  var io = socketio.listen(app);
 
 	// Handle the connection and the events
 	io.on('connection', function(socket) {
@@ -35,7 +35,7 @@ module.exports.listen = function(app){
 
 	  	Tile.find({x: data.x, y: data.y}, function(err, tiles){
 	  		if(tiles.length > 0) {
-	  			tile = tiles[0];
+	  			var tile = tiles[0];
 	  			socket.emit('update_tile', tile);
 	  			socket.broadcast.emit('update_tile', tile);
 	  		}

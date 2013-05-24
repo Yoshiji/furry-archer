@@ -2,22 +2,22 @@
 Map = {
   // ATTRIBUTES
   tiles: {},
-  player: null,
 
   // METHODS
   update_tile: function(data, socket) {
-    //var key = generateKey(data.x, data.y);
-    tile_settings = this.get_tile_settings(data);
+    var tile_settings = this.get_tile_settings(data);
     if(tile_settings) {
       data.id = tile_settings.id; // keep id of the Crafty.element to keep it linked with the tiles hash
 
       if(data.owner_name == user.username)
         data.type = "my_grass";
+      else // bizarre, parfois set to others_grass quand on marche dessus !
+        data.type = "others_grass";
 
-      Crafty(data.id).removeComponent("grass, water, voided").addComponent(data.type);
+      Crafty(data.id).removeComponent("grass, water, voided, my_grass, others_grass").addComponent(data.type);
       this.set_tile_settings(data);
 
-      console.log("UPDATING TILE #" + data.id);
+      //console.log("UPDATING TILE #" + data.id);
     }
   },
 
@@ -34,12 +34,12 @@ Map = {
   init_sockets: function(socket) {
     var self = this;
 
-    socket.on('set_tile', function(data) {
-      self.set_tile(data, this);
-    });
-
     socket.on('update_tile', function(data){
       self.update_tile(data, this);
+    });
+
+    socket.on('set_tile', function(data) {
+      self.set_tile(data, this);
     });
 
     socket.on('set_player', function(data){
@@ -77,8 +77,10 @@ Map = {
 
   // GETTERs & SETTERs
   set_player: function(data, socket) {
-    console.log("SETTING PLAYER " + data.username);
+    //console.log("SETTING PLAYER " + data.username);
+
     var player = this.player = Crafty.e('Player').set_socket(socket);
+    Crafty.addEvent(player, Crafty.stage.elem, 'WalkingOnNewTile');
     user = data;
     iso.place(10, 10, 20, player);
     Crafty.viewport.follow(player);
@@ -105,7 +107,7 @@ Map = {
     iso.place(data.x, data.y, 1, tile);
     this.set_tile_settings(data, false); // save tile
 
-    console.log("SETTING TILE #" + data.id);
+    //console.log("SETTING TILE #" + data.id);
   },
 
   get_tile_settings: function(data, inputIsInPx) {
