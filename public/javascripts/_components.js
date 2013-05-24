@@ -2,18 +2,15 @@
 Crafty.c("Tile", {
 
   init: function() {
-    //this.owner_name = null;
     this.addComponent("2D, Canvas, Mouse").areaMap([0,16], [32,0], [64,16], [32,16]);
     this.addComponent("Collision").collision(new Crafty.polygon([0,64], [128,0], [256,64], [128,128]));
     this.addComponent("Socketed");
   },
   set_owner: function(owner_name) {
-    //this.owner_name = owner_name;
-    //this.removeComponent('grass').addComponent('my_grass');
     attributes = iso.px2pos(this._x, this._y);
     attributes.owner_name = owner_name;
-    map.getTileSettings(attributes, true).owner_name = owner_name;
-    console.log("SET OWNER");
+    map.get_tile_settings(attributes, true).owner_name = owner_name;
+    console.log("SETING OWNER " + owner_name);
     this.socket.emit('sync_tile', attributes);
   }
 });
@@ -34,16 +31,13 @@ Crafty.c("Player", {
         if (direction.x < 0) {
             if (!this.isPlaying("walk_left"))
                 this.stop().animate("walk_left", 1, -1);
-        }
-        if (direction.x > 0) {
+        } else if (direction.x > 0) {
             if (!this.isPlaying("walk_right"))
                 this.stop().animate("walk_right", 1, -1);
-        }
-        if (direction.y < 0) {
+        } else if (direction.y < 0) {
             if (!this.isPlaying("walk_up"))
                 this.stop().animate("walk_up", 1, -1);
-        }
-        if (direction.y > 0) {
+        } else if (direction.y > 0) {
             if (!this.isPlaying("walk_down"))
                 this.stop().animate("walk_down", 1, -1);
         }
@@ -57,19 +51,18 @@ Crafty.c("Player", {
           this.y = from.y;
         } else if(this.hit('grass')){
           tile = this.hit('grass')[0].obj;
-          if(map.getTileSettings({x: tile._x, y: tile._y}, true).owner_name != user.username) {
+          if(map.get_tile_settings({x: tile._x, y: tile._y}, true).owner_name != user.username) {
             tile.set_owner(user.username);
           }
         }
-        var new_area = iso.area()
+        var new_area = iso.area();
         if(area.x.start != new_area.x.start || area.x.end != new_area.x.end || area.y.start != new_area.y.start || area.y.end != new_area.y.end){
           area = new_area;
           var map_size = map.tiles.length;
 
           for(var y = area.y.start; y <= area.y.end; y++){
             for(var x = area.x.start; x <= area.x.end; x++){
-
-              if(!map.getTileSettings({x: x,y: y})) {
+              if(!map.get_tile_settings({x: x,y: y})) {
                 this.socket.emit('get_tile', {x: x, y: y});
               }
             }
@@ -81,14 +74,7 @@ Crafty.c("Player", {
       );
 			
 		return this;
-	},
-  // set_attributes: function(attributes) {
-  //   this.username = attributes.username;
-  //   this._id = attributes._id;
-  //   console.log("SET ATTRIBUTES", attributes, this.username, this._id);
-
-  //   return this;
-  // }
+	}
 });
 
 
