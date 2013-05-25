@@ -23,8 +23,16 @@ module.exports.listen = function(app){
 	  });
 
 	  socket.on('get_player', function() {
-	  	console.log(socket.session.user);
 	  	socket.emit('set_player', socket.session.user);
+	  });
+
+	  socket.on('update_player', function(data) {
+	  	User.find({_id: data.user_id}, function(err, users) {
+	  		if(users.length > 0)
+	  			var user = users[0];
+	  			user.current_pos = data.current_pos;
+	  			socket.broadcast.emit('update_player_position', data);
+	  	});
 	  });
 
 	  socket.on('sync_tile', function(data) {

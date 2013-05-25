@@ -2,6 +2,7 @@
 Map = {
   // ATTRIBUTES
   tiles: {},
+  players: {},
 
   // METHODS
   update_tile: function(data, socket) {
@@ -19,6 +20,11 @@ Map = {
 
       //console.log("UPDATING TILE #" + data.id);
     }
+  },
+
+  update_player: function(data, socket) {
+    this.players[data.user_id] = data;
+    console.log('update_player #' + data.user_id);
   },
 
   // INIT METHODS
@@ -44,6 +50,10 @@ Map = {
 
     socket.on('set_player', function(data){
       self.set_player(data, this);
+    });
+
+    socket.on('update_player', function(data) {
+      self.update_player(data, this);
     });
   },
 
@@ -85,29 +95,33 @@ Map = {
     iso.place(10, 10, 20, player);
     Crafty.viewport.follow(player);
 
-    var pos_player = iso.px2pos(player.x, player.y);
-    area = iso.area();
-
-    for(var y = area.y.start; y <= area.y.end; y++){
-      for(var x = area.x.start; x <= area.x.end; x++){
-        socket.emit('get_tile', {x: x, y: y});
-      }
-    }
+    this.get_tiles_for_area(socket);
   },
 
   set_tile: function(data, socket) {
     var tile = Crafty.e("Tile").set_socket(socket);
-    //var key = generateKey(data.x, data.y);
     data.id = tile[0]; // save id of the Crafty.element to keep it linked with the tiles hash
 
-    if(data.owner_name == user.username)
+    if(data.owner_name == user.username) {
       data.type = "my_grass";
+    } else if(data.owner_name != '-1') {
+      data.type = "others_grass";
+    }
 
     tile.addComponent(data.type);
     iso.place(data.x, data.y, 1, tile);
     this.set_tile_settings(data, false); // save tile
 
     //console.log("SETTING TILE #" + data.id);
+  },
+
+  get_tiles_for_area: function(socket) {
+    area = iso.area();
+    for(var y = area.y.start; y <= area.y.end; y++){
+      for(var x = area.x.start; x <= area.x.end; x++){
+        socket.emit('get_tile', {x: x, y: y});
+      }
+    }
   },
 
   get_tile_settings: function(data, inputIsInPx) {

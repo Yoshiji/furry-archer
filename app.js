@@ -18,18 +18,20 @@ UTILS = {
     }
   },
   Routines: {
-    connection: function(client) {
-      client.session = client.handshake.session;
-      var player_list = new PlayerList();
-      client.emit('player_list', player_list.list);
-      client.broadcast.emit('player_list', player_list.list);
-      UTILS.Chat.broadcast(client, client.session.user.username + ' connected!');
+    connection: function(socket) {
+      socket.session = socket.handshake.session;
+      UTILS.Chat.broadcast(socket, socket.session.user.username + ' connected!');
+      User.find({_id: socket.session.user_id}, function(err, users) {
+        if(users.length > 0) {
+          var user = users[0];
+          var data = { current_pos: user.current_pos, user_id: user._id };
+          socket.broadcast.emit('update_player', data);
+        } 
+      });
     },
-    disconnection: function(client) {
-      client.on('disconnect', function (data) {
-        UTILS.Chat.broadcast(client, 'Client Disconnected!');
-        var player_list = new PlayerList();
-        client.broadcast.emit('player_list', player_list.list);
+    disconnection: function(socket) {
+      socket.on('disconnect', function (data) {
+        UTILS.Chat.broadcast(socket, 'Client Disconnected!');
       });
     }
   },

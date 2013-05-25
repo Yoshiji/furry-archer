@@ -7,10 +7,12 @@ Crafty.c("Tile", {
     this.addComponent("Socketed");
   },
 
-  set_owner: function(owner_name) {
+  set_owner: function(owner) {
     var attributes = iso.px2pos(this._x, this._y);
-    attributes.owner_name = owner_name;
-    map.get_tile_settings(attributes, true).owner_name = owner_name;
+    attributes.owner_name = owner.username;
+    var tile_settings = map.get_tile_settings(attributes, true);
+    tile_settings.owner_name = owner.username;
+    tile_settings.owner_id = owner._id;
     console.log("SETING OWNER");
     this.socket.emit('sync_tile', attributes);
   }
@@ -21,7 +23,7 @@ Crafty.c("Player", {
 	init: function() {
     this.username = null;
     this._id = null;
-    this.current_tile_pos = null;
+    this.current_pos = {x: 0, y: 0};
 		this.addComponent("2D, Canvas, player2, SpriteAnimation, Fourway, SolidHitBox, Collision, Socketed")
 			.animate('walk_left', [[9,12],[15,12]])
 			.animate('walk_right', [[9,4],[15,4]])
@@ -48,25 +50,29 @@ Crafty.c("Player", {
       })
       .bind('WalkingOnNewTile', function(tile) {
         console.log('Walking On a New Tile!');
-        if(map.get_tile_settings({x: tile._x, y: tile._y}, true).owner_name != user.username) {
-          tile.set_owner(user.username);
-        }
+        this.socket.emit('update_player', {user_id: user._id, current_pos: this.current_pos});
+        
+        if(map.get_tile_settings({x: tile._x, y: tile._y}, true).owner_name != user.username)
+          tile.set_owner(user);
       })
       .bind('Moved', function(from) {
-        if(this.hit('voided') || this.hit('water')) {
-          this.x = from.x;
-          this.y = from.y;
-        } else if(this.hit('grass')) {
+        if(this.hit('grass')) {
           var tile = this.hit('grass')[0].obj;
           this.check_new_tile(tile);
+
         } else if(this.hit('my_grass')) {
           var tile = this.hit('my_grass')[0].obj;
           this.check_new_tile(tile);
+
         } else if(this.hit('others_grass')) {
           var tile = this.hit('others_grass')[0].obj;
           this.check_new_tile(tile);
+
+        } else if(this.hit('voided') || this.hit('water')) {
+          this.x = from.x;
+          this.y = from.y;
         }
-          
+        
         var new_area = iso.area();
         if(area.x.start != new_area.x.start || area.x.end != new_area.x.end || area.y.start != new_area.y.start || area.y.end != new_area.y.end){
           area = new_area;
@@ -74,9 +80,8 @@ Crafty.c("Player", {
 
           for(var y = area.y.start; y <= area.y.end; y++){
             for(var x = area.x.start; x <= area.x.end; x++){
-              if(!map.get_tile_settings({x: x,y: y})) {
+              if(!map.get_tile_settings({x: x,y: y}))
                 this.socket.emit('get_tile', {x: x, y: y});
-              }
             }
           }
         }
@@ -90,9 +95,9 @@ Crafty.c("Player", {
 
   check_new_tile: function(tile) {
     var pos = iso.px2pos(tile._x, tile._y);
-    this.current_tile_pos = this.current_tile_pos || pos;
-    if(this.current_tile_pos.x != pos.x || this.current_tile_pos.y != pos.y) {
-      this.current_tile_pos = pos;
+    this.current_pos = this.current_pos || pos;
+    if(this.current_pos.x != pos.x || this.current_pos.y != pos.y) {
+      this.current_pos = pos;
       Crafty.trigger('WalkingOnNewTile', tile);
     }
   }
