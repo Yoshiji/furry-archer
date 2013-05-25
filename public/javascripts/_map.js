@@ -88,13 +88,11 @@ Map = {
   // GETTERs & SETTERs
   set_player: function(data, socket) {
     //console.log("SETTING PLAYER " + data.username);
-
     var player = this.player = Crafty.e('Player').set_socket(socket);
     Crafty.addEvent(player, Crafty.stage.elem, 'WalkingOnNewTile');
-    user = data;
-    iso.place(10, 10, 20, player);
+    iso.place(data.pos_x, data.pos_y - 1, 20, player); // SOOOOO WEIRD data.pos_y -1 !!!
     Crafty.viewport.follow(player);
-
+    user = data;
     this.get_tiles_for_area(socket);
   },
 

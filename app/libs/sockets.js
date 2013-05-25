@@ -23,16 +23,22 @@ module.exports.listen = function(app){
 	  });
 
 	  socket.on('get_player', function() {
-	  	socket.emit('set_player', socket.session.user);
+	  	User.find({_id: socket.session.user._id}, function(err, users) {
+	  		if(users.length > 0) {
+	  			var user = socket.session.user;
+	  			user.pos_x = users[0].pos_x || 5;
+	  			user.pos_y = users[0].pos_y || 5;
+	  			socket.emit('set_player', user);
+	  		}
+	  	});
 	  });
 
 	  socket.on('update_player', function(data) {
-	  	User.find({_id: data.user_id}, function(err, users) {
-	  		if(users.length > 0)
-	  			var user = users[0];
-	  			user.current_pos = data.current_pos;
-	  			socket.broadcast.emit('update_player_position', data);
+	  	User.update({_id: data.user_id}, data, {}, function(err, tiles) { 
+	  		if(err)
+	  			console.log(err);
 	  	});
+	  	socket.broadcast.emit('update_player', data);
 	  });
 
 	  socket.on('sync_tile', function(data) {
@@ -52,5 +58,5 @@ module.exports.listen = function(app){
 
 	});
 
-    return io;
+  return io;
 };

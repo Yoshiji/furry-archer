@@ -8,12 +8,12 @@ Crafty.c("Tile", {
   },
 
   set_owner: function(owner) {
+    //console.log("SETING OWNER");
     var attributes = iso.px2pos(this._x, this._y);
     attributes.owner_name = owner.username;
     var tile_settings = map.get_tile_settings(attributes, true);
     tile_settings.owner_name = owner.username;
     tile_settings.owner_id = owner._id;
-    console.log("SETING OWNER");
     this.socket.emit('sync_tile', attributes);
   }
 });
@@ -24,71 +24,67 @@ Crafty.c("Player", {
     this.username = null;
     this._id = null;
     this.current_pos = {x: 0, y: 0};
-		this.addComponent("2D, Canvas, player2, SpriteAnimation, Fourway, SolidHitBox, Collision, Socketed")
-			.animate('walk_left', [[9,12],[15,12]])
-			.animate('walk_right', [[9,4],[15,4]])
-			.animate('walk_up', [[9,0],[15,0]])
-			.animate('walk_down', [[9,8],[15,8]])
-      .fourway(5)
-      .bind('NewDirection', function(direction) {
-        if (direction.x < 0) {
-            if (!this.isPlaying("walk_left"))
-                this.stop().animate("walk_left", 1, -1);
-        } else if (direction.x > 0) {
-            if (!this.isPlaying("walk_right"))
-                this.stop().animate("walk_right", 1, -1);
-        } else if (direction.y < 0) {
-            if (!this.isPlaying("walk_up"))
-                this.stop().animate("walk_up", 1, -1);
-        } else if (direction.y > 0) {
-            if (!this.isPlaying("walk_down"))
-                this.stop().animate("walk_down", 1, -1);
-        }
-        if(!direction.x && !direction.y) {
-            this.stop();
-        }
-      })
-      .bind('WalkingOnNewTile', function(tile) {
-        console.log('Walking On a New Tile!');
-        this.socket.emit('update_player', {user_id: user._id, current_pos: this.current_pos});
-        
-        if(map.get_tile_settings({x: tile._x, y: tile._y}, true).owner_name != user.username)
-          tile.set_owner(user);
-      })
-      .bind('Moved', function(from) {
-        if(this.hit('grass')) {
-          var tile = this.hit('grass')[0].obj;
-          this.check_new_tile(tile);
+		this.addComponent("2D, Canvas, player2, SpriteAnimation, Fourway, SolidHitBox, Collision, Socketed");
+		this.animate('walk_left', [[9,12],[15,12]]);
+		this.animate('walk_right', [[9,4],[15,4]]);
+		this.animate('walk_up', [[9,0],[15,0]]);
+		this.animate('walk_down', [[9,8],[15,8]]);
+    this.fourway(5);
+    this.collision(new Crafty.polygon([11,31], [12,31], [12,32], [11,32]));
 
-        } else if(this.hit('my_grass')) {
-          var tile = this.hit('my_grass')[0].obj;
-          this.check_new_tile(tile);
+    this.bind('NewDirection', function(direction) {
+      if (direction.x < 0) {
+          if (!this.isPlaying("walk_left"))
+              this.stop().animate("walk_left", 1, -1);
+      } else if (direction.x > 0) {
+          if (!this.isPlaying("walk_right"))
+              this.stop().animate("walk_right", 1, -1);
+      } else if (direction.y < 0) {
+          if (!this.isPlaying("walk_up"))
+              this.stop().animate("walk_up", 1, -1);
+      } else if (direction.y > 0) {
+          if (!this.isPlaying("walk_down"))
+              this.stop().animate("walk_down", 1, -1);
+      }
+      if(!direction.x && !direction.y) {
+          this.stop();
+      }
+    });
 
-        } else if(this.hit('others_grass')) {
-          var tile = this.hit('others_grass')[0].obj;
-          this.check_new_tile(tile);
+    this.bind('WalkingOnNewTile', function(tile) {
+      console.log('Walking On a New Tile!');
+      
+      var tile_settings = map.get_tile_settings({x: tile._x, y: tile._y}, true);
+      var data = { user_id: user._id, pos_x: tile_settings.x, pos_y: tile_settings.y };
+      
+      this.socket.emit('update_player', data);
+      if(tile_settings.owner_id != user._id) {
+        tile.set_owner(user);
+      }
+      
+      $('#panel_control').empty().append('Walking on Tile:<br/> { x: ' + tile_settings.x + ', y: ' + tile_settings.y + ' }');
+    });
 
-        } else if(this.hit('voided') || this.hit('water')) {
-          this.x = from.x;
-          this.y = from.y;
-        }
-        
-        var new_area = iso.area();
-        if(area.x.start != new_area.x.start || area.x.end != new_area.x.end || area.y.start != new_area.y.start || area.y.end != new_area.y.end){
-          area = new_area;
-          var map_size = map.tiles.length;
+    this.bind('Moved', function(from) {
+      if(this.hit('grass')) {
+        var tile = this.hit('grass')[0].obj;
+        this.check_new_tile(tile);
 
-          for(var y = area.y.start; y <= area.y.end; y++){
-            for(var x = area.x.start; x <= area.x.end; x++){
-              if(!map.get_tile_settings({x: x,y: y}))
-                this.socket.emit('get_tile', {x: x, y: y});
-            }
-          }
-        }
-      })
-      .collision(
-        new Crafty.polygon([11,31], [12,31], [12,32], [11,32])
-      );
+      } else if(this.hit('my_grass')) {
+        var tile = this.hit('my_grass')[0].obj;
+        this.check_new_tile(tile);
+
+      } else if(this.hit('others_grass')) {
+        var tile = this.hit('others_grass')[0].obj;
+        this.check_new_tile(tile);
+
+      } else if(this.hit('voided') || this.hit('water')) {
+        this.x = from.x;
+        this.y = from.y;
+      }
+      this.reload_area();
+    });
+    
 			
 		return this;
 	},
@@ -99,6 +95,21 @@ Crafty.c("Player", {
     if(this.current_pos.x != pos.x || this.current_pos.y != pos.y) {
       this.current_pos = pos;
       Crafty.trigger('WalkingOnNewTile', tile);
+    }
+  },
+
+  reload_area: function() {
+    var new_area = iso.area();
+    if(area.x.start != new_area.x.start || area.x.end != new_area.x.end || area.y.start != new_area.y.start || area.y.end != new_area.y.end){
+      area = new_area;
+      var map_size = map.tiles.length;
+
+      for(var y = area.y.start; y <= area.y.end; y++){
+        for(var x = area.x.start; x <= area.x.end; x++){
+          if(!map.get_tile_settings({x: x,y: y}))
+            this.socket.emit('get_tile', {x: x, y: y});
+        }
+      }
     }
   }
 });

@@ -160,6 +160,11 @@ canvas#game_board {
   left: 0;
   z-index: 10;
 }
+div#cr-stage {
+  border-top: 1px solid black;
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+}
 div#game_hidder {
   position: absolute;
   top: 0;
