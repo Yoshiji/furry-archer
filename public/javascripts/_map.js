@@ -102,8 +102,6 @@ Map = {
 
     if(data.owner_name == user.username) {
       data.type = "my_grass";
-    } else if(data.owner_name != '-1') {
-      data.type = "others_grass";
     }
 
     tile.addComponent(data.type);
