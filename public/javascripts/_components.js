@@ -51,9 +51,7 @@ Crafty.c("Player", {
       }
     });
 
-    this.bind('WalkingOnNewTile', function(tile) {
-      console.log('Walking On a New Tile!');
-      
+    this.bind('WalkingOnNewTile', function(tile) {      
       var tile_settings = map.get_tile_settings({x: tile._x, y: tile._y}, true);
       var data = { user_id: user._id, pos_x: tile_settings.x, pos_y: tile_settings.y };
       
