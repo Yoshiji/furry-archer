@@ -18,7 +18,9 @@ html(lang='en')
         each message, type in locals.flash
           .flash(class=type)= message
 
-    div#panel_control(style='float:left;width:150px;height:600px;border:1px solid black;')
+    div#panel-control
+      p#section-title Actions
+      p#actions
 
     form#game_chat_form
       div#game_chat

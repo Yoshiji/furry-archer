@@ -27,7 +27,5 @@ module.exports = function (mongoose) {
 
   // Compile Model
   var User = mongoose.model('User', UserSchema);
-
-
-
+  
 }

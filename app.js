@@ -38,7 +38,30 @@ UTILS = {
   Map: {
     generate: function() {
       Tile = mongoose.model('Tile');
+      CropTemplate = mongoose.model('CropTemplate');
+      Crop = mongoose.model('Crop');
 
+      var init_crop_templates = ['tomato', 'corn', 'cereal'];
+
+      CropTemplate.find(function (err, crop_templates){
+        if(crop_templates.length < 1){
+          for( var i = 0; i < init_crop_templates.length; i++ ) {
+            CropTemplate.create(
+            { name: init_crop_templates[i],
+              maturation_time: 3,
+              decay_time: 5,
+              productivity: 10,
+              storability: 15,
+              seed_price: 90
+            }, function (err, crop_template) {
+              if(err)
+                console.log(err); 
+              else
+                console.log("creating crop template: ", crop_template); 
+            });
+          }
+        }
+      });
 
       Tile.find(function (err, tiles) {
         if (tiles.length < 1) {
@@ -69,9 +92,16 @@ UTILS = {
                 }
               }
               Tile.create(
-                { x: i, y: j, type: type, owner_name: -1 }, function (err, user) {
-                    if(err) { console.log(err); 
-                  }
+              { x: i, 
+                y: j, 
+                type: type, 
+                owner_name: -1, 
+                humidity: 80, //TODO remove harcoded value
+                fertility: 80, //TODO remove harcoded value
+              }, function (err, user) {
+                if(err){ 
+                  console.log(err); 
+                }
               });
               console.log("Tile created: { x: "+i+", y: "+j+", type: "+type+" }");
             }

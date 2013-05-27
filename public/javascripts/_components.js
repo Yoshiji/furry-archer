@@ -1,4 +1,3 @@
-
 Crafty.c("Tile", {
 
   init: function() {
@@ -55,6 +54,9 @@ Crafty.c("Player", {
       var tile_settings = map.get_tile_settings({x: tile._x, y: tile._y}, true);
       var data = { user_id: user._id, pos_x: tile_settings.x, pos_y: tile_settings.y };
       
+      user.pos_x = tile_settings.x;
+      user.pos_y = tile_settings.y;
+
       this.socket.emit('update_player', data);
       if(tile_settings.owner_id != user._id) {
         tile.set_owner(user);

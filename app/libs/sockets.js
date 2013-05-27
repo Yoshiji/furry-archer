@@ -37,9 +37,52 @@ module.exports.listen = function(app){
 	  	User.update({_id: data.user_id}, data, {}, function(err, tiles) { 
 	  		if(err)
 	  			console.log(err);
+	  		else{
+	  			socket.broadcast.emit('update_player', data);
+
+
+	  			//NEW PART *****************************
+	  			console.log("********* UPDATE PLAYER **********");
+	  			Tile.findOne({x: data.pos_x, y: data.pos_y}, function(err, tile){
+	  				console.log("********* FIND  TILE **********");
+	  				if(err)
+	  					console.log(err);
+						console.log("********* TILE FOUND **********", tile.crop);
+  					if(tile.crop > 0){
+  						// TODO code that
+  					}else{
+  						console.log("********* NO CROP **********");
+  						CropTemplate.find({},function(err, crops){
+								if(err)
+  								console.log(err);
+  							else if(crops.length > 0){
+  								console.log("********* DEFAULT CROPS **********");
+  								var available_actions = [];
+  								for (var i = 0, length = crops.length; i < length; i++) {
+										available_actions[i] = crops[i].name;
+  								}
+  								socket.emit('update_actions', available_actions);
+  							}
+  						});
+  					}
+	  			});
+	  		}
 	  	});
-	  	socket.broadcast.emit('update_player', data);
 	  });
+
+	socket.on('action', function(data) {
+		//TODO vérifier si le player est réellement proche de cette case
+		CropTemplate.findOne({ name: data.action }, function (err, crop_template) {
+  		if (err) console.log(err);
+  		console.log('CROP TEMPLATE FOUND', crop_template); // Space Ghost is a talk show host.
+
+  		//TODO add health param before saving crop in tile
+  		Tile.update({x: data.x, y: data.y}, {crop: crop_template}, function(err, tiles){
+				if (err) console.log(err);
+				console.log('UPDATE TILE CROP -----------------------');
+  		});
+		});
+	});
 
 	  socket.on('sync_tile', function(data) {
 	  	Tile.update({x: data.x, y: data.y}, data, {}, function(err, tiles){

@@ -27,6 +27,18 @@ Map = {
     console.log('update_player #' + data.user_id);
   },
 
+  update_actions: function(data, socket){
+    $("#actions").empty();
+    for (var i = 0, len = data.length; i < len; i++) {
+      $("#actions").append('<a href="#" class="action">' + data[i] + "</a>");
+    }
+    $(".action").click(function(){ // bind events
+      event.preventDefault();
+      socket.emit("action", {action: $(this).text(), x: user.pos_x, y: user.pos_y});
+      console.log("emit action: ", $(this).text());
+    });
+  },
+
   // INIT METHODS
   init: function(socket) {
     Crafty.init(800,600);
@@ -54,6 +66,10 @@ Map = {
 
     socket.on('update_player', function(data) {
       self.update_player(data, this);
+    });
+
+    socket.on('update_actions', function(data) {
+      self.update_actions(data, this);
     });
   },
 
