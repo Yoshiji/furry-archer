@@ -11,7 +11,6 @@ Crafty.c("Tile", {
     attributes.owner_name = owner.username;
     var tile_settings = map.get_tile_settings(attributes, true);
     tile_settings.owner_name = owner.username;
-    tile_settings.owner_id = owner._id;
     this.socket.emit('sync_tile', attributes);
 
     console.log("SETING OWNER", attributes);
@@ -23,7 +22,6 @@ Crafty.c("Player", {
 	init: function() {
     this.username = null;
     this._id = null;
-    this.current_pos = {x: 0, y: 0};
 		this.addComponent("2D, Canvas, player2, SpriteAnimation, Fourway, SolidHitBox, Collision, Socketed");
 		this.animate('walk_left', [[9,12],[15,12]]);
 		this.animate('walk_right', [[9,4],[15,4]]);
@@ -59,7 +57,7 @@ Crafty.c("Player", {
       user.pos_y = tile_settings.y;
 
       this.socket.emit('update_player', data);
-      if(tile_settings.owner_id != user._id) {
+      if(tile_settings.owner_name != user.username) {
         tile.set_owner(user);
       }
       

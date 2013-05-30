@@ -23,40 +23,40 @@ module.exports.listen = function(app){
 	  });
 
 	  socket.on('get_player', function() {
-	  	User.find({_id: socket.session.user._id}, function(err, users) {
-	  		if(users.length > 0) {
+	  	User.findOne({_id: socket.session.user._id}, function(err, user) {
+	  		if(user) {
 	  			var user = socket.session.user;
-	  			user.pos_x = users[0].pos_x || 5;
-	  			user.pos_y = users[0].pos_y || 5;
+	  			user.pos_x = user.pos_x || 5;
+	  			user.pos_y = user.pos_y || 5;
 	  			socket.emit('set_player', user);
 	  		}
 	  	});
 	  });
 
 	  socket.on('update_player', function(data) {
-	  	User.update({_id: data.user_id}, data, {}, function(err, tiles) { 
-	  		if(err) console.log(err);
-	  		else{
+	  	User.update({_id: data.user_id}, data, {}, function(err, users) { 
+	  		if(err) {
+	  			console.log(err);
+	  		} else {
 	  			socket.broadcast.emit('update_player', data);
-
 
 	  			// Find CROP Data
 	  			console.log("********* UPDATE PLAYER **********");
 
 	  			Tile.findOne({x: data.pos_x, y: data.pos_y})
           .populate('crop')
-          .exec(function(err, tile){
+          .exec(function(err, tile) {
 
 	  				if(err) console.log(err);
 						console.log("********* TILE FOUND **********\n", tile);
 
-  					if(tile.crop.length > 0){
+  					if(tile.crop.length > 0) {
   						if(tile.crop.health == 100) // TODO set limit of health for actions level 2
                 socket.emit('update_actions', Actions[2]);
               else
                 socket.emit('update_actions', Actions[1]);
 
-  					}else{
+  					} else {
   						console.log("********* NO CROP **********");
   						CropTemplate.find({},function(err, crop_templates){
 
@@ -142,12 +142,12 @@ module.exports.listen = function(app){
 
 	  socket.on('sync_tile', function(data) {
 	  	Tile.update({x: data.x, y: data.y}, data, {}, function(err, tiles){
-	  		if(err) console.log(err);
-	  	});
+	  		if(err) { console.log(err); }
 
-	  	Tile.findOne({x: data.x, y: data.y}, function(err, tile){
-  			socket.emit('update_tile', tile);
-  			socket.broadcast.emit('update_tile', tile);
+		  	Tile.findOne({x: data.x, y: data.y}, function(err, tile){
+	  			socket.emit('update_tile', tile);
+	  			socket.broadcast.emit('update_tile', tile);
+		  	});
 	  	});
 	  });
 
