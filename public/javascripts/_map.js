@@ -6,20 +6,19 @@ Map = {
 
   // METHODS
   update_tile: function(data, socket) {
-    console.log("DATA RECEIVED FOR GET TILES SETTINGS : ", data);
     var tile_settings = this.get_tile_settings(data);
     if(tile_settings) {
       data.id = tile_settings.id; // keep id of the Crafty.element to keep it linked with the tiles hash
 
       if(data.owner_name == user.username)
         data.type = "my_grass";
-      else // bizarre, parfois set to others_grass quand on marche dessus !
+      else
         data.type = "others_grass";
-      console.log("AVANT : ", Crafty(data.id));
-      Crafty(data.id).removeComponent("grass, water, voided, my_grass, others_grass").addComponent(data.type);
+
+      Crafty(data.id).removeComponent("grass, my_grass, others_grass").addComponent(data.type);
       this.set_tile_settings(data);
-      console.log("APRES : ", Crafty(data.id));
-      console.log("UPDATING TILE #" + data.x, data.y, data.type);
+
+      //console.log("UPDATING TILE #" + data.x, data.y, data.type);
     }
   },
 
@@ -28,12 +27,12 @@ Map = {
     console.log('update_player #' + data.user_id);
   },
 
-  update_actions: function(data, socket){
+  update_actions: function(data, socket) {
     $("#actions").empty();
     for (var i = 0, len = data.length; i < len; i++) {
       $("#actions").append('<a href="#" class="action">' + data[i] + "</a>");
     }
-    $(".action").click(function(){ // bind events
+    $(".action").click(function() { // bind events
       event.preventDefault();
       socket.emit("action", {action: $(this).text(), x: user.pos_x, y: user.pos_y});
       console.log("emit action: ", $(this).text());

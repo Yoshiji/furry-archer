@@ -13,7 +13,7 @@ Crafty.c("Tile", {
     tile_settings.owner_name = owner.username;
     this.socket.emit('sync_tile', attributes);
 
-    console.log("SETING OWNER", attributes);
+    //console.log("SETING OWNER", attributes);
   }
 });
 
@@ -32,20 +32,20 @@ Crafty.c("Player", {
 
     this.bind('NewDirection', function(direction) {
       if (direction.x < 0) {
-          if (!this.isPlaying("walk_left"))
-              this.stop().animate("walk_left", 1, -1);
+        if (!this.isPlaying("walk_left"))
+          this.stop().animate("walk_left", 1, -1);
       } else if (direction.x > 0) {
-          if (!this.isPlaying("walk_right"))
-              this.stop().animate("walk_right", 1, -1);
+        if (!this.isPlaying("walk_right"))
+          this.stop().animate("walk_right", 1, -1);
       } else if (direction.y < 0) {
-          if (!this.isPlaying("walk_up"))
-              this.stop().animate("walk_up", 1, -1);
+        if (!this.isPlaying("walk_up"))
+          this.stop().animate("walk_up", 1, -1);
       } else if (direction.y > 0) {
-          if (!this.isPlaying("walk_down"))
-              this.stop().animate("walk_down", 1, -1);
+        if (!this.isPlaying("walk_down"))
+          this.stop().animate("walk_down", 1, -1);
       }
       if(!direction.x && !direction.y) {
-          this.stop();
+        this.stop();
       }
     });
 

@@ -2,6 +2,7 @@ var socketio = require('socket.io');
 
 module.exports.listen = function(app){
   var io = socketio.listen(app);
+  io.set('log level', 1);
 
 	// Handle the connection and the events
 	io.on('connection', function(socket) {
@@ -25,7 +26,6 @@ module.exports.listen = function(app){
 	  socket.on('get_player', function() {
 	  	User.findOne({_id: socket.session.user._id}, function(err, user) {
 	  		if(user) {
-	  			var user = socket.session.user;
 	  			user.pos_x = user.pos_x || 5;
 	  			user.pos_y = user.pos_y || 5;
 	  			socket.emit('set_player', user);
@@ -36,44 +36,43 @@ module.exports.listen = function(app){
 	  socket.on('update_player', function(data) {
 	  	User.update({_id: data.user_id}, data, {}, function(err, users) { 
 	  		if(err) {
-	  			console.log(err);
-	  		} else {
-	  			socket.broadcast.emit('update_player', data);
+          console.log(err); 
+        } else {
+          User.findOne({_id: data.user_id}, function(err, user) {
+            socket.broadcast.emit('update_player', data);
+          });
+        }
+      });
 
-	  			// Find CROP Data
-	  			console.log("********* UPDATE PLAYER **********");
+			Tile.findOne({x: data.pos_x, y: data.pos_y})
+      .populate('crop')
+      .exec(function(err, tile) {
 
-	  			Tile.findOne({x: data.pos_x, y: data.pos_y})
-          .populate('crop')
-          .exec(function(err, tile) {
+				if(err) console.log(err);
+				console.log("********* TILE FOUND **********");
 
-	  				if(err) console.log(err);
-						console.log("********* TILE FOUND **********\n", tile);
+				if(tile.crop.length > 0) {
+					if(tile.crop.health == 100) // TODO set limit of health for actions level 2
+            socket.emit('update_actions', Actions[2]);
+          else
+            socket.emit('update_actions', Actions[1]);
 
-  					if(tile.crop.length > 0) {
-  						if(tile.crop.health == 100) // TODO set limit of health for actions level 2
-                socket.emit('update_actions', Actions[2]);
-              else
-                socket.emit('update_actions', Actions[1]);
+				} else {
+					console.log("********* NO CROP **********");
+					CropTemplate.find({},function(err, crop_templates){
 
-  					} else {
-  						console.log("********* NO CROP **********");
-  						CropTemplate.find({},function(err, crop_templates){
-
-								if(err) console.log(err);
-  							else if(crop_templates.length > 0){
-  								console.log("********* SEND LEVEL 0 ACTIONS **********");
-  								var available_actions = [];
-  								for (var i = 0, length = crop_templates.length; i < length; i++) {
-										available_actions[i] = Actions[0] + " " + crop_templates[i].name;
-  								}
-  								socket.emit('update_actions', available_actions);
-  							}
-  						});
-  					}
-	  			});
-	  		}
-	  	});
+						if(err) console.log(err);
+						else if(crop_templates.length > 0){
+							console.log("********* SEND LEVEL 0 ACTIONS **********");
+							var available_actions = [];
+							for (var i = 0, length = crop_templates.length; i < length; i++) {
+								available_actions[i] = Actions[0] + " " + crop_templates[i].name;
+							}
+							socket.emit('update_actions', available_actions);
+						}
+					});
+				}
+			});
 	  });
 
   	socket.on('action', function(data) {
