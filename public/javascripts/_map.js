@@ -4,6 +4,7 @@ Map = {
   tiles: {},
   players: {},
 
+
   // METHODS
   update_tile: function(data, socket) {
     var tile_settings = this.get_tile_settings(data);
@@ -37,18 +38,8 @@ Map = {
     });
   },
 
-  // GETTERs & SETTERs
-  set_player: function(data, socket) {
-    var player = this.player = Crafty.e('Player').set_socket(socket);
-    Crafty.addEvent(player, Crafty.stage.elem, 'WalkingOnNewTile');
-    iso.place(data.pos_x, data.pos_y, 20, player);
-    Crafty.viewport.follow(player);
-    player.x += (128 - 12);
-    player.y += (74 - 16);
-    user = data;
-    this.get_tiles_for_area(socket);
-  },
 
+  // GETTERs & SETTERs
   set_tile: function(data, socket) {
     var tile = Crafty.e("Tile").set_socket(socket);
     data.id = tile[0];
@@ -60,15 +51,6 @@ Map = {
     tile.addComponent(data.type);
     iso.place(data.x, data.y, 1, tile);
     this.set_tile_settings(data, false);
-  },
-
-  get_tiles_for_area: function(socket) {
-    area = iso.area();
-    for(var y = area.y.start; y <= area.y.end; y++) {
-      for(var x = area.x.start; x <= area.x.end; x++) {
-        socket.emit('get_tile', {x: x, y: y});
-      }
-    }
   },
 
   get_tile_settings: function(data, inputIsInPx) {
@@ -99,6 +81,7 @@ Map = {
     return this.tiles[key];
   },
   
+
   // INIT METHODS
   init: function(socket) {
     Crafty.init(800,600);
@@ -107,6 +90,28 @@ Map = {
     this.init_sockets(socket);
 
     return this;
+  },
+
+  init_player: function(data, socket) {
+    var player = this.player = Crafty.e('Player').set_socket(socket);
+    Crafty.addEvent(player, Crafty.stage.elem, 'WalkingOnNewTile');
+    iso.place(data.pos_x, data.pos_y, 20, player);
+    Crafty.viewport.follow(player);
+    player.x += (128 - 12);
+    player.y += (74 - 16);
+    data.pos_x = -10; //Workaround to trigger 'Moved' as soon as we first walk
+    user = data;
+    this.init_tiles_around_me(socket, player);
+  },
+
+  init_tiles_around_me: function(socket, player) {
+    area = iso.area();
+    for(var y = area.y.start; y <= area.y.end; y++) {
+      for(var x = area.x.start; x <= area.x.end; x++) {
+        socket.emit('get_tile', {x: x, y: y});
+      }
+    }
+    player.trigger('Moved', {x: player.x, y: player.y});
   },
 
   init_sockets: function(socket) {
@@ -121,7 +126,7 @@ Map = {
     });
 
     socket.on('set_player', function(data){
-      self.set_player(data, this);
+      self.init_player(data, this);
     });
 
     socket.on('update_player', function(data) {
