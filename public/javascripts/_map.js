@@ -8,7 +8,7 @@ Map = {
   update_tile: function(data, socket) {
     var tile_settings = this.get_tile_settings(data);
     if(tile_settings) {
-      data.id = tile_settings.id; // keep id of the Crafty.element to keep it linked with the tiles hash
+      data.id = tile_settings.id;
 
       if(data.owner_name == user.username)
         data.type = "my_grass";
@@ -131,8 +131,8 @@ Map = {
 
   get_tiles_for_area: function(socket) {
     area = iso.area();
-    for(var y = area.y.start; y <= area.y.end; y++){
-      for(var x = area.x.start; x <= area.x.end; x++){
+    for(var y = area.y.start; y <= area.y.end; y++) {
+      for(var x = area.x.start; x <= area.x.end; x++) {
         socket.emit('get_tile', {x: x, y: y});
       }
     }

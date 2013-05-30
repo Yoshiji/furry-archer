@@ -85,11 +85,10 @@ module.exports.listen = function(app){
 
     		CropTemplate.findOne({ name: search }, function (err, crop_template) {
       		if (err) console.log(err);
-      		console.log('CROP TEMPLATE FOUND', crop_template); // Space Ghost is a talk show host.
+      		console.log('CROP TEMPLATE FOUND');
 
       		// TODO add health param before saving crop in tile
           crop_template._id = Mongoose.Types.ObjectId();
-          console.log("CROP AFTER CHANGING ID JAVASCRIPT", crop_template);
 
           var crop = new Crop(crop_template);
           crop.save(function(err){
@@ -104,7 +103,7 @@ module.exports.listen = function(app){
     				if (err) console.log(err);
             socket.emit('update_tile', tile);
             socket.emit('update_actions', Actions[1]);
-    				console.log('UPDATE TILE EMIT - UPDATE ACTIONS -----------------------', tile);
+    				console.log('UPDATE TILE EMIT - UPDATE ACTIONS -----------------------');
       		});
 
     		});
@@ -117,7 +116,7 @@ module.exports.listen = function(app){
             if (err) console.log(err);
 
             socket.emit('update_tile', tile);
-            console.log('UPDATE TILE CROP WATER -----------------------', tile);
+            console.log('UPDATE TILE CROP WATER -----------------------');
           });
         });
 
@@ -129,7 +128,7 @@ module.exports.listen = function(app){
             if (err) console.log(err);
 
             socket.emit('update_tile', tile);
-            console.log('UPDATE TILE CROP FERTILIZE -----------------------', tile);
+            console.log('UPDATE TILE CROP FERTILIZE -----------------------');
           });
         });
 

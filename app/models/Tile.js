@@ -12,6 +12,6 @@ module.exports = function (mongoose) {
   });
 
   // Compile Model
-  var User = mongoose.model('Tile', TileSchema);
+  var Tile = mongoose.model('Tile', TileSchema);
 
 }
