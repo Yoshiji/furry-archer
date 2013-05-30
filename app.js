@@ -45,8 +45,8 @@ UTILS = {
 
       var init_crop_templates = ['tomato', 'corn', 'cereal'];
 
-      CropTemplate.find(function (err, crop_templates){
-        if(crop_templates.length < 1){
+      CropTemplate.find(function (err, crop_templates) {
+        if(crop_templates.length < 1) {
           for( var i = 0; i < init_crop_templates.length; i++ ) {
             CropTemplate.create(
             { name: init_crop_templates[i],
@@ -68,44 +68,36 @@ UTILS = {
       Tile.find(function (err, tiles) {
         if (tiles.length < 1) {
           var map_size = 20;
-          var water_tiles = [];
-          var lakes_number = 8;
-
-          for( var k = 0; k < lakes_number; k++ ) {
-            var water_width = Math.floor(Math.random()) + 2;
-            var offset_x = Math.floor(Math.random()*10)*Math.floor(map_size/10) + 1;
-            var offset_y = Math.floor(Math.random()*10)*Math.floor(map_size/10) + 1;
-            for( var l = 0; l < water_width; l++ ) {
-              var water_height = Math.floor(Math.random()) + 3;
-              for( var m = 0; m < water_height; m++) {
-                water_tiles.push({ x: l+offset_x, y: m+offset_y });
-              }
-            }
-          }
+          var bands = [ [1, 45], [45, 75], [75, 110], [45, 75], [1, 45] ];
 
           for(var i = 0; i < map_size; i++) {
+            var current_band = bands[i%5];
+
             for(var j = 0; j < map_size; j++) {
-              var type = 'grass';
-              for(k = 0; k < water_tiles.length; k++) {
-                if(water_tiles[k].x == i && water_tiles[k].y == j) {
-                  type = 'water';
-                  water_tiles.splice(k, 1);
-                  break;
+              var humidity_rand = Math.floor(Math.random()*100) + 1; 
+              var fertility_rand = Math.floor(Math.random()*(current_band[1]-current_band[0])) + current_band[0];
+              
+              if(fertility_rand > 100) {
+                var type = 'water';
+              } else {
+                var type = 'grass';
+              }                
+
+              var attributes = { x: i, 
+                  y: j, 
+                  type: type, 
+                  owner_name: -1, 
+                  humidity: humidity_rand,
+                  fertility: fertility_rand,
                 }
-              }
-              Tile.create(
-              { x: i, 
-                y: j, 
-                type: type, 
-                owner_name: -1, 
-                humidity: 80, //TODO remove harcoded value
-                fertility: 80, //TODO remove harcoded value
-              }, function (err, user) {
-                if(err){ 
-                  console.log(err); 
+
+              Tile.create( attributes, function (err, tile) {
+                  if(tile) { 
+                    console.log("Tile created: { x: "+tile.x+", y: "+tile.y+", type: "+tile.type+", fertility: "+tile.fertility+", humidity: "+tile.humidity+" }"); 
+                  }
+                  if(err) { console.log(err); }
                 }
-              });
-              console.log("Tile created: { x: "+i+", y: "+j+", type: "+type+" }");
+              );
             }
           }
         }
