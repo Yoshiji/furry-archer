@@ -1,4 +1,4 @@
-Crafty.sprite(128, 128, "images/grasstile.png", {
+Crafty.sprite(128, 148, "images/grasstile.png", {
 	grass: [0,0,2,1],
 	water: [2,0,2,1],
 	my_grass: [0,1,2,1],

@@ -1,19 +1,20 @@
 Crafty.c("Tile", {
 
   init: function() {
-    this.addComponent("2D, Canvas, Mouse").areaMap([0,16], [32,0], [64,16], [32,16]);
-    this.addComponent("Collision").collision(new Crafty.polygon([0,64], [128,0], [256,64], [128,128]));
+    this.addComponent("2D, Canvas")
+    this.addComponent("Collision").collision(new Crafty.polygon([0,84], [128,20], [256,84], [128,148]));
     this.addComponent("Socketed");
   },
 
   set_owner: function(owner) {
-    //console.log("SETING OWNER");
     var attributes = iso.px2pos(this._x, this._y);
     attributes.owner_name = owner.username;
     var tile_settings = map.get_tile_settings(attributes, true);
     tile_settings.owner_name = owner.username;
     tile_settings.owner_id = owner._id;
     this.socket.emit('sync_tile', attributes);
+
+    console.log("SETING OWNER", attributes);
   }
 });
 
@@ -62,7 +63,7 @@ Crafty.c("Player", {
         tile.set_owner(user);
       }
       
-      $('#panel_control').empty().append('Walking on Tile:<br/> { x: ' + tile_settings.x + ', y: ' + tile_settings.y + ' }');
+      $('#debug').empty().append('Walking on Tile:<br/> { x: ' + tile_settings.x + ', y: ' + tile_settings.y + ' }');
     });
 
     this.bind('Moved', function(from) {

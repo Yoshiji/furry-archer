@@ -8070,7 +8070,8 @@ Crafty.extend({
             var pos = this.pos2px(x,y)
             obj.attr({
                 x: pos.left,
-                y: pos.top+offset,
+                //y: pos.top+offset, (à voir si ca servait vraiment a qqch)
+                y: pos.top,
                 z:z
             });
             return this;

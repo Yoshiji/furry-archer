@@ -113,16 +113,26 @@ module.exports.listen = function(app){
       } else if (action_cleaned.indexOf("water") > -1){
         Tile.update({x: data.x, y: data.y}, {humidity: 100}, function(err, tiles){
           if (err) console.log(err);
-          socket.emit('update_tile', tiles[0]);
-          console.log('UPDATE TILE CROP WATER -----------------------', tiles);
+
+          Tile.findOne({x: data.x, y: data.y}, function(err, tile){
+            if (err) console.log(err);
+
+            socket.emit('update_tile', tile);
+            console.log('UPDATE TILE CROP WATER -----------------------', tile);
+          });
         });
 
       } else if (action_cleaned.indexOf("fertilize") > -1){
         Tile.update({x: data.x, y: data.y}, {fertility: 100}, function(err, tiles){
           if (err) console.log(err);
-          socket.emit('update_tile', tiles[0]);
-          console.log('UPDATE TILE CROP FERTILIZE -----------------------', tiles);
-        })
+
+          Tile.findOne({x: data.x, y: data.y}, function(err, tile){
+            if (err) console.log(err);
+
+            socket.emit('update_tile', tile);
+            console.log('UPDATE TILE CROP FERTILIZE -----------------------', tile);
+          });
+        });
 
       } else if (action_cleaned.indexOf("harvest") > -1){
         //TODO code that

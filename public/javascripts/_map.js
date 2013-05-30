@@ -6,6 +6,7 @@ Map = {
 
   // METHODS
   update_tile: function(data, socket) {
+    console.log("DATA RECEIVED FOR GET TILES SETTINGS : ", data);
     var tile_settings = this.get_tile_settings(data);
     if(tile_settings) {
       data.id = tile_settings.id; // keep id of the Crafty.element to keep it linked with the tiles hash
@@ -14,11 +15,11 @@ Map = {
         data.type = "my_grass";
       else // bizarre, parfois set to others_grass quand on marche dessus !
         data.type = "others_grass";
-
+      console.log("AVANT : ", Crafty(data.id));
       Crafty(data.id).removeComponent("grass, water, voided, my_grass, others_grass").addComponent(data.type);
       this.set_tile_settings(data);
-
-      //console.log("UPDATING TILE #" + data.id);
+      console.log("APRES : ", Crafty(data.id));
+      console.log("UPDATING TILE #" + data.x, data.y, data.type);
     }
   },
 
@@ -106,8 +107,10 @@ Map = {
     //console.log("SETTING PLAYER " + data.username);
     var player = this.player = Crafty.e('Player').set_socket(socket);
     Crafty.addEvent(player, Crafty.stage.elem, 'WalkingOnNewTile');
-    iso.place(data.pos_x, data.pos_y - 1, 20, player); // SOOOOO WEIRD data.pos_y -1 !!!
+    iso.place(data.pos_x, data.pos_y, 20, player);
     Crafty.viewport.follow(player);
+    player.x += (128 - 12); // CENTERING PLAYER ON TILE
+    player.y += (74 - 16);
     user = data;
     this.get_tiles_for_area(socket);
   },
@@ -124,7 +127,7 @@ Map = {
     iso.place(data.x, data.y, 1, tile);
     this.set_tile_settings(data, false); // save tile
 
-    //console.log("SETTING TILE #" + data.id);
+    //console.log("SETTING TILE #", data);
   },
 
   get_tiles_for_area: function(socket) {
