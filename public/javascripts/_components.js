@@ -61,7 +61,12 @@ Crafty.c("Player", {
         tile.set_owner(user);
       }
       
-      $('#debug').empty().append('Walking on Tile:<br/> { x: ' + tile_settings.x + ', y: ' + tile_settings.y + ' }');
+      var tile_info = 'Tile settings before update:<br/>'
+      var keys = Object.keys(tile_settings).sort();
+      for(var i = 0; i < keys.length; i++) {
+        tile_info += '- ' + keys[i] + ': ' + tile_settings[keys[i]] + '<br/>';
+      }
+      $('#debug').empty().append(tile_info);
     });
 
     this.bind('Moved', function(from) {
