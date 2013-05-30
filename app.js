@@ -51,7 +51,7 @@ UTILS = {
             CropTemplate.create(
             { name: init_crop_templates[i],
               maturation_time: 3,
-              decay_time: 5,
+              decay_time: 10,
               productivity: 10,
               storability: 15,
               seed_price: 90

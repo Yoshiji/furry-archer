@@ -17,8 +17,6 @@ Map = {
 
       Crafty(data.id).removeComponent("grass, my_grass, others_grass").addComponent(data.type);
       this.set_tile_settings(data);
-
-      //console.log("UPDATING TILE #" + data.x, data.y, data.type);
     }
   },
 
@@ -39,6 +37,68 @@ Map = {
     });
   },
 
+  // GETTERs & SETTERs
+  set_player: function(data, socket) {
+    var player = this.player = Crafty.e('Player').set_socket(socket);
+    Crafty.addEvent(player, Crafty.stage.elem, 'WalkingOnNewTile');
+    iso.place(data.pos_x, data.pos_y, 20, player);
+    Crafty.viewport.follow(player);
+    player.x += (128 - 12);
+    player.y += (74 - 16);
+    user = data;
+    this.get_tiles_for_area(socket);
+  },
+
+  set_tile: function(data, socket) {
+    var tile = Crafty.e("Tile").set_socket(socket);
+    data.id = tile[0];
+
+    if(data.owner_name == user.username) {
+      data.type = "my_grass";
+    }
+
+    tile.addComponent(data.type);
+    iso.place(data.x, data.y, 1, tile);
+    this.set_tile_settings(data, false);
+  },
+
+  get_tiles_for_area: function(socket) {
+    area = iso.area();
+    for(var y = area.y.start; y <= area.y.end; y++) {
+      for(var x = area.x.start; x <= area.x.end; x++) {
+        socket.emit('get_tile', {x: x, y: y});
+      }
+    }
+  },
+
+  get_tile_settings: function(data, inputIsInPx) {
+    var x = data.x;
+    var y = data.y;
+    if(inputIsInPx){
+      var pos = iso.px2pos(x, y);
+      x = pos.x;
+      y = pos.y;
+    }
+    var key = "x" + x + "y" + y;
+    if(this.tiles[key])
+      return this.tiles[key];
+    else
+      return false;
+  },
+
+  set_tile_settings: function(data, inputIsInPx) {
+    var x = data.x;
+    var y = data.y;
+    if(inputIsInPx){
+      var pos = iso.px2pos(x, y);
+      x = pos.left;
+      y = pos.top;
+    }
+    var key = "x" + x + "y" + y;
+    this.tiles[key] = data;
+    return this.tiles[key];
+  },
+  
   // INIT METHODS
   init: function(socket) {
     Crafty.init(800,600);
@@ -99,70 +159,5 @@ Map = {
 
       socket.emit('get_player');
     });
-  },
-
-  // GETTERs & SETTERs
-  set_player: function(data, socket) {
-    //console.log("SETTING PLAYER " + data.username);
-    var player = this.player = Crafty.e('Player').set_socket(socket);
-    Crafty.addEvent(player, Crafty.stage.elem, 'WalkingOnNewTile');
-    iso.place(data.pos_x, data.pos_y, 20, player);
-    Crafty.viewport.follow(player);
-    player.x += (128 - 12); // CENTERING PLAYER ON TILE
-    player.y += (74 - 16);
-    user = data;
-    this.get_tiles_for_area(socket);
-  },
-
-  set_tile: function(data, socket) {
-    var tile = Crafty.e("Tile").set_socket(socket);
-    data.id = tile[0]; // save id of the Crafty.element to keep it linked with the tiles hash
-
-    if(data.owner_name == user.username) {
-      data.type = "my_grass";
-    }
-
-    tile.addComponent(data.type);
-    iso.place(data.x, data.y, 1, tile);
-    this.set_tile_settings(data, false); // save tile
-
-    //console.log("SETTING TILE #", data);
-  },
-
-  get_tiles_for_area: function(socket) {
-    area = iso.area();
-    for(var y = area.y.start; y <= area.y.end; y++) {
-      for(var x = area.x.start; x <= area.x.end; x++) {
-        socket.emit('get_tile', {x: x, y: y});
-      }
-    }
-  },
-
-  get_tile_settings: function(data, inputIsInPx) {
-    var x = data.x;
-    var y = data.y;
-    if(inputIsInPx){
-      var pos = iso.px2pos(x, y);
-      x = pos.x;
-      y = pos.y;
-    }
-    var key = "x" + x + "y" + y;
-    if(this.tiles[key])
-      return this.tiles[key];
-    else
-      return false;
-  },
-
-  set_tile_settings: function(data, inputIsInPx) {
-    var x = data.x;
-    var y = data.y;
-    if(inputIsInPx){
-      var pos = iso.px2pos(x, y);
-      x = pos.left;
-      y = pos.top;
-    }
-    var key = "x" + x + "y" + y;
-    this.tiles[key] = data;
-    return this.tiles[key];
   }
 }
