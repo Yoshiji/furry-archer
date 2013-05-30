@@ -8,7 +8,7 @@ module.exports = function (mongoose) {
       owner_name: String,
       humidity: Number,
       fertility: Number,
-      crops : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Crop' }]
+      crop : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Crop' }]
   });
 
   // Compile Model

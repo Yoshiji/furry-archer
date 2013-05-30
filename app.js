@@ -37,9 +37,11 @@ UTILS = {
   },
   Map: {
     generate: function() {
+      Mongoose = mongoose;
       Tile = mongoose.model('Tile');
       CropTemplate = mongoose.model('CropTemplate');
       Crop = mongoose.model('Crop');
+      Actions = ["plant", ["water", "fertilize"], ["harvest"]]; // actions with their levels
 
       var init_crop_templates = ['tomato', 'corn', 'cereal'];
 
@@ -117,8 +119,10 @@ exports = module.exports = config = require('./config/config.js');
 
 // Loads the Models
 fs.readdirSync('./app/models/').forEach(function (file) {
-  var model = require('./app/models/' + file);
-  model(mongoose);
+  if (file != ".DS_Store"){
+    var model = require('./app/models/' + file);
+    model(mongoose);
+  }
 });
 
 // Loads Express with the /config/express.js and deploys routes with /config/routes.js
