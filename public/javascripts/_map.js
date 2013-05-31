@@ -16,7 +16,7 @@ Map = {
       else
         data.type = "others_grass";
 
-      Crafty(data.id).removeComponent("grass, my_grass, others_grass").addComponent(data.type);
+      Crafty(data.id).sprite(tile_sprite_settings[data.type][0],tile_sprite_settings[data.type][1], tile_sprite_settings[data.type][2], tile_sprite_settings[data.type][3]);
       this.set_tile_settings(data);
     }
   },
@@ -48,7 +48,8 @@ Map = {
       data.type = "my_grass";
     }
 
-    tile.addComponent(data.type);
+    tile.addComponent("tile_sprite").sprite(tile_sprite_settings[data.type][0],tile_sprite_settings[data.type][1], tile_sprite_settings[data.type][2], tile_sprite_settings[data.type][3]);
+
     iso.place(data.x, data.y, 1, tile);
     this.set_tile_settings(data, false);
   },

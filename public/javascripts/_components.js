@@ -70,21 +70,16 @@ Crafty.c("Player", {
     });
 
     this.bind('Moved', function(from) {
-      if(this.hit('grass')) {
-        var tile = this.hit('grass')[0].obj;
-        this.check_new_tile(tile);
+      if (this.hit('tile_sprite')) {
+        var tile = this.hit('tile_sprite')[0].obj;
+        var tile_type = map.get_tile_settings(tile, true).type;
 
-      } else if(this.hit('my_grass')) {
-        var tile = this.hit('my_grass')[0].obj;
-        this.check_new_tile(tile);
-
-      } else if(this.hit('others_grass')) {
-        var tile = this.hit('others_grass')[0].obj;
-        this.check_new_tile(tile);
-
-      } else if(this.hit('voided') || this.hit('water')) {
-        this.x = from.x;
-        this.y = from.y;
+        if (tile_type == 'voided' || tile_type == 'water') {
+          this.x = from.x;
+          this.y = from.y;
+        } else {
+          this.check_new_tile(tile);
+        }
       }
       this.reload_area();
     });

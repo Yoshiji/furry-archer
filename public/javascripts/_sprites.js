@@ -1,7 +1,9 @@
-Crafty.sprite(128, 148, "images/grasstile.png", {
-	grass: [0,0,2,1],
+Crafty.sprite(128, 148, "images/grasstile.png", { tile_sprite: [0,0,2,1]});
+
+
+tile_sprite_settings = { grass: [0,0,2,1],
 	water: [2,0,2,1],
-	voided: [2,0,2,1]
+	voided: [2,0,2,1],
 	my_grass: [4,0,2,1],
 	others_grass: [6,0,2,1],
 
@@ -66,8 +68,7 @@ Crafty.sprite(128, 148, "images/grasstile.png", {
 	others_little_plants_bad: [4,10,2,1],
 	others_plants_bad: [6,10,2,1],
 	others_mature_plants_bad: [8,10,2,1]
-});
-
+};
 Crafty.sprite(8, 8, "images/players.png", {
 	player1: [3, 8,3,4],
 	player2: [12,8,3,4],

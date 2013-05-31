@@ -44,7 +44,7 @@ module.exports.listen = function(app){
       .populate('crop')
       .exec(function(err, tile) {
 
-				if(tile.crop && tile.crop.length > 0) {
+				if(tile && tile.crop && tile.crop.length > 0) {
 					if(tile.crop[0].maturity > 80)
             socket.emit('update_actions', Actions[2]);
           else
