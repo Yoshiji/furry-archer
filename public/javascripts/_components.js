@@ -13,7 +13,7 @@ Crafty.c("Tile", {
     tile_settings.owner_name = owner.username;
     this.socket.emit('sync_tile', attributes);
 
-    console.log("SETING OWNER", attributes);
+    //console.log("SETING OWNER", attributes);
   }
 });
 
@@ -32,24 +32,24 @@ Crafty.c("Player", {
 
     this.bind('NewDirection', function(direction) {
       if (direction.x < 0) {
-          if (!this.isPlaying("walk_left"))
-              this.stop().animate("walk_left", 1, -1);
+        if (!this.isPlaying("walk_left"))
+          this.stop().animate("walk_left", 1, -1);
       } else if (direction.x > 0) {
-          if (!this.isPlaying("walk_right"))
-              this.stop().animate("walk_right", 1, -1);
+        if (!this.isPlaying("walk_right"))
+          this.stop().animate("walk_right", 1, -1);
       } else if (direction.y < 0) {
-          if (!this.isPlaying("walk_up"))
-              this.stop().animate("walk_up", 1, -1);
+        if (!this.isPlaying("walk_up"))
+          this.stop().animate("walk_up", 1, -1);
       } else if (direction.y > 0) {
-          if (!this.isPlaying("walk_down"))
-              this.stop().animate("walk_down", 1, -1);
+        if (!this.isPlaying("walk_down"))
+          this.stop().animate("walk_down", 1, -1);
       }
       if(!direction.x && !direction.y) {
-          this.stop();
+        this.stop();
       }
     });
 
-    this.bind('WalkingOnNewTile', function(tile) {      
+    this.bind('WalkingOnNewTile', function(tile) {     
       var tile_settings = map.get_tile_settings({x: tile._x, y: tile._y}, true);
       var data = { user_id: user._id, pos_x: tile_settings.x, pos_y: tile_settings.y };
       
@@ -61,7 +61,12 @@ Crafty.c("Player", {
         tile.set_owner(user);
       }
       
-      $('#debug').empty().append('Walking on Tile:<br/> { x: ' + tile_settings.x + ', y: ' + tile_settings.y + ' }');
+      var tile_info = 'Tile settings before update:<br/>'
+      var keys = Object.keys(tile_settings).sort();
+      for(var i = 0; i < keys.length; i++) {
+        tile_info += '- ' + keys[i] + ': ' + tile_settings[keys[i]] + '<br/>';
+      }
+      $('#debug').empty().append(tile_info);
     });
 
     this.bind('Moved', function(from) {
@@ -90,9 +95,7 @@ Crafty.c("Player", {
 
   check_new_tile: function(tile) {
     var pos = iso.px2pos(tile._x, tile._y);
-    this.current_pos = this.current_pos || pos;
-    if(this.current_pos.x != pos.x || this.current_pos.y != pos.y) {
-      this.current_pos = pos;
+    if(user.pos_x != pos.x || user.pos_y != pos.y) {
       Crafty.trigger('WalkingOnNewTile', tile);
     }
   },
