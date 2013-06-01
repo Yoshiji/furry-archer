@@ -80,16 +80,16 @@ module.exports.listen = function(app){
             crop_template._id = Mongoose.Types.ObjectId();
             var crop = new Crop(crop_template);
             crop.maturity = 0;
+            socket.emit('update_tile_sprite', {x: tile.x, y: tile.y, sprite_name: 'my_seeded_good'});
 
             crop.save(function(err) {
               tile.crop = crop._id;
               tile.save(function(err) {
-                socket.emit('update_tile', tile);
                 socket.emit('update_actions', Actions[1]);
               });
             });
 
-            setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, socket);
+            setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, socket, tile);
           });
 
         } else if (action_cleaned.indexOf("water") > -1) {
