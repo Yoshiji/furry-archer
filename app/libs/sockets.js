@@ -102,8 +102,7 @@ module.exports.listen = function(app){
           socket.emit('update_tile', tile.fertilize());
 
         } else if (action_cleaned.indexOf("harvest") > -1) {
-          socket.emit('update_tile', tile.harvest(socket));
-          socket.emit('update_actons', Actions[0]);          
+          socket.emit('update_tile', tile.harvest(socket));       
         }        
       });
   	});
