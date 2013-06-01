@@ -41,7 +41,7 @@ UTILS = {
       Tile = mongoose.model('Tile');
       CropTemplate = mongoose.model('CropTemplate');
       Crop = mongoose.model('Crop');
-      Actions = ["plant", ["water", "fertilize"], ["harvest"]]; // actions with their levels
+      Actions = [["plant"], ["water", "fertilize"], ["harvest"]]; // actions with their levels
 
       var init_crop_templates = ['tomato', 'corn', 'cereal'];
 
