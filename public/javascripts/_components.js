@@ -49,10 +49,10 @@ Crafty.c("Player", {
       }
     });
 
-    this.bind('WalkingOnNewTile', function(tile) {     
+    this.bind('WalkingOnNewTile', function(tile) { 
       var tile_settings = map.get_tile_settings({x: tile._x, y: tile._y}, true);
       var data = { user_id: user._id, pos_x: tile_settings.x, pos_y: tile_settings.y };
-      
+    
       user.pos_x = tile_settings.x;
       user.pos_y = tile_settings.y;
 
@@ -78,7 +78,7 @@ Crafty.c("Player", {
           this.x = from.x;
           this.y = from.y;
         } else {
-          this.check_new_tile(tile);
+          this.check_new_tile(tile); 
         }
       }
       this.reload_area();

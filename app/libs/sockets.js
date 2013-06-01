@@ -35,7 +35,10 @@ module.exports.listen = function(app){
 
 	  socket.on('update_player', function(data) {
 	  	User.update({_id: data.user_id}, data, {}, function(err, users) {
+        if(err) console.log(err);
+        console.log(data);
         User.findOne({_id: data.user_id}, function(err, user) {
+          if(err) console.log(err);
           socket.broadcast.emit('update_player', data);
         });
       });

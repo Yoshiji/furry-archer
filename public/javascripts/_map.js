@@ -34,7 +34,6 @@ Map = {
     $(".action").click(function() { // bind events
       event.preventDefault();
       socket.emit("action", {action: $(this).text(), x: user.pos_x, y: user.pos_y});
-      console.log("emit action: ", $(this).text());
     });
   },
 
