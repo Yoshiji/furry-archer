@@ -26,6 +26,15 @@ Map = {
     console.log('update_player #' + data.user_id);
   },
 
+  update_tile_sprite: function(data, socket) {
+    var tile_settings = this.get_tile_settings(data);
+    var tile = Crafty(tile_settings.id);
+    var sprite_coord = tile_sprite_settings[data.sprite_name];
+    if(sprite_coord.length < 1) { console.log('No SPRITE found!', data); return; }
+    
+    tile.sprite(sprite_coord[0], sprite_coord[1], sprite_coord[2], sprite_coord[3]);
+  },
+
   update_actions: function(data, socket) {
     $("#actions").empty();
     for (var i = 0, len = data.length; i < len; i++) {
@@ -136,6 +145,10 @@ Map = {
 
     socket.on('update_actions', function(data) {
       self.update_actions(data, this);
+    });
+
+    socket.on('update_tile_sprite', function(data) {
+      self.update_tile_sprite(data, this);
     });
   },
 
