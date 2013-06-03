@@ -31,7 +31,7 @@ Map = {
     var tile = Crafty(tile_settings.id);
     var sprite_coord = tile_sprite_settings[data.sprite_name];
     if(sprite_coord.length < 1) { console.log('No SPRITE found!', data); return; }
-    
+
     tile.sprite(sprite_coord[0], sprite_coord[1], sprite_coord[2], sprite_coord[3]);
   },
 
@@ -51,9 +51,11 @@ Map = {
   set_tile: function(data, socket) {
     var tile = Crafty.e("Tile").set_socket(socket);
     data.id = tile[0];
-
+    
     if(data.owner_name == user.username) {
       data.type = "my_grass";
+    } else if (data.owner_name && data.owner_name != '-1') {
+      data.type = "others_grass";
     }
 
     tile.addComponent("tile_sprite").sprite(tile_sprite_settings[data.type][0],tile_sprite_settings[data.type][1], tile_sprite_settings[data.type][2], tile_sprite_settings[data.type][3]);
