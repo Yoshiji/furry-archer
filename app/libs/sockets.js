@@ -36,7 +36,7 @@ module.exports.listen = function(app){
 	  socket.on('update_player', function(data) {
 	  	User.update({_id: data.user_id}, data, {}, function(err, users) {
         if(err) console.log(err);
-        console.log(data);
+
         User.findOne({_id: data.user_id}, function(err, user) {
           if(err) console.log(err);
           socket.broadcast.emit('update_player', data);
@@ -49,20 +49,12 @@ module.exports.listen = function(app){
 
 				if(tile && tile.crop && tile.crop.length > 0) {
 					if(tile.crop[0].maturity > 80)
-            socket.emit('update_actions', Actions[2]);
+            UTILS.Map.update_actions.level2(socket);
           else
-            socket.emit('update_actions', Actions[1]);
+            UTILS.Map.update_actions.level1(socket);
 
 				} else {
-					CropTemplate.find({},function(err, crop_templates) {
-						if(crop_templates.length > 0) {
-							var available_actions = [];
-							for (var i = 0, length = crop_templates.length; i < length; i++) {
-								available_actions[i] = Actions[0] + " " + crop_templates[i].name;
-							}
-							socket.emit('update_actions', available_actions);
-						}
-					});
+          UTILS.Map.update_actions.level0(socket);
 				}
 			});
 	  });
@@ -73,7 +65,7 @@ module.exports.listen = function(app){
       var action_cleaned = data.action.toLowerCase();
       
       Tile.findOne({x: data.x, y: data.y}, function(err, tile) {
-        if(err) { console.log(err); return; };
+        if(err) { console.log(err);}
 
         if(action_cleaned.indexOf("plant") > -1) {
           var crop_name = action_cleaned.replace("plant", "").trim();
@@ -83,27 +75,33 @@ module.exports.listen = function(app){
             crop_template._id = Mongoose.Types.ObjectId();
             var crop = new Crop(crop_template);
             crop.maturity = 0;
-            socket.emit('update_tile_sprite', {x: tile.x, y: tile.y, sprite_name: 'my_seeded_good'});
 
             crop.save(function(err) {
+              if(err) { console.log(err);}
+
               tile.crop = crop._id;
               tile.save(function(err) {
-                socket.emit('update_actions', Actions[1]);
+                if(err) { console.log(err);}
+                
+                UTILS.Map.update_actions.level1(socket);
+                UTILS.Map.update_tile(socket, tile);
               });
             });
 
-            setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, socket, tile);
+            setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, tile, function(){
+              UTILS.Map.update_tile(socket, tile);
+            });
           });
 
         } else if (action_cleaned.indexOf("water") > -1) {
-          socket.emit('update_tile', tile.waterize());
+          UTILS.Map.update_tile(socket, tile.waterize());
 
         } else if (action_cleaned.indexOf("fertilize") > -1) {
-          socket.emit('update_tile', tile.fertilize());
+          UTILS.Map.update_tile(socket, tile.fertilize());
 
         } else if (action_cleaned.indexOf("harvest") > -1) {
-          socket.emit('update_tile', tile.harvest(socket));       
-        }        
+          UTILS.Map.update_tile(socket, tile.harvest());     
+        } 
       });
   	});
 

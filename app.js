@@ -41,7 +41,7 @@ UTILS = {
       Tile = mongoose.model('Tile');
       CropTemplate = mongoose.model('CropTemplate');
       Crop = mongoose.model('Crop');
-      Actions = [["plant"], ["water", "fertilize"], ["harvest"]]; // actions with their levels
+      
 
       var init_crop_templates = ['tomato', 'corn', 'cereal'];
 
@@ -102,6 +102,28 @@ UTILS = {
           }
         }
       });
+    },
+    update_actions: {
+      level0: function(socket){
+        var available_actions = [];
+        CropTemplate.find({},function(err, crop_templates) {
+          if(crop_templates.length > 0) {
+            for (var i = 0, length = crop_templates.length; i < length; i++) {
+              available_actions[i] = "Plant " + crop_templates[i].name;
+            }
+          }
+          socket.emit('update_actions', available_actions);
+        });
+        return available_actions;
+      }, 
+      level1: function(socket){ socket.emit('update_actions', ["water", "fertilize"]);},
+      level2: function(socket){ socket.emit('update_actions', ["harvest"]);}
+    }, // actions with their levels
+    update_tile: function(socket, tile){
+      Tile.populate(tile, {path: 'crop'}, function (err, tile_populated) {
+        console.log(tile_populated);
+        socket.emit('update_tile', tile_populated);
+      }); 
     }
   }
 }

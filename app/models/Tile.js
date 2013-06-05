@@ -39,7 +39,7 @@ module.exports = function (mongoose) {
       if(err) { return; }
       if(crop.maturity > 80) {
         crop.remove();
-        socket.emit('update_actions', Actions[0]);
+        UTILS.Map.update_actions.level0(socket);
       }
     });
     return this;
