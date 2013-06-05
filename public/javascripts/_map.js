@@ -32,7 +32,7 @@ Map = {
       } else {
         data.type += "grass";
       }
-        console.log(data.type)
+      
       Crafty(data.id).sprite(tile_sprite_settings[data.type][0],tile_sprite_settings[data.type][1], tile_sprite_settings[data.type][2], tile_sprite_settings[data.type][3]);
       this.set_tile_settings(data);
     }
