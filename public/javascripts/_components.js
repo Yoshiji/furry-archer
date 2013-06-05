@@ -11,7 +11,7 @@ Crafty.c("Tile", {
     attributes.owner_name = owner.username;
     var tile_settings = map.get_tile_settings(attributes, true);
     tile_settings.owner_name = owner.username;
-    this.socket.emit('sync_tile', attributes);
+    this.socket.emit('set_owner_for_tile', attributes);
 
     //console.log("SETING OWNER", attributes);
   }

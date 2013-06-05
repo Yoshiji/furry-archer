@@ -21,12 +21,12 @@ UTILS = {
     connection: function(socket) {
       socket.session = socket.handshake.session;
       UTILS.Chat.broadcast(socket, socket.session.user.username + ' connected!');
-      User.find({_id: socket.session.user_id}, function(err, users) {
-        if(users.length > 0) {
-          var user = users[0];
-          var data = { current_pos: user.current_pos, user_id: user._id };
+      User.findOne({_id: socket.session.user._id}, function(err, user) {
+        if(user) {
+          user.recalc_level(user, socket);
+          var data = { pos_x: user.pos_x, pos_y: user.pos_y, user_id: user._id };
           socket.broadcast.emit('update_player', data);
-        } 
+        }
       });
     },
     disconnection: function(socket) {
@@ -36,11 +36,39 @@ UTILS = {
     }
   },
   Map: {
+    deploy_settings: function(callback) {
+      Settings = mongoose.model('Settings');
+      SETTINGS = null;
+
+      Settings.findOne({}, function (err, settings) {
+        if(settings) {
+          SETTINGS = settings;
+          UTILS.Map.settings_callback();
+        } else {
+
+          var default_values = { ratio_level_tile: 0.5, offset_level_tile: 10, 
+            cycle_duration: 60, tiles_to_next_level: 10 };
+          Settings.create(default_values, function(err, settings) {
+            SETTINGS = settings;
+            UTILS.Map.settings_callback();
+          });
+        }
+      });
+    },
+
+    settings_callback: function() {
+      //starts the cycle of the captured_tiles for each user
+      var cycle_duration = SETTINGS.cycle_duration * 1000;
+      var User = mongoose.model('User');
+      User.reinit_captured_tiles();
+      setInterval(User.reinit_captured_tiles, cycle_duration);
+    },
+
     generate: function() {
       Mongoose = mongoose;
       Tile = mongoose.model('Tile');
-      CropTemplate = mongoose.model('CropTemplate');
       Crop = mongoose.model('Crop');
+      CropTemplate = mongoose.model('CropTemplate');
       Actions = [["plant"], ["water", "fertilize"], ["harvest"]]; // actions with their levels
 
       var init_crop_templates = ['tomato', 'corn', 'cereal'];
@@ -143,7 +171,9 @@ io.set('authorization', function(data, accept) {
   });
 });
 
+UTILS.Map.deploy_settings();
 UTILS.Map.generate();
+
 
 
 // Models but not really models, needs to be clarified because not a Mongoose Model, neither a controller ...!

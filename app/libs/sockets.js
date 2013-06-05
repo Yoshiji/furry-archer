@@ -104,14 +104,18 @@ module.exports.listen = function(app){
       });
   	});
 
-	  socket.on('sync_tile', function(data) {
-	  	Tile.update({x: data.x, y: data.y}, data, {}, function(err, tiles){
-
-		  	Tile.findOne({x: data.x, y: data.y}, function(err, tile){
-	  			socket.emit('update_tile', tile);
-	  			socket.broadcast.emit('update_tile', tile);
-		  	});
-	  	});
+	  socket.on('set_owner_for_tile', function(data) {
+      User.findOne({_id: socket.session.user._id}, function(err, user) {
+        if(user.remaining_tiles(user) > 0) {
+          Tile.update({x: data.x, y: data.y}, data, {}, function(err, tiles){
+            Tile.findOne({x: data.x, y: data.y}, function(err, tile){
+              user.captured_new_tile(user, socket);
+              socket.emit('update_tile', tile);
+              socket.broadcast.emit('update_tile', tile);
+            });
+          });
+        }
+      });
 	  });
 
 	});
