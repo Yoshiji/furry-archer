@@ -6,45 +6,10 @@ Map = {
 
 
   // METHODS
-  update_tile: function(data, socket) {
-    var tile_settings = this.set_tile_settings(data);
-
-    if(tile_settings) {
-
-      if(data.owner_name == user.username)
-        data.type = "my_";
-      else
-        data.type = "others_";
-
-      if(tile_settings.crop && tile_settings.crop[0]){
-        var maturity = tile_settings.crop[0].maturity || 0;
-        var health = ((tile_settings.fertility + tile_settings.humidity) / 2) || 0;
-
-        if(maturity > 99) maturity = 99;
-        if(health > 99) health = 99;
-
-        maturity = maturity - (maturity % 20);
-        health = health - (health % 20);
-
-        console.log(tile_settings, data.type, maturity, health);
-        data.type = (data.type + maturity + "_" + health);
-
-      } else {
-        data.type += "grass";
-      }
-      
-      Crafty(data.id).sprite(tile_sprite_settings[data.type][0],tile_sprite_settings[data.type][1], tile_sprite_settings[data.type][2], tile_sprite_settings[data.type][3]);
-      this.set_tile_settings(data);
-    }
-  },
 
   update_player: function(data, socket) {
     this.players[data.user_id] = data;
     console.log('update_player #' + data.user_id);
-  },
-
-  update_tile_sprite: function(data, socket) {
-    console.log("UPDATE TILE SPRITE ALERT");
   },
 
   update_actions: function(data, socket) {
@@ -71,22 +36,47 @@ Map = {
     }
   },
 
+  update_tile: function(data, socket) {
+    var tile_settings = this.set_tile_settings(data);
+
+    if(tile_settings) {
+
+      if(data.type != "voided" && data.type != "water" && data.owner_name != '-1'){
+        if(data.owner_name == user.username)
+          data.type = "my_";
+        else
+          data.type = "others_";
+
+        if(tile_settings.crop && tile_settings.crop[0]){
+          var maturity = tile_settings.crop[0].maturity || 0;
+          var health = ((tile_settings.fertility + tile_settings.humidity) / 2) || 0;
+
+          if(maturity > 99) maturity = 99;
+          if(health > 99) health = 99;
+
+          maturity = maturity - (maturity % 20);
+          health = health - (health % 20);
+
+          console.log(tile_settings, data.type, maturity, health);
+          data.type = (data.type + maturity + "_" + health);
+
+        } else {
+          data.type += "grass";
+        }
+      }
+
+      Crafty(tile_settings.id).sprite(tile_sprite_settings[data.type][0],tile_sprite_settings[data.type][1], tile_sprite_settings[data.type][2], tile_sprite_settings[data.type][3]);
+    }
+  },
 
   // GETTERs & SETTERs
   set_tile: function(data, socket) {
     var tile = Crafty.e("Tile").set_socket(socket);
     data.id = tile[0];
 
-    if(data.owner_name == user.username) {
-      data.type = "my_grass";
-    } else if (data.owner_name && data.owner_name != '-1') {
-      data.type = "others_grass";
-    }
-
-    tile.addComponent("tile_sprite").sprite(tile_sprite_settings[data.type][0],tile_sprite_settings[data.type][1], tile_sprite_settings[data.type][2], tile_sprite_settings[data.type][3]);
-
+    tile.addComponent("tile_sprite");
     iso.place(data.x, data.y, 1, tile);
-    this.set_tile_settings(data, false);
+    this.update_tile(data, socket);
   },
 
   get_tile_settings: function(data, inputIsInPx) {

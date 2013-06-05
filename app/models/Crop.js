@@ -11,6 +11,7 @@ module.exports = function (mongoose) {
   });
 
   CropSchema.methods.reload_maturity = function(self, tile, callback) {
+    var old_maturity = self.maturity - (self.maturity % 20);
     Tile.findOne({crop: self._id}, function(err, tile) {
       tile.fertility -= 5;
       if(tile.fertility < 0) { tile.fertility = 0 }
@@ -26,9 +27,12 @@ module.exports = function (mongoose) {
       console.log("The crop is ready: maturity = 100, clearing the Interval");
       setTimeout(self.withered, self.decay_time*1000, self, tile, callback);
     }
-
+      
     self.save();
-    return callback();
+    console.log(old_maturity, (self.maturity - (self.maturity % 20)));
+    if(old_maturity != (self.maturity - (self.maturity % 20))) {
+      return callback();
+    }
   }
 
   CropSchema.methods.withered = function(self, tile, callback) {

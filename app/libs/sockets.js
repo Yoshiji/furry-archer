@@ -61,15 +61,13 @@ module.exports.listen = function(app){
 
   	socket.on('action', function(data) {
   		// TODO vérifier si le player est réellement proche de cette case
-      // TODO définir health_limit pour le level 2 des actions
       var action_cleaned = data.action.toLowerCase();
       
       Tile.findOne({x: data.x, y: data.y}, function(err, tile) {
-        if(err) { console.log(err);}
+        if(err) console.log(err);
 
-        if(action_cleaned.indexOf("plant") > -1) {
+        if((action_cleaned.indexOf("plant") > -1) && (tile.owner_name == socket.session.user.username)) {
           var crop_name = action_cleaned.replace("plant", "").trim();
-
           CropTemplate.findOne({ name: crop_name }, function (err, crop_template) {
 
             crop_template._id = Mongoose.Types.ObjectId();
@@ -77,11 +75,11 @@ module.exports.listen = function(app){
             crop.maturity = 0;
 
             crop.save(function(err) {
-              if(err) { console.log(err);}
+              if(err) console.log(err);
 
               tile.crop = crop._id;
               tile.save(function(err) {
-                if(err) { console.log(err);}
+                if(err) console.log(err);
                 
                 UTILS.Map.update_actions.level1(socket);
                 UTILS.Map.update_tile(socket, tile);
@@ -90,6 +88,8 @@ module.exports.listen = function(app){
 
             setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, tile, function(){
               UTILS.Map.update_tile(socket, tile);
+              if(crop.maturity > 80)
+                UTILS.Map.update_actions.level2(socket);
             });
           });
 
@@ -100,7 +100,8 @@ module.exports.listen = function(app){
           UTILS.Map.update_tile(socket, tile.fertilize());
 
         } else if (action_cleaned.indexOf("harvest") > -1) {
-          UTILS.Map.update_tile(socket, tile.harvest());     
+          UTILS.Map.update_tile(socket, tile.harvest());
+          UTILS.Map.update_actions.level0(socket);
         } 
       });
   	});

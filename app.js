@@ -148,7 +148,6 @@ UTILS = {
     }, // actions with their levels
     update_tile: function(socket, tile){
       Tile.populate(tile, {path: 'crop'}, function (err, tile_populated) {
-        console.log(tile_populated);
         socket.emit('update_tile', tile_populated);
       }); 
     }

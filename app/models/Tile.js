@@ -33,13 +33,12 @@ module.exports = function (mongoose) {
     return this;
   }
 
-  TileSchema.methods.harvest = function(socket) {
+  TileSchema.methods.harvest = function() {
     console.log('Harvesting the Crop of this Tile');
     Crop.findOne({ _id: this.crop[0] }, function(err, crop) {
       if(err) { return; }
       if(crop.maturity > 80) {
         crop.remove();
-        UTILS.Map.update_actions.level0(socket);
       }
     });
     return this;
