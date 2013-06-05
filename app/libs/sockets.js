@@ -26,8 +26,8 @@ module.exports.listen = function(app){
 	  socket.on('get_player', function() {
 	  	User.findOne({_id: socket.session.user._id}, function(err, user) {
 	  		if(user) {
-	  			user.pos_x = user.pos_x || 5;
-	  			user.pos_y = user.pos_y || 5;
+	  			user.pos_x = user.pos_x || 0;
+	  			user.pos_y = user.pos_y || 0;
 	  			socket.emit('set_player', user);
 	  		}
 	  	});
