@@ -69,29 +69,7 @@ module.exports.listen = function(app){
 
         if(action_cleaned.indexOf("plant") > -1) {
           var crop_name = action_cleaned.replace("plant", "").trim();
-
-          CropTemplate.findOne({ name: crop_name }, function (err, crop_template) {
-
-            crop_template._id = Mongoose.Types.ObjectId();
-            var crop = new Crop(crop_template);
-            crop.maturity = 0;
-
-            crop.save(function(err) {
-              if(err) { console.log(err);}
-
-              tile.crop = crop._id;
-              tile.save(function(err) {
-                if(err) { console.log(err);}
-                
-                UTILS.Map.update_actions.level1(socket);
-                UTILS.Map.update_tile(socket, tile);
-              });
-            });
-
-            setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, tile, function(){
-              UTILS.Map.update_tile(socket, tile);
-            });
-          });
+          UTILS.Map.plant(tile, crop_name, socket);
 
         } else if (action_cleaned.indexOf("water") > -1) {
           UTILS.Map.update_tile(socket, tile.waterize());

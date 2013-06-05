@@ -79,7 +79,7 @@ exports.signup_post = function(req, res, next) {
               username: req.param('username').trim().toLowerCase(),
               email: req.param('email').trim().toLowerCase(),
               password: bcrypt.hashSync(req.param('password'), 8),
-              gold: 0,
+              gold: SETTINGS.gold_amount_at_starting,
               level: 0,
               captured_tiles: 0
               
