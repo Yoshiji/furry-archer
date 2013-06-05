@@ -75,7 +75,16 @@ module.exports.listen = function(app){
           UTILS.Map.update_tile(socket, tile.waterize());
 
         } else if (action_cleaned.indexOf("fertilize") > -1) {
-          UTILS.Map.update_tile(socket, tile.fertilize());
+          User.findOne({_id: socket.session.user._id}, function(err, user) {
+            if(!user) 
+              return;
+            if(user.gold > 1) {
+              user.gold -= 1;
+              user.save();
+              socket.emit('update_infos', user);
+              UTILS.Map.update_tile(socket, tile.fertilize());
+            }
+          });         
 
         } else if (action_cleaned.indexOf("harvest") > -1) {
           UTILS.Map.update_tile(socket, tile.harvest());     

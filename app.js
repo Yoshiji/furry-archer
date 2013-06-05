@@ -36,7 +36,7 @@ UTILS = {
     }
   },
   Map: {
-    deploy_settings: function(callback) {
+    deploy_settings: function() {
       Settings = mongoose.model('Settings');
       SETTINGS = null;
 
@@ -58,7 +58,7 @@ UTILS = {
 
     settings_callback: function() {
       //starts the cycle of the captured_tiles for each user
-      var cycle_duration = SETTINGS.cycle_duration * 1000;
+      var cycle_duration = SETTINGS.cycle_duration * 500;
       var User = mongoose.model('User');
       User.reinit_captured_tiles();
       setInterval(User.reinit_captured_tiles, cycle_duration);

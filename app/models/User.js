@@ -47,8 +47,13 @@ module.exports = function (mongoose) {
   }
 
 
-  UserSchema.statics.reinit_captured_tiles = function(socket) {
-    User.update({}, {captured_tiles: 0}, function(err, users) {
+  UserSchema.statics.reinit_captured_tiles = function() {
+    User.find({}, function(err, users) {
+      for(var i = 0; i < users.length; i++) {
+        var user = users[i];
+        user.captured_tiles = 0;
+        user.save();
+      }
       console.log('Restarting a new Capture Tile Cycle for all Users');
     });
   }

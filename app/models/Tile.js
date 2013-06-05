@@ -13,23 +13,13 @@ module.exports = function (mongoose) {
 
   TileSchema.methods.fertilize = function() {
     console.log('Fertilizing a Tile (+10%)');
-    var self = this;
-    User.findOne({username: self.owner_name}, function(err, user) {
-      if(user.gold < 1) {
-        console.log('Trying to fertilize but not enough GOLD!');
-        return self;
-      } else {
-        console.log('Fertilizing a Tile (+10%), costs 3 Golds');
-        user.gold -= 3;
-        user.save();
-        self.fertility += 10;
-        if(self.fertility > 100) {
-          self.fertility = 100;
-        }
-        self.save();
-      }
-    });
-    return self;
+    this.fertility += 10;
+    if(this.fertility > 100) {
+      this.fertility = 100;
+      console.log('The fertility is at 100%');
+    }
+    this.save();
+    return this;
   }
 
   TileSchema.methods.waterize = function() {
