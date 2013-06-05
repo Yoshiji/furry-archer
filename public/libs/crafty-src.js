@@ -8112,9 +8112,16 @@ Crafty.extend({
          */
         px2pos:function(left,top){
             
+            // return {
+            //     x:~~(left / this._tile.width-(top & 1) /this._tile.width/this._tile.ratio),
+            //     y:~~(top/ this._tile.height / this._tile.ratio)
+            // };
+            var x = (left / this._tile.width-(top & 1) /this._tile.width/this._tile.ratio);
+            if(x < 0)
+                x = x - 1;
             return {
-                x:~~(left / this._tile.width-(top & 1) /this._tile.width/this._tile.ratio),
-                y:~~(top/ this._tile.height / this._tile.ratio)
+                x: ~~x,
+                y: ~~(top/ this._tile.height / this._tile.ratio)
             };
         },
         /**@

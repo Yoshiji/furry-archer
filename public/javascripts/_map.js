@@ -7,15 +7,32 @@ Map = {
 
   // METHODS
   update_tile: function(data, socket) {
-    var tile_settings = this.get_tile_settings(data);
+    var tile_settings = this.set_tile_settings(data);
+
     if(tile_settings) {
-      data.id = tile_settings.id;
 
       if(data.owner_name == user.username)
-        data.type = "my_grass";
+        data.type = "my_";
       else
-        data.type = "others_grass";
+        data.type = "others_";
 
+      if(tile_settings.crop && tile_settings.crop[0]){
+        var maturity = tile_settings.crop[0].maturity || 0;
+        var health = ((tile_settings.fertility + tile_settings.humidity) / 2) || 0;
+
+        if(maturity > 99) maturity = 99;
+        if(health > 99) health = 99;
+
+        maturity = maturity - (maturity % 20);
+        health = health - (health % 20);
+
+        console.log(tile_settings, data.type, maturity, health);
+        data.type = (data.type + maturity + "_" + health);
+
+      } else {
+        data.type += "grass";
+      }
+        console.log(data.type)
       Crafty(data.id).sprite(tile_sprite_settings[data.type][0],tile_sprite_settings[data.type][1], tile_sprite_settings[data.type][2], tile_sprite_settings[data.type][3]);
       this.set_tile_settings(data);
     }
@@ -27,12 +44,7 @@ Map = {
   },
 
   update_tile_sprite: function(data, socket) {
-    var tile_settings = this.get_tile_settings(data);
-    var tile = Crafty(tile_settings.id);
-    var sprite_coord = tile_sprite_settings[data.sprite_name];
-    if(sprite_coord.length < 1) { console.log('No SPRITE found!', data); return; }
-
-    tile.sprite(sprite_coord[0], sprite_coord[1], sprite_coord[2], sprite_coord[3]);
+    console.log("UPDATE TILE SPRITE ALERT");
   },
 
   update_actions: function(data, socket) {
@@ -43,7 +55,6 @@ Map = {
     $(".action", actions).click(function() { // bind events
       event.preventDefault();
       socket.emit("action", {action: $(this).text(), x: user.pos_x, y: user.pos_y});
-      console.log("emit action: ", $(this).text());
     });
   },
 
@@ -96,6 +107,12 @@ Map = {
   set_tile_settings: function(data, inputIsInPx) {
     var x = data.x;
     var y = data.y;
+    var tile_settings = this.get_tile_settings(data);
+
+    if(tile_settings && tile_settings.id){
+      data.id = tile_settings.id;
+    }
+
     if(inputIsInPx){
       var pos = iso.px2pos(x, y);
       x = pos.left;
