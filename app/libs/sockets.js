@@ -34,29 +34,36 @@ module.exports.listen = function(app){
 	  });
 
 	  socket.on('update_player', function(data) {
-	  	User.update({_id: data.user_id}, data, {}, function(err, users) {
-        if(err) console.log(err);
+      User.findOne({_id: data.user_id}, function(err, user) {
+        socket.broadcast.emit('update_player', data);
 
-        User.findOne({_id: data.user_id}, function(err, user) {
-          if(err) console.log(err);
-          socket.broadcast.emit('update_player', data);
+        user.pos_x = data.pos_x;
+        user.pos_y = data.pos_y;
+        user.save();
+        socket.emit('update_infos', user);
+
+        Tile.findOne({x: data.pos_x, y: data.pos_y}).populate('crop').exec(function(err, tile) {
+          if(tile && tile.owner_name != user.username && user.remaining_tiles(user) > 0) {
+            tile.owner_name = user.username;
+            tile.save();
+            user.captured_new_tile(user, socket);
+            socket.emit('update_tile', tile);
+            socket.broadcast.emit('update_tile', tile);
+          }
+
+          if(tile && tile.crop && tile.crop.length > 0) {
+            if(tile.crop[0].maturity > 80)
+              UTILS.Map.update_actions.level2(socket);
+            else
+              UTILS.Map.update_actions.level1(socket);
+
+          } else {
+            UTILS.Map.update_actions.level0(socket);
+          }
         });
       });
 
-			Tile.findOne({x: data.pos_x, y: data.pos_y})
-      .populate('crop')
-      .exec(function(err, tile) {
-
-				if(tile && tile.crop && tile.crop.length > 0) {
-					if(tile.crop[0].maturity > 80)
-            UTILS.Map.update_actions.level2(socket);
-          else
-            UTILS.Map.update_actions.level1(socket);
-
-				} else {
-          UTILS.Map.update_actions.level0(socket);
-				}
-			});
+			
 	  });
 
   	socket.on('action', function(data) {
@@ -91,21 +98,6 @@ module.exports.listen = function(app){
         } 
       });
   	});
-
-	  socket.on('set_owner_for_tile', function(data) {
-      User.findOne({_id: socket.session.user._id}, function(err, user) {
-        if(user.remaining_tiles(user) > 0) {
-          Tile.update({x: data.x, y: data.y}, data, {}, function(err, tiles){
-            Tile.findOne({x: data.x, y: data.y}, function(err, tile){
-              user.captured_new_tile(user, socket);
-              socket.emit('update_tile', tile);
-              socket.broadcast.emit('update_tile', tile);
-            });
-          });
-        }
-      });
-	  });
-
 	});
 
   return io;

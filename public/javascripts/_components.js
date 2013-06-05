@@ -4,17 +4,8 @@ Crafty.c("Tile", {
     this.addComponent("2D, Canvas")
     this.addComponent("Collision").collision(new Crafty.polygon([0,84], [128,20], [256,84], [128,148]));
     this.addComponent("Socketed");
-  },
-
-  set_owner: function(owner) {
-    var attributes = iso.px2pos(this._x, this._y);
-    attributes.owner_name = owner.username;
-    var tile_settings = map.get_tile_settings(attributes, true);
-    tile_settings.owner_name = owner.username;
-    this.socket.emit('set_owner_for_tile', attributes);
-
-    //console.log("SETING OWNER", attributes);
   }
+  
 });
 
 Crafty.c("Player", {
@@ -57,9 +48,6 @@ Crafty.c("Player", {
       user.pos_y = tile_settings.y;
 
       this.socket.emit('update_player', data);
-      if(tile_settings.owner_name != user.username) {
-        tile.set_owner(user);
-      }
       
       var tile_info = 'Tile settings before update:<br/>'
       var keys = Object.keys(tile_settings).sort();

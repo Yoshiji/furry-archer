@@ -12,13 +12,13 @@ module.exports = function (mongoose) {
 
   CropSchema.methods.reload_maturity = function(self, tile, callback) {
     var old_maturity = self.maturity - (self.maturity % 20);
-    Tile.findOne({crop: self._id}, function(err, tile) {
-      tile.fertility -= 5;
-      if(tile.fertility < 0) { tile.fertility = 0 }
-      tile.humidity -= 5;
-      if(tile.humidity < 0) { tile.humidity = 0 }
-      tile.save();
-    });
+
+    tile.fertility -= 5;
+    if(tile.fertility < 0) { tile.fertility = 0 }
+    tile.humidity -= 5;
+    if(tile.humidity < 0) { tile.humidity = 0 }
+    tile.save();
+  
     self.maturity += 10;
 
     if(self.maturity >= 100) { // Starts withering
