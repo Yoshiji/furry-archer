@@ -78,8 +78,11 @@ exports.signup_post = function(req, res, next) {
             User.create({ 
               username: req.param('username').trim().toLowerCase(),
               email: req.param('email').trim().toLowerCase(),
-              password: bcrypt.hashSync(req.param('password'), 8)
-
+              password: bcrypt.hashSync(req.param('password'), 8),
+              gold: 0,
+              level: 0,
+              captured_tiles: 0
+              
             }, function (err, user) {
               if (err){
                 Object.keys(err.errors).forEach(function(key){

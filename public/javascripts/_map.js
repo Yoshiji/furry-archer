@@ -45,15 +45,27 @@ Map = {
   },
 
   update_actions: function(data, socket) {
-    console.log("update actionns", data);
-    $("#actions").empty();
+    var actions = $("#actions, #panel_controls").empty();
     for (var i = 0, len = data.length; i < len; i++) {
-      $("#actions").append('<a href="#" class="action">' + data[i] + "</a>");
+      actions.append('<a href="#" class="action">' + data[i] + "</a>");
     }
-    $(".action").click(function() { // bind events
+    $(".action", actions).click(function() { // bind events
       event.preventDefault();
       socket.emit("action", {action: $(this).text(), x: user.pos_x, y: user.pos_y});
     });
+  },
+
+  update_infos: function(user) {
+    var infos = $('#infos, #panel_controls').empty();
+    var data = [];
+    var ignored_keys = [ '__v', 'email', 'password', '_id', 'pos_x', 'pos_y', 'username' ];
+    var keys = Object.keys(user);
+
+    for (var i = 0; i < keys.length; i++) {
+      if(ignored_keys.indexOf(keys[i]) == -1) {
+        infos.append('<p><span>'+ keys[i] +":</span><span>"+ user[keys[i]] +"</span></p>");
+      }
+    }
   },
 
 
@@ -61,7 +73,7 @@ Map = {
   set_tile: function(data, socket) {
     var tile = Crafty.e("Tile").set_socket(socket);
     data.id = tile[0];
-    
+
     if(data.owner_name == user.username) {
       data.type = "my_grass";
     } else if (data.owner_name && data.owner_name != '-1') {
@@ -129,6 +141,7 @@ Map = {
     data.pos_x = -10; //Workaround to trigger 'Moved' as soon as we first walk
     user = data;
     this.init_tiles_around_me(socket, player);
+    this.update_infos(user);
   },
 
   init_tiles_around_me: function(socket, player) {
@@ -162,6 +175,10 @@ Map = {
 
     socket.on('update_actions', function(data) {
       self.update_actions(data, this);
+    });
+
+    socket.on('update_infos', function(data) {
+      self.update_infos(data);
     });
 
     socket.on('update_tile_sprite', function(data) {
