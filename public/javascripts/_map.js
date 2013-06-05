@@ -36,7 +36,7 @@ Map = {
   },
 
   update_actions: function(data, socket) {
-    var actions = $("#actions, #panel_controls").empty();
+    var actions = $("#actions").empty();
     for (var i = 0, len = data.length; i < len; i++) {
       actions.append('<a href="#" class="action">' + data[i] + "</a>");
     }
@@ -48,7 +48,7 @@ Map = {
   },
 
   update_infos: function(user) {
-    var infos = $('#infos, #panel_controls').empty();
+    var infos = $('#infos').empty();
     var data = [];
     var ignored_keys = [ '__v', 'email', 'password', '_id', 'pos_x', 'pos_y', 'username' ];
     var keys = Object.keys(user);
