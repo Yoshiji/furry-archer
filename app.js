@@ -36,7 +36,7 @@ UTILS = {
     }
   },
   Map: {
-    deploy_settings: function(callback) {
+    deploy_settings: function() {
       Settings = mongoose.model('Settings');
       SETTINGS = null;
 
@@ -47,7 +47,7 @@ UTILS = {
         } else {
 
           var default_values = { ratio_level_tile: 0.5, offset_level_tile: 10, 
-            cycle_duration: 60, tiles_to_next_level: 10 };
+            cycle_duration: 60, tiles_to_next_level: 10, gold_amount_at_starting: 20 };
           Settings.create(default_values, function(err, settings) {
             SETTINGS = settings;
             UTILS.Map.settings_callback();
@@ -58,7 +58,7 @@ UTILS = {
 
     settings_callback: function() {
       //starts the cycle of the captured_tiles for each user
-      var cycle_duration = SETTINGS.cycle_duration * 1000;
+      var cycle_duration = SETTINGS.cycle_duration * 500;
       var User = mongoose.model('User');
       User.reinit_captured_tiles();
       setInterval(User.reinit_captured_tiles, cycle_duration);
@@ -130,13 +130,14 @@ UTILS = {
         }
       });
     },
+
     update_actions: {
       level0: function(socket){
-        var available_actions = [];
+        var available_actions = ["water", "fertilize"];
         CropTemplate.find({},function(err, crop_templates) {
           if(crop_templates.length > 0) {
             for (var i = 0, length = crop_templates.length; i < length; i++) {
-              available_actions[i] = "Plant " + crop_templates[i].name;
+              available_actions.push("Plant " + crop_templates[i].name);
             }
           }
           socket.emit('update_actions', available_actions);
@@ -146,10 +147,36 @@ UTILS = {
       level1: function(socket){ socket.emit('update_actions', ["water", "fertilize"]);},
       level2: function(socket){ socket.emit('update_actions', ["harvest"]);}
     }, // actions with their levels
+
     update_tile: function(socket, tile){
       Tile.populate(tile, {path: 'crop'}, function (err, tile_populated) {
         socket.emit('update_tile', tile_populated);
       }); 
+    },
+
+    plant: function(tile, crop_name, socket) {
+      CropTemplate.findOne({ name: crop_name }, function (err, crop_template) {
+
+        crop_template._id = Mongoose.Types.ObjectId();
+        var crop = new Crop(crop_template);
+        crop.maturity = 0;
+
+        crop.save(function(err) {
+          if(err) { console.log(err);}
+
+          tile.crop = crop._id;
+          tile.save(function(err) {
+            if(err) { console.log(err);}
+            
+            UTILS.Map.update_actions.level1(socket);
+            UTILS.Map.update_tile(socket, tile);
+          });
+        });
+
+        setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, tile, function(){
+          UTILS.Map.update_tile(socket, tile);
+        });
+      });
     }
   }
 }
