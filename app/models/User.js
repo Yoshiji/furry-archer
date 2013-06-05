@@ -38,7 +38,7 @@ module.exports = function (mongoose) {
 
       if(owned_tiles > limit_to_next_level) {
         self.level += 1;
-        console.log('The Use gained a level!')
+        console.log('The Use gained a level!');
       }
       self.captured_tiles += 1;
       self.save();

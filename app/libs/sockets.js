@@ -43,6 +43,7 @@ module.exports.listen = function(app){
         socket.emit('update_infos', user);
 
         Tile.findOne({x: data.pos_x, y: data.pos_y}).populate('crop').exec(function(err, tile) {
+          // Si n'est pas owner et peut encore capturer des tiles
           if(tile && tile.owner_name != user.username && user.remaining_tiles(user) > 0) {
             tile.owner_name = user.username;
             tile.save();
@@ -50,15 +51,21 @@ module.exports.listen = function(app){
             socket.emit('update_tile', tile);
             socket.broadcast.emit('update_tile', tile);
           }
+          // Si le player est le owner
+          if(tile && tile.owner_name == user.username) {
+            // Si il y a un crop sur la tile
+            if(tile && tile.crop && tile.crop.length > 0) {
+              // Si la crop est a maturité > 80
+              if(tile.crop[0].maturity > 80)
+                UTILS.Map.update_actions.level2(socket);
+              else
+                UTILS.Map.update_actions.level1(socket);
 
-          if(tile && tile.crop && tile.crop.length > 0) {
-            if(tile.crop[0].maturity > 80)
-              UTILS.Map.update_actions.level2(socket);
-            else
-              UTILS.Map.update_actions.level1(socket);
-
+            } else {
+              UTILS.Map.update_actions.level0(socket);
+            }
           } else {
-            UTILS.Map.update_actions.level0(socket);
+            UTILS.Map.update_actions.level1(socket);
           }
         });
       });
