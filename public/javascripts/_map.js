@@ -20,6 +20,9 @@ Map = {
         var maturity = tile_settings.crop[0].maturity || 0;
         var health = ((tile_settings.fertility + tile_settings.humidity) / 2) || 0;
 
+        if(maturity > 99) maturity = 99;
+        if(health > 99) health = 99;
+
         maturity = maturity - (maturity % 20);
         health = health - (health % 20);
 
