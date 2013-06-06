@@ -15,11 +15,16 @@ Map = {
   update_actions: function(data, socket) {
     var actions = $("#actions").empty();
     for (var i = 0, len = data.length; i < len; i++) {
-      actions.append('<a href="#" class="action">' + data[i] + "</a>");
+      var str = '<a href="#" class="action" data-action="'+ data[i][0] +'">'+ data[i][0]
+      if(typeof data[i][1] != 'undefined')
+        str += " (" + data[i][1] + ")";
+      str += "</a>";
+
+      actions.append(str);
     }
     $(".action", actions).click(function() { // bind events
       event.preventDefault();
-      socket.emit("action", {action: $(this).text(), x: user.pos_x, y: user.pos_y});
+      socket.emit("action", {action: $(this).data('action'), x: user.pos_x, y: user.pos_y});
     });
   },
 
@@ -57,7 +62,6 @@ Map = {
           maturity = maturity - (maturity % 20);
           health = health - (health % 20);
 
-          console.log(tile_settings, data.type, maturity, health);
           data.type = (data.type + maturity + "_" + health);
 
         } else {

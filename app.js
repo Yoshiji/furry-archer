@@ -35,7 +35,21 @@ UTILS = {
       });
     }
   },
+
   Map: {
+    check_if_user_can_afford: function(socket, gold_amount, callback) {
+      User.findOne({_id: socket.session.user._id}, function(err, user) {
+        if(!user) 
+          return;
+        if(user.gold >= gold_amount) {
+          user.gold -= gold_amount;
+          user.save();
+          socket.emit('update_infos', user);
+          callback();
+        }
+      });
+    },
+
     deploy_settings: function() {
       Settings = mongoose.model('Settings');
       SETTINGS = null;
@@ -81,7 +95,7 @@ UTILS = {
               decay_time: 10,
               productivity: 10,
               storability: 15,
-              seed_price: 90
+              seed_price: i*2
             }, function (err, crop_template) {
               if(err)
                 console.log(err); 
@@ -133,19 +147,19 @@ UTILS = {
 
     update_actions: {
       level0: function(socket){
-        var available_actions = ["water", "fertilize"];
+        var available_actions = [["water"], ["fertilize", 1]];
         CropTemplate.find({},function(err, crop_templates) {
           if(crop_templates.length > 0) {
             for (var i = 0, length = crop_templates.length; i < length; i++) {
-              available_actions.push("Plant " + crop_templates[i].name);
+              available_actions.push(["Plant " + crop_templates[i].name, crop_templates[i].seed_price]);
             }
           }
           socket.emit('update_actions', available_actions);
         });
         return available_actions;
       }, 
-      level1: function(socket){ socket.emit('update_actions', ["water", "fertilize"]);},
-      level2: function(socket){ socket.emit('update_actions', ["harvest"]);}
+      level1: function(socket){ socket.emit('update_actions', [["water"], ["fertilize"]]);},
+      level2: function(socket){ socket.emit('update_actions', [["harvest and sell"]]);}
     }, // actions with their levels
 
     update_tile: function(socket, tile){
@@ -156,25 +170,27 @@ UTILS = {
 
     plant: function(tile, crop_name, socket) {
       CropTemplate.findOne({ name: crop_name }, function (err, crop_template) {
+        UTILS.Map.check_if_user_can_afford(socket, crop_template.seed_price, function() {
 
-        crop_template._id = Mongoose.Types.ObjectId();
-        var crop = new Crop(crop_template);
-        crop.maturity = 0;
+          crop_template._id = Mongoose.Types.ObjectId();
+          var crop = new Crop(crop_template);
+          crop.maturity = 0;
 
-        crop.save(function(err) {
-          if(err) { console.log(err);}
-
-          tile.crop = crop._id;
-          tile.save(function(err) {
+          crop.save(function(err) {
             if(err) { console.log(err);}
-            
-            UTILS.Map.update_actions.level1(socket);
+
+            tile.crop = crop._id;
+            tile.save(function(err) {
+              if(err) { console.log(err);}
+              
+              UTILS.Map.update_actions.level1(socket);
+              UTILS.Map.update_tile(socket, tile);
+            });
+          });
+
+          setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, tile, function(){
             UTILS.Map.update_tile(socket, tile);
           });
-        });
-
-        setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, tile, function(){
-          UTILS.Map.update_tile(socket, tile);
         });
       });
     }

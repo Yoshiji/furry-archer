@@ -18,18 +18,19 @@ module.exports = function (mongoose) {
     tile.humidity -= 5;
     if(tile.humidity < 0) { tile.humidity = 0 }
     tile.save();
-  
     self.maturity += 10;
 
     if(self.maturity >= 100) { // Starts withering
       clearInterval(this);
       self.maturity = 100;
+      self.save();
       console.log("The crop is ready: maturity = 100, clearing the Interval");
       setTimeout(self.withered, self.decay_time*1000, self, tile, callback);
+
+    } else {
+      self.save(function() {console.log(tile)});
     }
-      
-    self.save();
-    console.log(old_maturity, (self.maturity - (self.maturity % 20)));
+
     if(old_maturity != (self.maturity - (self.maturity % 20))) {
       return callback();
     }
