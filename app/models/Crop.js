@@ -11,37 +11,39 @@ module.exports = function (mongoose) {
       is_attacked: Boolean
   });
 
-  CropSchema.methods.reload_maturity = function(self, tile, callback) {
-    var old_maturity = self.maturity - (self.maturity % 20);
+  CropSchema.methods.reload_maturity = function(self, callback, kill_interval) {
+    Tile.findOne({crop: self._id}, function(err, tile) {
+      if(!tile) { console.log('NO TILE FOUND'); return; }
 
-    tile.fertility -= 5;
-    if(tile.fertility < 0) { tile.fertility = 0 }
-    tile.humidity -= 5;
-    if(tile.humidity < 0) { tile.humidity = 0 }
-    tile.save();
-    self.maturity += 10;
+      tile.fertility -= 5;
+      if(tile.fertility < 0) { tile.fertility = 0 }
+      tile.humidity -= 5;
+      if(tile.humidity < 0) { tile.humidity = 0 }
+      tile.save();
 
-    if(self.maturity >= 100) { // Starts withering
-      clearInterval(this);
-      self.maturity = 100;
-      self.save();
-      console.log("The crop is ready: maturity = 100, clearing the Interval");
-      setTimeout(self.withered, self.decay_time*1000, self, tile, callback);
+      var old_maturity = self.maturity - (self.maturity % 20);
+      self.maturity += 10;
 
-    } else {
-      self.save(function() {console.log(tile)});
-    }
+      if(self.maturity >= 100) { // Starts withering
+        kill_interval();
+        self.maturity = 100;
+        self.save();
+        setTimeout(Crop.withered, self.decay_time*100, self._id, callback);
 
-    if(old_maturity != (self.maturity - (self.maturity % 20))) {
-      return callback();
-    }
+      } else {
+        self.save();
+      }
+
+      if(old_maturity != (self.maturity - (self.maturity % 20))) {
+        return callback();
+      }
+    });
   }
 
-  CropSchema.methods.withered = function(self, tile, callback) {
-    console.log('The crop should be removed (withered)');
+  CropSchema.statics.withered = function(crop_id, callback) {
+    Tile.update({crop: crop_id}, { $pull: { crop: crop_id } });
+    Crop.remove({_id: crop_id});
 
-    tile.crop = null;
-    tile.save();
     return callback();
   }
 

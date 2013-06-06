@@ -197,8 +197,10 @@ UTILS = {
             });
           });
 
-          setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, tile, function(){
+          var interval = setInterval(crop.reload_maturity, crop_template.maturation_time*100, crop, function(){
             UTILS.Map.update_tile(socket, tile);
+          }, function() {
+            clearInterval(interval);
           });
         });
       });
