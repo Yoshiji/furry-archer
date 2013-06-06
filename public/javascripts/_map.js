@@ -70,6 +70,15 @@ Map = {
       }
 
       Crafty(tile_settings.id).sprite(tile_sprite_settings[data.type][0],tile_sprite_settings[data.type][1], tile_sprite_settings[data.type][2], tile_sprite_settings[data.type][3]);
+      
+      // ATTACK ANIMATION
+      if(tile_settings.is_attacked) {
+        console.log("ANIMATE -----------");
+        Crafty(tile_settings.id).stop().animate("is_attacked", [[tile_sprite_settings[data.type][0], tile_sprite_settings[data.type][1]], [tile_sprite_settings["is_attacked"][0], tile_sprite_settings["is_attacked"][1]]]);
+        Crafty(tile_settings.id).stop().animate("is_attacked", 48, -1); 
+      } else {
+        Crafty(tile_settings.id).stop().reset();
+      }
     }
   },
 

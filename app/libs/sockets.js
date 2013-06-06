@@ -57,15 +57,15 @@ module.exports.listen = function(app){
             if(tile && tile.crop && tile.crop.length > 0) {
               // Si la crop est a maturité > 80
               if(tile.crop[0].maturity > 80)
-                UTILS.Map.update_actions.level2(socket);
+                UTILS.Map.update_actions(2, socket, tile);
               else
-                UTILS.Map.update_actions.level1(socket);
+                UTILS.Map.update_actions(1, socket, tile);
 
             } else {
-              UTILS.Map.update_actions.level0(socket);
+              UTILS.Map.update_actions(0, socket, tile);
             }
           } else {
-            UTILS.Map.update_actions.level1(socket);
+            UTILS.Map.update_actions(1, socket, tile);
           }
         });
       });
@@ -93,7 +93,9 @@ module.exports.listen = function(app){
           });
         } else if (action_cleaned.indexOf("harvest and sell") > -1) {
           UTILS.Map.update_tile(socket, tile.harvest_and_sell(socket, tile));
-          UTILS.Map.update_actions.level0(socket);
+          UTILS.Map.update_actions(0, socket, tile);
+        } else if ((action_cleaned.indexOf("attack") > -1) && (tile.owner_name == socket.session.user.username)) {
+          UTILS.Map.attack(tile, socket);
         }
       });
   	});

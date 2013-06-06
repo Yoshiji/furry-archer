@@ -6,6 +6,7 @@ tile_sprite_settings = { grass: [0,0,2,1],
 	voided: [2,0,2,1],
 	my_grass: [4,0,2,1],
 	others_grass: [6,0,2,1],
+	is_attacked: [8,0,2,1],
 
 	//MY GRASS
 	//owner_maturity_health
