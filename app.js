@@ -36,6 +36,12 @@ UTILS = {
     }
   },
 
+  Timeouts: {
+    deploy: function() {
+      setInterval(Tile.raise_fertility, 1000*60);
+    }
+  },
+
   Map: {
     check_if_user_can_afford: function(socket, gold_amount, callback) {
       User.findOne({_id: socket.session.user._id}, function(err, user) {
@@ -83,6 +89,8 @@ UTILS = {
       Tile = mongoose.model('Tile');
       Crop = mongoose.model('Crop');
       CropTemplate = mongoose.model('CropTemplate');
+      
+      UTILS.Timeouts.deploy();
 
       var init_crop_templates = ['tomato', 'corn', 'cereal'];
 

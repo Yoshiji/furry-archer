@@ -59,6 +59,20 @@ module.exports = function (mongoose) {
     });
   }
 
+  TileSchema.statics.raise_fertility = function() {
+    console.log('Raising fertility as set by the Interval');
+    
+    Tile.find({crop: {$size: 0}}, function(err, tiles) {
+      tiles.forEach(function(tile) {
+
+        if(tile.fertility < 100) {          
+          tile.fertility += 1;
+          tile.save();
+        }
+      });
+    });
+  }
+
   // Compile Model
   var Tile = mongoose.model('Tile', TileSchema);
 
