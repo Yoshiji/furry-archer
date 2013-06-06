@@ -153,9 +153,26 @@ UTILS = {
       });
     },
 
-    update_actions: {
-      level0: function(socket){
-        var available_actions = [["water"], ["fertilize", 1]];
+    update_actions: function(socket, tile){
+      var available_actions = [["water"], ["fertilize", 1]];
+      var level = 1; 
+
+      // LEVEL DETERMINATION
+      if(tile && tile.owner_name == socket.session.user.username) {
+        // Si il y a un crop sur la tile
+        if(tile && tile.crop && tile.crop.length > 0) {
+          // Si la crop est a maturité > 80
+          if(tile.crop[0].maturity > 80)
+            level = 2;
+          else
+            level = 1;
+
+        } else {
+          level = 0;
+        }
+      }
+
+      if(level == 0) {
         CropTemplate.find({},function(err, crop_templates) {
           if(crop_templates.length > 0) {
             for (var i = 0, length = crop_templates.length; i < length; i++) {
@@ -164,11 +181,19 @@ UTILS = {
           }
           socket.emit('update_actions', available_actions);
         });
-        return available_actions;
-      }, 
-      level1: function(socket){ socket.emit('update_actions', [["water"], ["fertilize", 1]]);},
-      level2: function(socket){ socket.emit('update_actions', [["harvest and sell"]]);}
-    },
+      } else if (level == 1) {
+        if (tile && socket && (socket.session.user.username != tile.owner_name) && tile.owner_name != -1) {
+          available_actions.push(["attack"]);
+        }
+        socket.emit('update_actions', available_actions);
+      } else if (level == 2) {
+        available_actions = [["harvest and sell"]];
+        if (tile && socket && (socket.session.user.username != tile.owner_name) && tile.owner_name != -1) {
+          available_actions.push(["attack"]);
+        }
+        socket.emit('update_actions', available_actions);
+      }
+    }, // actions with their levels
 
     update_tile: function(socket, tile){
       Tile.populate(tile, {path: 'crop'}, function (err, tile_populated) {
@@ -191,7 +216,7 @@ UTILS = {
             tile.save(function(err) {
               if(err) { console.log(err);}
               
-              UTILS.Map.update_actions.level1(socket);
+              UTILS.Map.update_actions(socket, tile);
               UTILS.Map.update_tile(socket, tile);
             });
           });
@@ -201,9 +226,18 @@ UTILS = {
           }, function() {
             clearInterval(interval);
           }, function() {
-            UTILS.Map.update_actions.level2(socket);
+            UTILS.Map.update_actions(socket, tile);
           });
         });
+      });
+    },
+    attack: function(tile, socket) {
+      tile.is_attacked = true;
+      tile.save(function(err) {
+        if(err) console.log(err);
+        UTILS.Map.update_actions(socket, tile);
+        UTILS.Map.update_tile(socket, tile);
+        console.log(tile);
       });
     }
 

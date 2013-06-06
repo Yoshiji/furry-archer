@@ -43,30 +43,15 @@ module.exports.listen = function(app){
         socket.emit('update_infos', user);
 
         Tile.findOne({x: data.pos_x, y: data.pos_y}).populate('crop').exec(function(err, tile) {
-          // Si n'est pas owner et peut encore capturer des tiles
-          if(tile && tile.owner_name != user.username && user.remaining_tiles(user) > 0) {
+          // Si personne n'est owner et peut encore capturer des tiles
+          if(tile && tile.owner_name == -1 && user.remaining_tiles(user) > 0) {
             tile.owner_name = user.username;
             tile.save();
             user.captured_new_tile(user, socket);
             socket.emit('update_tile', tile);
             socket.broadcast.emit('update_tile', tile);
           }
-          // Si le player est le owner
-          if(tile && tile.owner_name == user.username) {
-            // Si il y a un crop sur la tile
-            if(tile && tile.crop && tile.crop.length > 0) {
-              // Si la crop est a maturité > 80
-              if(tile.crop[0].maturity > 80)
-                UTILS.Map.update_actions.level2(socket);
-              else
-                UTILS.Map.update_actions.level1(socket);
-
-            } else {
-              UTILS.Map.update_actions.level0(socket);
-            }
-          } else {
-            UTILS.Map.update_actions.level1(socket);
-          }
+          UTILS.Map.update_actions(socket, tile);
         });
       });
 
@@ -91,13 +76,17 @@ module.exports.listen = function(app){
           UTILS.Map.check_if_user_can_afford(socket, 1, function() {
             UTILS.Map.update_tile(socket, tile.fertilize());
           });
+
         } else if (action_cleaned.indexOf("harvest and sell") > -1) {
           tile.harvest_and_sell(socket.session.user._id, tile, function(user) {
             socket.emit('update_infos', user);
           }, function(tile) {
             UTILS.Map.update_tile(socket, tile);
-          })
-          UTILS.Map.update_actions.level0(socket);
+            UTILS.Map.update_actions(socket, tile);
+          });
+
+        } else if ((action_cleaned.indexOf("attack") > -1) && (tile.owner_name != socket.session.user.username)) {
+          UTILS.Map.attack(tile, socket);
         }
       });
   	});

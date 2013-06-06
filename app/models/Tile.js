@@ -8,6 +8,7 @@ module.exports = function (mongoose) {
       owner_name: String,
       humidity: Number,
       fertility: Number,
+      is_attacked: Boolean,
       crop: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Crop' }]
   });
 

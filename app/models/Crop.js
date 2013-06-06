@@ -7,7 +7,8 @@ module.exports = function (mongoose) {
       decay_time: Number,
       productivity: Number,
       storability: Number,
-      seed_price: Number
+      seed_price: Number,
+      is_attacked: Boolean
   });
 
   CropSchema.methods.reload_maturity = function(self, callback, kill_interval, reinit_actions) {
