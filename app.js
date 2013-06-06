@@ -158,9 +158,9 @@ UTILS = {
         });
         return available_actions;
       }, 
-      level1: function(socket){ socket.emit('update_actions', [["water"], ["fertilize"]]);},
+      level1: function(socket){ socket.emit('update_actions', [["water"], ["fertilize", 1]]);},
       level2: function(socket){ socket.emit('update_actions', [["harvest and sell"]]);}
-    }, // actions with their levels
+    },
 
     update_tile: function(socket, tile){
       Tile.populate(tile, {path: 'crop'}, function (err, tile_populated) {
@@ -188,8 +188,10 @@ UTILS = {
             });
           });
 
-          setInterval(crop.reload_maturity, crop_template.maturation_time*1000, crop, tile, function(){
+          var interval = setInterval(crop.reload_maturity, crop_template.maturation_time*100, crop, function(){
             UTILS.Map.update_tile(socket, tile);
+          }, function() {
+            clearInterval(interval);
           });
         });
       });
