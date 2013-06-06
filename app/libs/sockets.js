@@ -51,22 +51,7 @@ module.exports.listen = function(app){
             socket.emit('update_tile', tile);
             socket.broadcast.emit('update_tile', tile);
           }
-          // Si le player est le owner
-          if(tile && tile.owner_name == user.username) {
-            // Si il y a un crop sur la tile
-            if(tile && tile.crop && tile.crop.length > 0) {
-              // Si la crop est a maturité > 80
-              if(tile.crop[0].maturity > 80)
-                UTILS.Map.update_actions(2, socket, tile);
-              else
-                UTILS.Map.update_actions(1, socket, tile);
-
-            } else {
-              UTILS.Map.update_actions(0, socket, tile);
-            }
-          } else {
-            UTILS.Map.update_actions(1, socket, tile);
-          }
+          UTILS.Map.update_actions(socket, tile);
         });
       });
 
@@ -91,9 +76,11 @@ module.exports.listen = function(app){
           UTILS.Map.check_if_user_can_afford(socket, 1, function() {
             UTILS.Map.update_tile(socket, tile.fertilize());
           });
+
         } else if (action_cleaned.indexOf("harvest and sell") > -1) {
           UTILS.Map.update_tile(socket, tile.harvest_and_sell(socket, tile));
-          UTILS.Map.update_actions(0, socket, tile);
+          UTILS.Map.update_actions(socket, tile);
+
         } else if ((action_cleaned.indexOf("attack") > -1) && (tile.owner_name == socket.session.user.username)) {
           UTILS.Map.attack(tile, socket);
         }
