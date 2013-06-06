@@ -11,7 +11,7 @@ module.exports = function (mongoose) {
       is_attacked: Boolean
   });
 
-  CropSchema.methods.reload_maturity = function(self, callback, kill_interval) {
+  CropSchema.methods.reload_maturity = function(self, callback, kill_interval, reinit_actions) {
     Tile.findOne({crop: self._id}, function(err, tile) {
       if(!tile) { console.log('NO TILE FOUND'); return; }
 
@@ -28,23 +28,29 @@ module.exports = function (mongoose) {
         kill_interval();
         self.maturity = 100;
         self.save();
-        setTimeout(Crop.withered, self.decay_time*100, self._id, callback);
-
+        setTimeout(Crop.withered, self.decay_time*1000, self._id, tile._id, callback);
+        User.findOne({ username: tile.owner_name, pos_x: tile.x, pos_y: tile.y}, function(err, user) {
+          if(user) { // Le owner est présent sur la case
+            reinit_actions();
+          }
+        });
       } else {
         self.save();
       }
 
       if(old_maturity != (self.maturity - (self.maturity % 20))) {
-        return callback();
+        callback(tile);
       }
     });
   }
 
-  CropSchema.statics.withered = function(crop_id, callback) {
-    Tile.update({crop: crop_id}, { $pull: { crop: crop_id } });
-    Crop.remove({_id: crop_id});
+  CropSchema.statics.withered = function(crop_id, tile_id, callback) {
+    Tile.update({crop: crop_id}, { $pull: { crop: crop_id } }).exec();
+    Crop.remove({_id: crop_id}).exec();
 
-    return callback();
+    Tile.findOne({_id: tile_id}, function(err, tile) {      
+      return callback(tile);
+    });
   }
 
   // Compile Model

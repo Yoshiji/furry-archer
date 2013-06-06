@@ -78,14 +78,19 @@ module.exports.listen = function(app){
           });
 
         } else if (action_cleaned.indexOf("harvest and sell") > -1) {
-          UTILS.Map.update_tile(socket, tile.harvest_and_sell(socket, tile));
-          UTILS.Map.update_actions(socket, tile);
+          tile.harvest_and_sell(socket.session.user._id, tile, function(user) {
+            socket.emit('update_infos', user);
+          }, function(tile) {
+            UTILS.Map.update_tile(socket, tile);
+            UTILS.Map.update_actions(socket, tile);
+          });
 
         } else if ((action_cleaned.indexOf("attack") > -1) && (tile.owner_name == socket.session.user.username)) {
           UTILS.Map.attack(tile, socket);
         }
       });
   	});
+
 	});
 
   return io;

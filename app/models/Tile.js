@@ -35,27 +35,28 @@ module.exports = function (mongoose) {
     return this;
   }
 
-  TileSchema.methods.harvest_and_sell = function(socket, tile) {
+  TileSchema.methods.harvest_and_sell = function(user_id, tile, cb_update_infos, cb_update_tile) {
     Crop.findOne({ _id: tile.crop[0] }, function(err, crop) {
       if(err) { return; }
       if(crop.maturity > 80) {
         var health = tile.health();
         var productivity = crop.productivity;
-        var gold_gained = Math.round(health / 100 * productivity);
+        var gold_gained = Math.ceil((health / 100 * productivity) || 1);
         console.log('Harvesting a mature plant for GOLD: ' + gold_gained.toString());
-        if(gold_gained > 0) {
-          User.findOne({_id: socket.session.user._id}, function(err, user) {
-            user.gold += gold_gained;
-            user.save(function(err) {
-              socket.emit('update_infos', user);
-            });
+        User.findOne({_id: user_id}, function(err, user) {
+          user.gold += gold_gained;
+          user.save(function(err) {
+            cb_update_infos(user);
           });
-        }
-
-        crop.remove();
+        });
+        Tile.update({_id: tile._id}, { $pull: { crop: tile.crop[0] } }, {}, function(err) {
+          Tile.findOne({_id: tile._id}, function(err, tile) {
+            cb_update_tile(tile);
+          });
+        });
+        Crop.remove({_id: tile.crop[0]}).exec();
       }
     });
-    return this;
   }
 
   // Compile Model
