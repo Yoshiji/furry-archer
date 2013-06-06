@@ -193,7 +193,7 @@ UTILS = {
         }
         socket.emit('update_actions', available_actions);
       }
-    }, // actions with their levels
+    },
 
     update_tile: function(socket, tile){
       Tile.populate(tile, {path: 'crop'}, function (err, tile_populated) {
@@ -225,7 +225,7 @@ UTILS = {
             UTILS.Map.update_tile(socket, tile);
           }, function() {
             clearInterval(interval);
-          }, function() {
+          }, function(tile) {
             UTILS.Map.update_actions(socket, tile);
           });
         });

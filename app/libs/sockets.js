@@ -43,7 +43,6 @@ module.exports.listen = function(app){
         socket.emit('update_infos', user);
 
         Tile.findOne({x: data.pos_x, y: data.pos_y}).populate('crop').exec(function(err, tile) {
-          // Si personne n'est owner et peut encore capturer des tiles
           if(tile && tile.owner_name == -1 && user.remaining_tiles(user) > 0) {
             tile.owner_name = user.username;
             tile.save();

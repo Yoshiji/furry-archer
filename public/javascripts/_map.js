@@ -22,10 +22,9 @@ Map = {
 
       actions.append(str);
     }
-    $(".action", actions).click(function() { // bind events
+    $(".action", actions).click(function() {
       event.preventDefault();
       socket.emit("action", {action: $(this).data('action'), x: user.pos_x, y: user.pos_y});
-      console.log({action: $(this).data('action'), x: user.pos_x, y: user.pos_y});
     });
   },
 

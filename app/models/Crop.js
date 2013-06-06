@@ -31,7 +31,7 @@ module.exports = function (mongoose) {
         setTimeout(Crop.withered, self.decay_time*1000, self._id, tile._id, callback);
         User.findOne({ username: tile.owner_name, pos_x: tile.x, pos_y: tile.y}, function(err, user) {
           if(user) { // Le owner est présent sur la case
-            reinit_actions();
+            reinit_actions(tile);
           }
         });
       } else {
