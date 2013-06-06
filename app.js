@@ -226,9 +226,11 @@ UTILS = {
     attack: function(tile, socket) {
       tile.is_attacked = true;
       tile.save(function(err) {
-        if(err) { console.log(err);}
+        if(err) console.log(err);
+        UTILS.Map.update_actions(socket, tile);
+        UTILS.Map.update_tile(socket, tile);
+        console.log(tile);
       });
-      UTILS.Map.update_actions(socket, tile);
     }
 
   }

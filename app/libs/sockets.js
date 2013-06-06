@@ -43,8 +43,8 @@ module.exports.listen = function(app){
         socket.emit('update_infos', user);
 
         Tile.findOne({x: data.pos_x, y: data.pos_y}).populate('crop').exec(function(err, tile) {
-          // Si n'est pas owner et peut encore capturer des tiles
-          if(tile && tile.owner_name != user.username && user.remaining_tiles(user) > 0) {
+          // Si personne n'est owner et peut encore capturer des tiles
+          if(tile && tile.owner_name == -1 && user.remaining_tiles(user) > 0) {
             tile.owner_name = user.username;
             tile.save();
             user.captured_new_tile(user, socket);
@@ -85,7 +85,7 @@ module.exports.listen = function(app){
             UTILS.Map.update_actions(socket, tile);
           });
 
-        } else if ((action_cleaned.indexOf("attack") > -1) && (tile.owner_name == socket.session.user.username)) {
+        } else if ((action_cleaned.indexOf("attack") > -1) && (tile.owner_name != socket.session.user.username)) {
           UTILS.Map.attack(tile, socket);
         }
       });
