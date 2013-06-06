@@ -188,14 +188,17 @@ UTILS = {
             });
           });
 
-          var interval = setInterval(crop.reload_maturity, crop_template.maturation_time*100, crop, function(){
+          var interval = setInterval(crop.reload_maturity, crop_template.maturation_time*100, crop, function(tile) {
             UTILS.Map.update_tile(socket, tile);
           }, function() {
             clearInterval(interval);
+          }, function() {
+            UTILS.Map.update_actions.level2(socket);
           });
         });
       });
     }
+
   }
 }
 

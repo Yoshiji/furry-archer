@@ -92,11 +92,16 @@ module.exports.listen = function(app){
             UTILS.Map.update_tile(socket, tile.fertilize());
           });
         } else if (action_cleaned.indexOf("harvest and sell") > -1) {
-          UTILS.Map.update_tile(socket, tile.harvest_and_sell(socket, tile));
+          tile.harvest_and_sell(socket.session.user._id, tile, function(user) {
+            socket.emit('update_infos', user);
+          }, function(tile) {
+            UTILS.Map.update_tile(socket, tile);
+          })
           UTILS.Map.update_actions.level0(socket);
         }
       });
   	});
+
 	});
 
   return io;
