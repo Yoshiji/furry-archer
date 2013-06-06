@@ -38,7 +38,7 @@ module.exports = function (mongoose) {
 
   TileSchema.methods.harvest_and_sell = function(user_id, tile, cb_update_infos, cb_update_tile) {
     Crop.findOne({ _id: tile.crop[0] }, function(err, crop) {
-      if(err) { return; }
+      if(err || !crop) { return; }
       if(crop.maturity > 80) {
         var health = tile.health();
         var productivity = crop.productivity;

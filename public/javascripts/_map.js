@@ -25,6 +25,7 @@ Map = {
     $(".action", actions).click(function() {
       event.preventDefault();
       socket.emit("action", {action: $(this).data('action'), x: user.pos_x, y: user.pos_y});
+      console.log('ACTION: ' + $(this).data('action'));
     });
   },
 
@@ -162,32 +163,40 @@ Map = {
 
   init_sockets: function(socket) {
     var self = this;
+    var verbose = true;
 
     socket.on('update_tile', function(data){
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_tile');
       self.update_tile(data, this);
     });
 
     socket.on('set_tile', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': set_tile');
       self.set_tile(data, this);
     });
 
     socket.on('set_player', function(data){
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': set_player');
       self.init_player(data, this);
     });
 
     socket.on('update_player', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_player');
       self.update_player(data, this);
     });
 
     socket.on('update_actions', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_actions');
       self.update_actions(data, this);
     });
 
     socket.on('update_infos', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_infos');
       self.update_infos(data);
     });
 
     socket.on('update_tile_sprite', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_tile_sprite');
       self.update_tile_sprite(data, this);
     });
   },
