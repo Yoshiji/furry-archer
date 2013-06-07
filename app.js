@@ -88,12 +88,37 @@ UTILS = {
       Tile = mongoose.model('Tile');
       Crop = mongoose.model('Crop');
       CropTemplate = mongoose.model('CropTemplate');
+      Weapon = mongoose.model('Weapon');
+      WeaponTemplate = mongoose.model('WeaponTemplate');
       
       UTILS.Timeouts.deploy();
+
+      var init_crop_templates = ['tomato', 'corn', 'cereal'];
+      var init_weapon_templates = ['AK 47', 'Chainsaw', 'Baseball Bat'];
 
       CropTemplate.find(function (err, crop_templates) {
         if(crop_templates.length < 1)
           CropTemplate.generate();
+      });
+
+
+      WeaponTemplate.find(function (err, weapon_templates) {
+        if(weapon_templates.length < 1) {
+          for( var i = 0; i < init_weapon_templates.length; i++ ) {
+            WeaponTemplate.create(
+            { name: init_weapon_templates[i],
+              power: 10,
+              hit_ratio: 3,
+              hits_per_second: 2,
+              price: 100
+            }, function (err, weapon_template) {
+              if(err)
+                console.log(err); 
+              else
+                console.log("creating weapon template: ", weapon_template); 
+            });
+          }
+        }
       });
 
       Tile.find(function (err, tiles) {
