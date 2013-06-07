@@ -91,64 +91,14 @@ UTILS = {
       
       UTILS.Timeouts.deploy();
 
-      var init_crop_templates = ['tomato', 'corn', 'cereal'];
-
       CropTemplate.find(function (err, crop_templates) {
-        if(crop_templates.length < 1) {
-          for( var i = 0; i < init_crop_templates.length; i++ ) {
-            CropTemplate.create(
-            { name: init_crop_templates[i],
-              maturation_time: 3,
-              decay_time: 10,
-              productivity: 10,
-              storability: 15,
-              seed_price: i*2
-            }, function (err, crop_template) {
-              if(err)
-                console.log(err); 
-              else
-                console.log("creating crop template: ", crop_template); 
-            });
-          }
-        }
+        if(crop_templates.length < 1)
+          CropTemplate.generate();
       });
 
       Tile.find(function (err, tiles) {
-        if (tiles.length < 1) {
-          var map_size = 20;
-          var bands = [ [1, 45], [45, 75], [75, 110], [45, 75], [1, 45] ];
-
-          for(var i = 0; i < map_size; i++) {
-            var current_band = bands[i%5];
-
-            for(var j = 0; j < map_size; j++) {
-              var humidity_rand = Math.floor(Math.random()*100) + 1; 
-              var fertility_rand = Math.floor(Math.random()*(current_band[1]-current_band[0])) + current_band[0];
-              
-              if(fertility_rand > 100) {
-                var type = 'water';
-              } else {
-                var type = 'grass';
-              }                
-
-              var attributes = { x: i, 
-                  y: j, 
-                  type: type, 
-                  owner_name: -1, 
-                  humidity: humidity_rand,
-                  fertility: fertility_rand,
-                }
-
-              Tile.create( attributes, function (err, tile) {
-                  if(tile) { 
-                    console.log("Tile created: { x: "+tile.x+", y: "+tile.y+", type: "+tile.type+", fertility: "+tile.fertility+", humidity: "+tile.humidity+" }"); 
-                  }
-                  if(err) { console.log(err); }
-                }
-              );
-            }
-          }
-        }
+        if (tiles.length < 1)
+          Tile.generate();
       });
     },
 
