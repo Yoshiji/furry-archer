@@ -7,6 +7,10 @@ Map = {
 
   // METHODS
 
+  handle_disaster: function(data) {
+    $('#disaster').empty().append(data.name).show().fadeOut(2500);
+  },
+
   update_player: function(data, socket) {
     this.players[data.user_id] = data;
     console.log('update_player #' + data.user_id);
@@ -207,6 +211,11 @@ Map = {
     socket.on('update_weather', function(data) {
       if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_weather');
       self.update_weather(data);
+    });
+
+    socket.on('disaster', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': Disaster!');
+      self.handle_disaster(data);
     });
 
     socket.on('update_tile_sprite', function(data) {

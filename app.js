@@ -43,6 +43,7 @@ UTILS = {
     deploy: function(io) {
       setInterval(Tile.raise_fertility_routine, 1000*60);
       setInterval(UTILS.Timeouts.generate_rain, 1000*60, io);
+      setInterval(UTILS.Timeouts.generate_random_disaster, 1000*120, io);
     },
     generate_rain: function(io) {
       var random_percents = Math.floor((Math.random()*100)+1);
@@ -64,6 +65,41 @@ UTILS = {
           UTILS.Timeouts.CURRENT_WEATHER = sunny;
           io.sockets.emit('update_weather', sunny);
         }, 5000*rain_cycles);
+      }
+    },
+    generate_random_disaster: function(io) {
+      //io.sockets.emit('disaster', { name: 'generating disaster!' });
+      var random_percents = Math.floor((Math.random()*100)+1);
+      if(random_percents > 75) {
+        if( Math.round(Math.random()) ) {
+
+          if( Math.round(Math.random()) ) {
+            console.log('!!! Meteor Showers');
+            io.sockets.emit('disaster', { name: 'Meteor Shower' });
+            setTimeout(function() {
+              Crop.find({}, function(err, crops) {
+                crops.forEach(function(crop) {
+                  Tile.findOne({crop: crop._id}, function(err, tile) {
+                    tile.crop = null;
+                    io.sockets.emit('update_tile', tile);
+                    Tile.update({crop: crop._id}, { $pull: { crop: crop._id } }).exec();
+                  });
+                  crop.remove();
+                });
+              });
+            }, 2000);
+
+          } else {
+            console.log('!!! Grasshoppers Invasion');
+            io.sockets.emit('disaster', { name: 'Grasshoppers Invasion' });
+            setTimeout(function() {
+              Crop.update({}, { maturity: 0 }).exec();
+            }, 2000)
+          }
+        } else {
+          console.log('!!! Tornado');
+          io.sockets.emit('disaster', { name: 'Tornado' });
+        }
       }
     }
   },
