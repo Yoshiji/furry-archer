@@ -54,18 +54,6 @@ UTILS = {
   },
 
   Map: {
-    check_if_user_can_afford: function(socket, gold_amount, callback) {
-      User.findOne({_id: socket.session.user._id}, function(err, user) {
-        if(!user) 
-          return;
-        if(user.gold >= gold_amount) {
-          user.gold -= gold_amount;
-          user.save();
-          socket.emit('update_infos', user);
-          callback();
-        }
-      });
-    },
 
     deploy_settings: function() {
       Settings = mongoose.model('Settings');
@@ -214,8 +202,8 @@ UTILS = {
 
     plant: function(tile, crop_name, socket) {
       CropTemplate.findOne({ name: crop_name }, function (err, crop_template) {
-        UTILS.Map.check_if_user_can_afford(socket, crop_template.seed_price, function() {
-
+        User.check_can_afford(socket.session.user._id, crop_template.seed_price, function(user) {
+          socket.emit('update_infos', user);
           crop_template._id = Mongoose.Types.ObjectId();
           var crop = new Crop(crop_template);
           crop.maturity = 0;
