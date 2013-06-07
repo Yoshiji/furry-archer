@@ -43,12 +43,14 @@ module.exports.listen = function(app){
         socket.emit('update_infos', user);
 
         Tile.findOne({x: data.pos_x, y: data.pos_y}).populate('crop').exec(function(err, tile) {
-          if(tile && tile.owner_name == -1 && user.remaining_tiles(user) > 0) {
+          if(tile.owner_name == -1 && user.remaining_tiles(user) > 0) {
             tile.owner_name = user.username;
             tile.save();
             user.captured_new_tile(user, socket);
             socket.emit('update_tile', tile);
             socket.broadcast.emit('update_tile', tile);
+          } else {
+            socket.emit('update_tile', tile);
           }
           UTILS.Map.update_actions(socket, tile);
         });

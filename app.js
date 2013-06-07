@@ -46,21 +46,24 @@ UTILS = {
     },
     generate_rain: function(io) {
       var random_percents = Math.floor((Math.random()*100)+1);
-      if(random_percents > 70) {
+      if(random_percents > 75) {
 
+        console.log("Starts Raining")
         var rain = {name: 'Raining', color: '#D8D8D8'};
         UTILS.Timeouts.CURRENT_WEATHER = rain;
         io.sockets.emit('update_weather', rain);
-        
-        var rain_interval = setInterval(Tile.raise_humidity_routine, 1000*10);
-        setTimeout(function(rain_interval) {
 
+        var rain_cycles = 5;
+        for(var i = 0; i < rain_cycles; i++) {
+          setTimeout(Tile.raise_humidity_routine, 5000*(i+1));
+        }
+
+        setTimeout(function() {
+          console.log("End of Rain")
           var sunny = {name: 'Sunny', color: '#F5DA81'};
           UTILS.Timeouts.CURRENT_WEATHER = sunny;
           io.sockets.emit('update_weather', sunny);
-
-          clearInterval(rain_interval);
-        }, 1000*31)
+        }, 5000*rain_cycles);
       }
     }
   },
