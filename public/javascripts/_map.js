@@ -12,6 +12,11 @@ Map = {
     console.log('update_player #' + data.user_id);
   },
 
+  update_weather: function(data) {
+    $('#weather').empty().append(data.name);
+    $('#weather').css({'background-color': data.color});
+  },
+
   update_actions: function(data, socket) {
     var actions = $("#actions").empty();
     for (var i = 0, len = data.length; i < len; i++) {
@@ -197,6 +202,11 @@ Map = {
     socket.on('update_infos', function(data) {
       if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_infos');
       self.update_infos(data);
+    });
+
+    socket.on('update_weather', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_weather');
+      self.update_weather(data);
     });
 
     socket.on('update_tile_sprite', function(data) {

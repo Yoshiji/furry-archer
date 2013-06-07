@@ -20,6 +20,7 @@ UTILS = {
   Routines: {
     connection: function(socket) {
       socket.session = socket.handshake.session;
+      socket.emit('update_weather', UTILS.Timeouts.CURRENT_WEATHER);
       UTILS.Chat.broadcast(socket, socket.session.user.username + ' connected!');
       User.findOne({_id: socket.session.user._id}, function(err, user) {
         if(user) {
@@ -37,16 +38,27 @@ UTILS = {
   },
 
   Timeouts: {
-    deploy: function() {
+    CURRENT_WEATHER: {name: 'Sunny', color: '#F5DA81'},
+
+    deploy: function(io) {
       setInterval(Tile.raise_fertility_routine, 1000*60);
-      setInterval(UTILS.Timeouts.generate_rain, 1000*60);
+      setInterval(UTILS.Timeouts.generate_rain, 1000*60, io);
     },
-    generate_rain: function() {
+    generate_rain: function(io) {
       var random_percents = Math.floor((Math.random()*100)+1);
       if(random_percents > 70) {
+
+        var rain = {name: 'Raining', color: '#D8D8D8'};
+        UTILS.Timeouts.CURRENT_WEATHER = rain;
+        io.sockets.emit('update_weather', rain);
+        
         var rain_interval = setInterval(Tile.raise_humidity_routine, 1000*10);
         setTimeout(function(rain_interval) {
-          console.log("clearing interval rain");
+
+          var sunny = {name: 'Sunny', color: '#F5DA81'};
+          UTILS.Timeouts.CURRENT_WEATHER = sunny;
+          io.sockets.emit('update_weather', sunny);
+
           clearInterval(rain_interval);
         }, 1000*31)
       }
@@ -90,8 +102,6 @@ UTILS = {
       CropTemplate = mongoose.model('CropTemplate');
       Weapon = mongoose.model('Weapon');
       WeaponTemplate = mongoose.model('WeaponTemplate');
-      
-      UTILS.Timeouts.deploy();
 
       var init_crop_templates = ['tomato', 'corn', 'cereal'];
       var init_weapon_templates = ['AK 47', 'Chainsaw', 'Baseball Bat'];
@@ -195,7 +205,7 @@ UTILS = {
             });
           });
 
-          var maturity_interval = setInterval(crop.reload_maturity, crop_template.maturation_time*100, crop, function(tile) {
+          var maturity_interval = setInterval(crop.reload_maturity_routine, crop_template.maturation_time*1000, crop, function(tile) {
             UTILS.Map.update_tile(socket, tile);
           }, function() {
             clearInterval(maturity_interval);
@@ -257,6 +267,7 @@ io.set('authorization', function(data, accept) {
 
 UTILS.Map.deploy_settings();
 UTILS.Map.generate();
+UTILS.Timeouts.deploy(io);
 
 
 
