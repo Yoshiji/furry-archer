@@ -38,7 +38,18 @@ UTILS = {
 
   Timeouts: {
     deploy: function() {
-      setInterval(Tile.raise_fertility, 1000*60);
+      setInterval(Tile.raise_fertility_routine, 1000*60);
+      setInterval(UTILS.Timeouts.generate_rain, 1000*60);
+    },
+    generate_rain: function() {
+      var random_percents = Math.floor((Math.random()*100)+1);
+      if(random_percents > 70) {
+        var rain_interval = setInterval(Tile.raise_humidity_routine, 1000*10);
+        setTimeout(function(rain_interval) {
+          console.log("clearing interval rain");
+          clearInterval(rain_interval);
+        }, 1000*31)
+      }
     }
   },
 
@@ -221,10 +232,10 @@ UTILS = {
             });
           });
 
-          var interval = setInterval(crop.reload_maturity, crop_template.maturation_time*100, crop, function(tile) {
+          var maturity_interval = setInterval(crop.reload_maturity, crop_template.maturation_time*100, crop, function(tile) {
             UTILS.Map.update_tile(socket, tile);
           }, function() {
-            clearInterval(interval);
+            clearInterval(maturity_interval);
           }, function(tile) {
             UTILS.Map.update_actions(socket, tile);
           });

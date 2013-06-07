@@ -25,7 +25,7 @@ Map = {
     $(".action", actions).click(function() {
       event.preventDefault();
       socket.emit("action", {action: $(this).data('action'), x: user.pos_x, y: user.pos_y});
-      console.log('ACTION: ' + $(this).data('action'));
+      console.log((new Date()).toLocaleTimeString() + ': ACTION: ' + $(this).data('action'));
     });
   },
 

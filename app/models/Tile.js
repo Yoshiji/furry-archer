@@ -60,19 +60,30 @@ module.exports = function (mongoose) {
     });
   }
 
-  TileSchema.statics.raise_fertility = function() {
-    console.log('Raising fertility as set by the Interval');
+  TileSchema.statics.raise_fertility_routine = function() {
+    console.log('Raising the Fertility periodically');
     
     Tile.find({crop: {$size: 0}}, function(err, tiles) {
       tiles.forEach(function(tile) {
-
-        if(tile.fertility < 100) {          
+        if(tile.fertility < 100)        
           tile.fertility += 1;
           tile.save();
-        }
       });
     });
   }
+
+  TileSchema.statics.raise_humidity_routine = function() {
+    console.log('Raising the Humidity periodically');
+    
+    Tile.find({}, function(err, tiles) {
+      tiles.forEach(function(tile) {
+        if(tile.humidity < 100)
+          tile.humidity += 1;
+          tile.save();
+      });
+    });
+  }
+
 
   // Compile Model
   var Tile = mongoose.model('Tile', TileSchema);

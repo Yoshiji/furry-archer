@@ -1,6 +1,5 @@
 module.exports = function (mongoose) {
 
-  // Create Schema
   var CropSchema = mongoose.Schema({
       name: String,
       maturity: Number,
@@ -24,13 +23,13 @@ module.exports = function (mongoose) {
       var old_maturity = self.maturity - (self.maturity % 20);
       self.maturity += 10;
 
-      if(self.maturity >= 100) { // Starts withering
+      if(self.maturity >= 100) {
         kill_interval();
         self.maturity = 100;
         self.save();
         setTimeout(Crop.withered, self.decay_time*1000, self._id, tile._id, callback, cb_update_actions);
         User.findOne({ username: tile.owner_name, pos_x: tile.x, pos_y: tile.y}, function(err, user) {
-          if(user) { // Le owner est présent sur la case
+          if(user) {
             cb_update_actions(tile);
           }
         });
@@ -57,6 +56,5 @@ module.exports = function (mongoose) {
     });
   }
 
-  // Compile Model
   var Crop = mongoose.model('Crop', CropSchema);
 }
