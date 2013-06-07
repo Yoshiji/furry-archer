@@ -10,6 +10,27 @@ module.exports = function (mongoose) {
       seed_price: Number
   });
 
+
+  CropTemplateSchema.statics.generate = function() {
+    var init_crop_templates = ['tomato', 'corn', 'cereal'];
+    
+    for( var i = 0; i < init_crop_templates.length; i++ ) {
+      CropTemplate.create(
+      { name: init_crop_templates[i],
+        maturation_time: 3,
+        decay_time: 10,
+        productivity: 10,
+        storability: 15,
+        seed_price: i*2
+      }, function (err, crop_template) {
+        if(err)
+          console.log(err); 
+        else
+          console.log("creating crop template: ", crop_template); 
+      });
+    }
+  }
+
   // Compile Model
   var CropTemplate = mongoose.model('CropTemplate', CropTemplateSchema);
 }

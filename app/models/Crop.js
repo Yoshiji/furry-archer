@@ -1,6 +1,5 @@
 module.exports = function (mongoose) {
 
-  // Create Schema
   var CropSchema = mongoose.Schema({
       name: String,
       maturity: Number,
@@ -11,7 +10,7 @@ module.exports = function (mongoose) {
       is_attacked: Boolean
   });
 
-  CropSchema.methods.reload_maturity = function(self, callback, kill_interval, reinit_actions) {
+  CropSchema.methods.reload_maturity = function(self, callback, kill_interval, cb_update_actions) {
     Tile.findOne({crop: self._id}, function(err, tile) {
       if(!tile) { console.log('NO TILE FOUND'); return; }
 
@@ -24,14 +23,14 @@ module.exports = function (mongoose) {
       var old_maturity = self.maturity - (self.maturity % 20);
       self.maturity += 10;
 
-      if(self.maturity >= 100) { // Starts withering
+      if(self.maturity >= 100) {
         kill_interval();
         self.maturity = 100;
         self.save();
-        setTimeout(Crop.withered, self.decay_time*1000, self._id, tile._id, callback);
+        setTimeout(Crop.withered, self.decay_time*1000, self._id, tile._id, callback, cb_update_actions);
         User.findOne({ username: tile.owner_name, pos_x: tile.x, pos_y: tile.y}, function(err, user) {
-          if(user) { // Le owner est présent sur la case
-            reinit_actions(tile);
+          if(user) {
+            cb_update_actions(tile);
           }
         });
       } else {
@@ -44,15 +43,18 @@ module.exports = function (mongoose) {
     });
   }
 
-  CropSchema.statics.withered = function(crop_id, tile_id, callback) {
+  CropSchema.statics.withered = function(crop_id, tile_id, callback, cb_update_actions) {
     Tile.update({crop: crop_id}, { $pull: { crop: crop_id } }).exec();
     Crop.remove({_id: crop_id}).exec();
 
-    Tile.findOne({_id: tile_id}, function(err, tile) {      
-      return callback(tile);
+    Tile.findOne({_id: tile_id}, function(err, tile) {    
+      callback(tile);
+      User.findOne({username: tile.owner_name, pos_x: tile.x, pos_y: tile.y}, function(err, user) {
+        if(user)
+          cb_update_actions(tile);
+      });
     });
   }
 
-  // Compile Model
   var Crop = mongoose.model('Crop', CropSchema);
 }

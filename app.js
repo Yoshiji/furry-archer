@@ -38,23 +38,22 @@ UTILS = {
 
   Timeouts: {
     deploy: function() {
-      setInterval(Tile.raise_fertility, 1000*60);
+      setInterval(Tile.raise_fertility_routine, 1000*60);
+      setInterval(UTILS.Timeouts.generate_rain, 1000*60);
+    },
+    generate_rain: function() {
+      var random_percents = Math.floor((Math.random()*100)+1);
+      if(random_percents > 70) {
+        var rain_interval = setInterval(Tile.raise_humidity_routine, 1000*10);
+        setTimeout(function(rain_interval) {
+          console.log("clearing interval rain");
+          clearInterval(rain_interval);
+        }, 1000*31)
+      }
     }
   },
 
   Map: {
-    check_if_user_can_afford: function(socket, gold_amount, callback) {
-      User.findOne({_id: socket.session.user._id}, function(err, user) {
-        if(!user) 
-          return;
-        if(user.gold >= gold_amount) {
-          user.gold -= gold_amount;
-          user.save();
-          socket.emit('update_infos', user);
-          callback();
-        }
-      });
-    },
 
     deploy_settings: function() {
       Settings = mongoose.model('Settings');
@@ -98,23 +97,8 @@ UTILS = {
       var init_weapon_templates = ['AK 47', 'Chainsaw', 'Baseball Bat'];
 
       CropTemplate.find(function (err, crop_templates) {
-        if(crop_templates.length < 1) {
-          for( var i = 0; i < init_crop_templates.length; i++ ) {
-            CropTemplate.create(
-            { name: init_crop_templates[i],
-              maturation_time: 3,
-              decay_time: 10,
-              productivity: 10,
-              storability: 15,
-              seed_price: i*2
-            }, function (err, crop_template) {
-              if(err)
-                console.log(err); 
-              else
-                console.log("creating crop template: ", crop_template); 
-            });
-          }
-        }
+        if(crop_templates.length < 1)
+          CropTemplate.generate();
       });
 
 
@@ -138,41 +122,8 @@ UTILS = {
       });
 
       Tile.find(function (err, tiles) {
-        if (tiles.length < 1) {
-          var map_size = 20;
-          var bands = [ [1, 45], [45, 75], [75, 110], [45, 75], [1, 45] ];
-
-          for(var i = 0; i < map_size; i++) {
-            var current_band = bands[i%5];
-
-            for(var j = 0; j < map_size; j++) {
-              var humidity_rand = Math.floor(Math.random()*100) + 1; 
-              var fertility_rand = Math.floor(Math.random()*(current_band[1]-current_band[0])) + current_band[0];
-              
-              if(fertility_rand > 100) {
-                var type = 'water';
-              } else {
-                var type = 'grass';
-              }                
-
-              var attributes = { x: i, 
-                  y: j, 
-                  type: type, 
-                  owner_name: -1, 
-                  humidity: humidity_rand,
-                  fertility: fertility_rand,
-                }
-
-              Tile.create( attributes, function (err, tile) {
-                  if(tile) { 
-                    console.log("Tile created: { x: "+tile.x+", y: "+tile.y+", type: "+tile.type+", fertility: "+tile.fertility+", humidity: "+tile.humidity+" }"); 
-                  }
-                  if(err) { console.log(err); }
-                }
-              );
-            }
-          }
-        }
+        if (tiles.length < 1)
+          Tile.generate();
       });
     },
 
@@ -226,8 +177,8 @@ UTILS = {
 
     plant: function(tile, crop_name, socket) {
       CropTemplate.findOne({ name: crop_name }, function (err, crop_template) {
-        UTILS.Map.check_if_user_can_afford(socket, crop_template.seed_price, function() {
-
+        User.check_can_afford(socket.session.user._id, crop_template.seed_price, function(user) {
+          socket.emit('update_infos', user);
           crop_template._id = Mongoose.Types.ObjectId();
           var crop = new Crop(crop_template);
           crop.maturity = 0;
@@ -244,10 +195,10 @@ UTILS = {
             });
           });
 
-          var interval = setInterval(crop.reload_maturity, crop_template.maturation_time*100, crop, function(tile) {
+          var maturity_interval = setInterval(crop.reload_maturity, crop_template.maturation_time*100, crop, function(tile) {
             UTILS.Map.update_tile(socket, tile);
           }, function() {
-            clearInterval(interval);
+            clearInterval(maturity_interval);
           }, function(tile) {
             UTILS.Map.update_actions(socket, tile);
           });

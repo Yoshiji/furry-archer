@@ -58,6 +58,20 @@ module.exports = function (mongoose) {
     });
   }
 
+  UserSchema.statics.check_can_afford = function(user_id, gold_amount, callback) {
+    User.findOne({_id: user_id}, function(err, user) {
+      if(!user) 
+        return;
+      if(user.gold >= gold_amount) {
+        user.gold -= gold_amount;
+        user.save(function(err) {
+          if(err) console.log(err);
+          callback(user);
+        });
+      }
+    });
+  }
+
 
   function validateUsername (username) {
       return !username == '' 
