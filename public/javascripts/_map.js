@@ -48,6 +48,9 @@ Map = {
     if(tile_settings) {
 
       if(data.type != "voided" && data.type != "water" && data.owner_name != '-1'){
+        if(user.pos_x == data.x && user.pos_y == data.y) {
+          Crafty(user.id).update_debug_content(tile_settings);
+        }
         if(data.owner_name == user.username)
           data.type = "my_";
         else
@@ -146,6 +149,7 @@ Map = {
     player.x += (128 - 12);
     player.y += (74 - 16);
     data.pos_x = -10; //Workaround to trigger 'Moved' as soon as we first walk
+    data.id = player[0];
     user = data;
     this.init_tiles_around_me(socket, player);
     this.update_infos(user);

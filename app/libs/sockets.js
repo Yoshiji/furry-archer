@@ -72,7 +72,8 @@ module.exports.listen = function(app){
           UTILS.Map.update_tile(socket, tile.waterize());
 
         } else if (action_cleaned.indexOf("fertilize") > -1) {
-          User.check_can_afford(socket, 1, function(user) {
+          User.check_can_afford(socket.session.user._id, 1, function(user) {
+            socket.emit('update_infos', user);
             UTILS.Map.update_tile(socket, tile.fertilize());
           });
 

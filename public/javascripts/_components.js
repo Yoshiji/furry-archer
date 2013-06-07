@@ -48,13 +48,8 @@ Crafty.c("Player", {
       user.pos_y = tile_settings.y;
 
       this.socket.emit('update_player', data);
-      
-      var tile_info = 'Tile settings before update:<br/>'
-      var keys = Object.keys(tile_settings).sort();
-      for(var i = 0; i < keys.length; i++) {
-        tile_info += '- ' + keys[i] + ': ' + tile_settings[keys[i]] + '<br/>';
-      }
-      $('#debug').empty().append(tile_info);
+
+      this.update_debug_content(tile_settings);
     });
 
     this.bind('Moved', function(from) {
@@ -75,6 +70,15 @@ Crafty.c("Player", {
 			
 		return this;
 	},
+
+  update_debug_content: function(tile_settings) {
+    var tile_info = 'Tile settings before update:<br/>'
+    var keys = Object.keys(tile_settings).sort();
+    for(var i = 0; i < keys.length; i++) {
+      tile_info += '- ' + keys[i] + ': ' + tile_settings[keys[i]] + '<br/>';
+    }
+    $('#debug').empty().append(tile_info);
+  },
 
   check_new_tile: function(tile) {
     var pos = iso.px2pos(tile._x, tile._y);

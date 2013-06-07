@@ -60,7 +60,7 @@ module.exports = function (mongoose) {
 
   UserSchema.statics.check_can_afford = function(user_id, gold_amount, callback) {
     User.findOne({_id: user_id}, function(err, user) {
-      if(!user) 
+      if(!user)
         return;
       if(user.gold >= gold_amount) {
         user.gold -= gold_amount;
