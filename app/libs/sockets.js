@@ -8,7 +8,8 @@ module.exports.listen = function(app){
 	io.on('connection', function(socket) {
 	  UTILS.Routines.connection(socket);
 	  UTILS.Routines.disconnection(socket);
-	  
+    UTILS.Map.update_weapons(socket);
+
 	  socket.on('chat_message', function (data) {
 	    UTILS.Chat.broadcast(socket, data, socket.session.user.username);
 	  });
@@ -87,6 +88,14 @@ module.exports.listen = function(app){
 
         } else if ((action_cleaned.indexOf("attack") > -1) && (tile.owner_name != socket.session.user.username)) {
           UTILS.Map.attack(tile, socket);
+
+        } else if (action_cleaned.indexOf("buy") > -1) {
+          var weapon_id = data.id;
+          UTILS.Map.buy_weapon(weapon_id, socket);
+
+        } else if (action_cleaned.indexOf("use") > -1) {
+          var weapon_id = data.id;
+          UTILS.Map.use_weapon(weapon_id, socket);
         }
       });
   	});

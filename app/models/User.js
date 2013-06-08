@@ -9,7 +9,8 @@ module.exports = function (mongoose) {
       pos_y: Number,
       gold: Number,
       level: Number,
-      captured_tiles: Number
+      captured_tiles: Number,
+      weapons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Weapon' }]
   });
 
   UserSchema.methods.remaining_tiles = function(self) {

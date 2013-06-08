@@ -93,32 +93,14 @@ UTILS = {
       
       UTILS.Timeouts.deploy();
 
-      var init_crop_templates = ['tomato', 'corn', 'cereal'];
-      var init_weapon_templates = ['AK 47', 'Chainsaw', 'Baseball Bat'];
-
       CropTemplate.find(function (err, crop_templates) {
         if(crop_templates.length < 1)
           CropTemplate.generate();
       });
 
-
       WeaponTemplate.find(function (err, weapon_templates) {
-        if(weapon_templates.length < 1) {
-          for( var i = 0; i < init_weapon_templates.length; i++ ) {
-            WeaponTemplate.create(
-            { name: init_weapon_templates[i],
-              power: 10,
-              hit_ratio: 3,
-              hits_per_second: 2,
-              price: 100
-            }, function (err, weapon_template) {
-              if(err)
-                console.log(err); 
-              else
-                console.log("creating weapon template: ", weapon_template); 
-            });
-          }
-        }
+        if(weapon_templates.length < 1)
+          WeaponTemplate.generate();
       });
 
       Tile.find(function (err, tiles) {
@@ -169,6 +151,84 @@ UTILS = {
       }
     },
 
+    update_weapons: function(socket){
+      var weapons_actions = [];
+      WeaponTemplate.find({},function(err, weapon_templates) {
+
+        if(weapon_templates.length > 0) {
+          User.findOne({_id: socket.session.user._id}).populate('weapons').exec(function(err, user){
+            
+            for (var i = 0, wt_length = weapon_templates.length; i < wt_length; i++) {
+              var already_bought = false;
+
+              console.log("USER WAEPONDS LENGTH", user.weapons.length);
+              if(user.weapons && user.weapons.length > 0){
+                for (var j = 0, length = user.weapons.length; j < length; j++) {
+                  console.log(weapon_templates[i], user.weapons[j], i, j, weapon_templates.length);
+                  if(weapon_templates[i].name == user.weapons[j].name){
+                    already_bought = user.weapons[j];
+                    break;
+                  }
+                }
+              }
+              if(already_bought)
+                if(already_bought.is_in_use == true)
+                  weapons_actions.push(["Using " + weapon_templates[i].name, false, already_bought._id, already_bought.is_in_use]);
+                else
+                  weapons_actions.push(["Use " + weapon_templates[i].name, false, already_bought._id, already_bought.is_in_use]);
+
+              else
+                weapons_actions.push(["Buy " + weapon_templates[i].name, weapon_templates[i].price, weapon_templates[i]._id]);
+            }
+
+            socket.emit('update_weapons', weapons_actions);
+            console.log("UPDATE WEAPONS: ", weapons_actions);
+          });
+        }
+      });
+    },
+
+    buy_weapon: function(weapon_id, socket){
+      console.log("LOOKING FOR: ", weapon_id);
+      WeaponTemplate.findOne({ _id: weapon_id }, function (err, weapon_template) {
+        console.log("WEAPON: ", weapon_template);
+        if (weapon_template) {
+          User.check_can_afford(socket.session.user._id, weapon_template.price, function(user) {
+            weapon_template._id = Mongoose.Types.ObjectId();
+            var weapon = new Weapon(weapon_template);
+
+            weapon.save(function(err) {
+              if(err) { console.log(err);}
+
+              if(user.weapons)
+                user.weapons.push(weapon._id);
+              else
+                user.weapons = weapon._id;
+              user.save(function(err) {
+                if(err) { console.log(err);}
+                console.log(user);
+                UTILS.Map.update_weapons(socket, user);
+              });
+            });
+          });
+        }
+      });
+    },
+
+    use_weapon: function(weapon_id, socket){
+      User.findOne({_id: socket.session.user._id}, function(err, user){
+        Weapon.update({_id:{ $in: user.weapons}}, { $set: { is_in_use: false }}, { multi: true }, function(err){
+          if(err) console.log(err);
+
+          Weapon.update({_id: weapon_id}, { $set: { is_in_use: true }}, function(err){
+            if(err) console.log(err);
+            UTILS.Map.update_weapons(socket, user);
+          });
+        });
+
+      });
+    },
+
     update_tile: function(socket, tile){
       Tile.populate(tile, {path: 'crop'}, function (err, tile_populated) {
         socket.emit('update_tile', tile_populated);
@@ -205,6 +265,7 @@ UTILS = {
         });
       });
     },
+
     attack: function(tile, socket) {
       tile.is_attacked = true;
       tile.save(function(err) {
@@ -257,7 +318,6 @@ io.set('authorization', function(data, accept) {
 
 UTILS.Map.deploy_settings();
 UTILS.Map.generate();
-
 
 
 // Models but not really models, needs to be clarified because not a Mongoose Model, neither a controller ...!
