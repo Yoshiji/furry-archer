@@ -20,6 +20,7 @@ UTILS = {
   Routines: {
     connection: function(socket) {
       socket.session = socket.handshake.session;
+      socket.emit('update_weather', UTILS.Timeouts.CURRENT_WEATHER);
       UTILS.Chat.broadcast(socket, socket.session.user.username + ' connected!');
       User.findOne({_id: socket.session.user._id}, function(err, user) {
         if(user) {
@@ -37,19 +38,69 @@ UTILS = {
   },
 
   Timeouts: {
-    deploy: function() {
+    CURRENT_WEATHER: {name: 'Sunny', color: '#F5DA81'},
+
+    deploy: function(io) {
       setInterval(Tile.raise_fertility_routine, 1000*60);
       setInterval(UTILS.Timeouts.generate_rain, 1000*60);
       setInterval(User.raise_health_routine, 1000*10);
+      setInterval(UTILS.Timeouts.generate_random_disaster, 1000*120, io);
     },
-    generate_rain: function() {
+    generate_rain: function(io) {
       var random_percents = Math.floor((Math.random()*100)+1);
-      if(random_percents > 70) {
-        var rain_interval = setInterval(Tile.raise_humidity_routine, 1000*10);
-        setTimeout(function(rain_interval) {
-          console.log("clearing interval rain");
-          clearInterval(rain_interval);
-        }, 1000*31)
+      if(random_percents > 75) {
+
+        console.log("Starts Raining")
+        var rain = {name: 'Raining', color: '#D8D8D8'};
+        UTILS.Timeouts.CURRENT_WEATHER = rain;
+        io.sockets.emit('update_weather', rain);
+
+        var rain_cycles = 5;
+        for(var i = 0; i < rain_cycles; i++) {
+          setTimeout(Tile.raise_humidity_routine, 5000*(i+1));
+        }
+
+        setTimeout(function() {
+          console.log("End of Rain")
+          var sunny = {name: 'Sunny', color: '#F5DA81'};
+          UTILS.Timeouts.CURRENT_WEATHER = sunny;
+          io.sockets.emit('update_weather', sunny);
+        }, 5000*rain_cycles);
+      }
+    },
+    generate_random_disaster: function(io) {
+      //io.sockets.emit('disaster', { name: 'generating disaster!' });
+      var random_percents = Math.floor((Math.random()*100)+1);
+      if(random_percents > 75) {
+        if( Math.round(Math.random()) ) {
+
+          if( Math.round(Math.random()) ) {
+            console.log('!!! Meteor Showers');
+            io.sockets.emit('disaster', { name: 'Meteor Shower' });
+            setTimeout(function() {
+              Crop.find({}, function(err, crops) {
+                crops.forEach(function(crop) {
+                  Tile.findOne({crop: crop._id}, function(err, tile) {
+                    tile.crop = null;
+                    io.sockets.emit('update_tile', tile);
+                    Tile.update({crop: crop._id}, { $pull: { crop: crop._id } }).exec();
+                  });
+                  crop.remove();
+                });
+              });
+            }, 2000);
+
+          } else {
+            console.log('!!! Grasshoppers Invasion');
+            io.sockets.emit('disaster', { name: 'Grasshoppers Invasion' });
+            setTimeout(function() {
+              Crop.update({}, { maturity: 0 }).exec();
+            }, 2000)
+          }
+        } else {
+          console.log('!!! Tornado');
+          io.sockets.emit('disaster', { name: 'Tornado' });
+        }
       }
     }
   },
@@ -91,9 +142,12 @@ UTILS = {
       CropTemplate = mongoose.model('CropTemplate');
       Weapon = mongoose.model('Weapon');
       WeaponTemplate = mongoose.model('WeaponTemplate');
+<<<<<<< HEAD
       User = mongoose.model('User');
       
       UTILS.Timeouts.deploy();
+=======
+>>>>>>> 9d5e557087110a8a7bec9e3919467d77b378f016
 
       CropTemplate.find(function (err, crop_templates) {
         if(crop_templates.length < 1)
@@ -252,7 +306,7 @@ UTILS = {
             });
           });
 
-          var maturity_interval = setInterval(crop.reload_maturity, crop_template.maturation_time*100, crop, function(tile) {
+          var maturity_interval = setInterval(crop.reload_maturity_routine, crop_template.maturation_time*1000, crop, function(tile) {
             UTILS.Map.update_tile(socket, tile);
           }, function() {
             clearInterval(maturity_interval);
@@ -319,6 +373,7 @@ io.set('authorization', function(data, accept) {
 
 UTILS.Map.deploy_settings();
 UTILS.Map.generate();
+UTILS.Timeouts.deploy(io);
 
 
 // Models but not really models, needs to be clarified because not a Mongoose Model, neither a controller ...!

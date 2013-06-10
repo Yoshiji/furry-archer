@@ -10,9 +10,9 @@ module.exports = function (mongoose) {
       is_attacked: Boolean
   });
 
-  CropSchema.methods.reload_maturity = function(self, callback, kill_interval, cb_update_actions) {
+  CropSchema.methods.reload_maturity_routine = function(self, callback, kill_interval, cb_update_actions) {
     Tile.findOne({crop: self._id}, function(err, tile) {
-      if(!tile) { console.log('NO TILE FOUND'); return; }
+      if(!tile) { kill_interval(); console.log('NO TILE FOUND'); return; }
 
       tile.fertility -= 5;
       if(tile.fertility < 0) { tile.fertility = 0 }
