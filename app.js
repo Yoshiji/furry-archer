@@ -51,9 +51,6 @@ UTILS = {
           clearInterval(rain_interval);
         }, 1000*31)
       }
-    },
-    raise_health: function(){
-
     }
   },
 

@@ -79,7 +79,6 @@ module.exports = function (mongoose) {
     console.log('Raising the health of users not fighting');
     // TODO change 100 to the max health they can have depending on their level
     User.find({is_fighting: false}, function(err, users) {
-      console.log("USERs:", users);
       users.forEach(function(user) {
         if(user.health < 100)
           user.health += 5;
