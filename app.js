@@ -309,7 +309,6 @@ UTILS.Map.generate();
 UTILS.Timeouts.deploy(io);
 
 
-
 // Models but not really models, needs to be clarified because not a Mongoose Model, neither a controller ...!
 PlayerList = (function() {
 
