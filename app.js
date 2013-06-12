@@ -142,12 +142,9 @@ UTILS = {
       CropTemplate = mongoose.model('CropTemplate');
       Weapon = mongoose.model('Weapon');
       WeaponTemplate = mongoose.model('WeaponTemplate');
-<<<<<<< HEAD
       User = mongoose.model('User');
       
       UTILS.Timeouts.deploy();
-=======
->>>>>>> 9d5e557087110a8a7bec9e3919467d77b378f016
 
       CropTemplate.find(function (err, crop_templates) {
         if(crop_templates.length < 1)
