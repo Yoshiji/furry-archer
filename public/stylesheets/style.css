@@ -168,7 +168,8 @@ form#login p label {
   font-size: 12px;
   padding: 3px 0;
 }
-#panel-control #actions a {
+#panel-control #actions a,
+#panel-control #weapons a {
   display: block;
   text-align: center;
   text-decoration: none;

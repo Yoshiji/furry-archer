@@ -31,9 +31,41 @@ Map = {
 
       actions.append(str);
     }
+
     $(".action", actions).click(function() {
       event.preventDefault();
       socket.emit("action", {action: $(this).data('action'), x: user.pos_x, y: user.pos_y});
+      console.log((new Date()).toLocaleTimeString() + ': ACTION: ' + $(this).data('action'));
+    });
+  },
+
+
+  update_weapons: function(data, socket) {
+    var weapons = $("#weapons").empty();
+    for (var i = 0, len = data.length; i < len; i++) {
+      var str = '<a href="#" class="weapon'
+
+      if(typeof data[i][3] != 'undefined' && data[i][3] == true)
+        str += ' in-use';
+
+      str +='" data-action="'+ data[i][0] + '"';
+
+      if(typeof data[i][2] != 'undefined')
+        str += ' data-id="' + data[i][2] + '"';     
+
+      str += '>'+ data[i][0];
+
+      if(typeof data[i][1] != 'undefined' && data[i][1] != false)
+        str += " (" + data[i][1] + ")";
+
+      str += "</a>";
+
+      weapons.append(str);
+    }
+
+    $(".weapon", weapons).click(function() {
+      event.preventDefault();
+      socket.emit("action", {action: $(this).data('action'), id: $(this).data('id')});
       console.log((new Date()).toLocaleTimeString() + ': ACTION: ' + $(this).data('action'));
     });
   },
@@ -201,6 +233,11 @@ Map = {
     socket.on('update_actions', function(data) {
       if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_actions');
       self.update_actions(data, this);
+    });
+
+    socket.on('update_weapons', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_weapons');
+      self.update_weapons(data, this);
     });
 
     socket.on('update_infos', function(data) {

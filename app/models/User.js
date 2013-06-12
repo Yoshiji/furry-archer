@@ -9,7 +9,10 @@ module.exports = function (mongoose) {
       pos_y: Number,
       gold: Number,
       level: Number,
-      captured_tiles: Number
+      health: Number,
+      is_fighting: Boolean,
+      captured_tiles: Number,
+      weapons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Weapon' }]
   });
 
   UserSchema.methods.remaining_tiles = function(self) {
@@ -69,6 +72,18 @@ module.exports = function (mongoose) {
           callback(user);
         });
       }
+    });
+  }
+
+  UserSchema.statics.raise_health_routine = function() {
+    console.log('Raising the health of users not fighting');
+    // TODO change 100 to the max health they can have depending on their level
+    User.find({is_fighting: false}, function(err, users) {
+      users.forEach(function(user) {
+        if(user.health < 100)
+          user.health += 5;
+          user.save();
+      });
     });
   }
 
