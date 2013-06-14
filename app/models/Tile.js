@@ -10,7 +10,8 @@ module.exports = function (mongoose) {
       fertility: Number,
       is_attacked: Boolean,
       attacked_by: String,
-      crop: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Crop' }]
+      crop: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Crop' }],
+      building: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Building' }]
   });
 
   TileSchema.methods.health = function() {

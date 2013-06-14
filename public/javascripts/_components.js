@@ -8,6 +8,14 @@ Crafty.c("Tile", {
   
 });
 
+Crafty.c("Building", {
+
+  init: function() {
+    this.addComponent("2D, Canvas, Sprite");
+  }
+
+})
+
 Crafty.c("Player", {
 
 	init: function() {

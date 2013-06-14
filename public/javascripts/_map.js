@@ -6,7 +6,6 @@ Map = {
 
 
   // METHODS
-
   handle_disaster: function(data) {
     $('#disaster').empty().append(data.name).show().fadeOut(2500);
   },
@@ -19,6 +18,29 @@ Map = {
   update_weather: function(data) {
     $('#weather').empty().append(data.name);
     $('#weather').css({'background-color': data.color});
+  },
+
+  update_building: function(data) {
+
+    switch(data.name) {
+      case 'silo':
+        var silo = Crafty.e('Building').addComponent(data.name);
+        iso.place(data.positions[0], data.positions[1], 15, silo);
+        silo.x += 90;
+        silo.y += 30;
+
+        break;
+      case 'barn':
+        var barn = Crafty.e('Building').addComponent(data.name);
+        var x = data.positions[3][0];
+        var y = data.positions[3][1];
+        iso.place(x, y, 15, barn);
+        barn.y -= 20;
+        barn.x += 160;
+        break;
+      case 'cold storage':
+        break;
+    }
   },
 
   update_actions: function(data, socket) {
@@ -38,6 +60,7 @@ Map = {
       console.log((new Date()).toLocaleTimeString() + ': ACTION: ' + $(this).data('action'));
     });
   },
+
 
   attack_alert: function(data, socket) {
     var attacks = $("#attacks")
@@ -204,6 +227,7 @@ Map = {
     user = data;
     this.init_tiles_around_me(socket, player);
     this.update_infos(user);
+    socket.emit('get_buildings');
   },
 
   init_tiles_around_me: function(socket, player) {
@@ -269,9 +293,15 @@ Map = {
       if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_tile_sprite');
       self.update_tile_sprite(data, this);
     });
+
     socket.on('attack_alert', function(data) {
       if(verbose) console.log((new Date()).toLocaleTimeString() + ': attack_alert');
       self.attack_alert(data, this);
+    });
+
+    socket.on('update_building', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_building');
+      self.update_building(data);
     });
   },
 
