@@ -1,6 +1,6 @@
 var socketio = require('socket.io');
 
-module.exports.listen = function(app, callback){
+module.exports.listen = function(app){
   var io = socketio.listen(app);
 
   io.set('log level', 1);
@@ -114,7 +114,8 @@ module.exports.listen = function(app, callback){
   	});
 
 	});
-  setTimeout(callback(io), 1000);
+
+  UTILS.Timeouts.deploy(io);
 
   return io;
 };

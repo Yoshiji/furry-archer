@@ -170,8 +170,7 @@ UTILS = {
       User = mongoose.model('User');
       Building = mongoose.model('Building');
       BuildingTemplate = mongoose.model('BuildingTemplate');
-      
-      UTILS.Timeouts.deploy();
+
 
       CropTemplate.find(function (err, crop_templates) {
         if(crop_templates.length < 1)
@@ -496,9 +495,7 @@ require('./config/routes.js')(app);
 
 // Creates the HTTP server and the Socket.io
 var server = http.createServer(app);
-var io = require('./app/libs/sockets').listen(server,
-    function(out) { UTILS.Timeouts.deploy(out); }
-  );
+var io = require('./app/libs/sockets').listen(server);
 
 // Links the socket with the session
 io.set('authorization', function(data, accept) {
