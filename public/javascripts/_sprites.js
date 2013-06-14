@@ -71,6 +71,16 @@ tile_sprite_settings = { grass: [0,0,2,1],
 	others_60_0: [6,10,2,1],
 	others_80_0: [8,10,2,1]
 };
+
+Crafty.sprite(79, 91, 'images/silo.png', {
+	silo: [0,0,1,1],
+	cold_storage: [0,0,1,1]
+})
+
+Crafty.sprite(212,170, 'images/barn.png', {
+	barn: [0,0,1,1]
+})
+
 Crafty.sprite(8, 8, "images/players.png", {
 	player1: [3, 8,3,4],
 	player2: [12,8,3,4],

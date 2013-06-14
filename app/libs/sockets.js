@@ -1,9 +1,9 @@
 var socketio = require('socket.io');
 
-module.exports.listen = function(app){
+module.exports.listen = function(app, callback){
   var io = socketio.listen(app);
-  io.set('log level', 1);
 
+  io.set('log level', 1);
 	// Handle the connection and the events
 	io.on('connection', function(socket) {
 	  UTILS.Routines.connection(socket);
@@ -13,6 +13,14 @@ module.exports.listen = function(app){
 	  socket.on('chat_message', function (data) {
 	    UTILS.Chat.broadcast(socket, data, socket.session.user.username);
 	  });
+
+    socket.on('get_buildings', function(data) {
+      Building.find({}, function(err, buildings) {
+        buildings.forEach(function(building) {
+          socket.emit('update_building', building);
+        })
+      });
+    });
 
 	  socket.on('get_tile', function (data) {
 	    Tile.findOne({x: data.x, y: data.y}, function (err, tile) {
@@ -98,11 +106,15 @@ module.exports.listen = function(app){
         } else if (action_cleaned.indexOf("use") > -1) {
           var weapon_id = data.id;
           UTILS.Map.use_weapon(weapon_id, socket);
+        } else if (action_cleaned.indexOf('build') > -1) {
+          var building_name = action_cleaned.replace("build", "").trim();
+          UTILS.Map.build(tile, building_name, socket)
         }
       });
   	});
 
 	});
+  setTimeout(callback(io), 1000);
 
   return io;
 };

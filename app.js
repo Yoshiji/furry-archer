@@ -41,8 +41,12 @@ UTILS = {
     CURRENT_WEATHER: {name: 'Sunny', color: '#F5DA81'},
 
     deploy: function(io) {
+      Mongoose = mongoose;
+      Tile = mongoose.model('Tile');
+      User = mongoose.model('User');
+
       setInterval(Tile.raise_fertility_routine, 1000*60);
-      setInterval(UTILS.Timeouts.generate_rain, 1000*60);
+      setInterval(UTILS.Timeouts.generate_rain, 1000*60, io);
       setInterval(User.raise_health_routine, 1000*10);
       setInterval(UTILS.Timeouts.generate_random_disaster, 1000*120, io);
     },
@@ -143,12 +147,19 @@ UTILS = {
       Weapon = mongoose.model('Weapon');
       WeaponTemplate = mongoose.model('WeaponTemplate');
       User = mongoose.model('User');
+      Building = mongoose.model('Building');
+      BuildingTemplate = mongoose.model('BuildingTemplate');
       
       UTILS.Timeouts.deploy();
 
       CropTemplate.find(function (err, crop_templates) {
         if(crop_templates.length < 1)
           CropTemplate.generate();
+      });
+
+      BuildingTemplate.find(function (err, building_templates) {
+        if(building_templates.length < 1)
+          BuildingTemplate.generate();
       });
 
       WeaponTemplate.find(function (err, weapon_templates) {
@@ -169,14 +180,16 @@ UTILS = {
       // LEVEL DETERMINATION
       if(tile && tile.owner_name == socket.session.user.username) {
         // Si il y a un crop sur la tile
-        if(tile && tile.crop && tile.crop.length > 0) {
+        if(tile.crop.length > 0) {
           // Si la crop est a maturité > 80
           if(tile.crop[0].maturity > 80)
             level = 2;
           else
             level = 1;
 
-        } else {
+        } else if(tile.building.length > 0) {
+          level = 1;
+        } else { // Si c'est notre tile mais n'a pas de Crop
           level = 0;
         }
       }
@@ -188,7 +201,14 @@ UTILS = {
               available_actions.push(["Plant " + crop_templates[i].name, crop_templates[i].seed_price]);
             }
           }
-          socket.emit('update_actions', available_actions);
+          BuildingTemplate.find({}, function(err, building_templates) {
+            if(building_templates.length > 0) {
+              for(var i = 0; i < building_templates.length; i++) {
+                available_actions.push(["Build " + building_templates[i].name, building_templates[i].price]);
+              }
+            }
+            socket.emit('update_actions', available_actions);
+          });
         });
       } else if (level == 1) {
         if (tile && socket && (socket.session.user.username != tile.owner_name) && tile.owner_name != -1) {
@@ -277,6 +297,111 @@ UTILS = {
       });
     },
 
+    build: function(tile, building_name, socket) {
+      if(tile.crop.length < 1 && tile.building.length < 1) {
+        BuildingTemplate.findOne({name: building_name}, function(err, building_template) {
+          if(err) { console.log(err); }
+
+          switch(building_template.tile_size) {
+            case 1:
+
+              User.check_can_afford(socket.session.user._id, building_template.price, function(user) {
+                socket.emit('update_infos', user);
+                Building.create({
+                  name: building_template.name, storage: building_template.storage, 
+                  consommation: building_template.consommation, user: socket.session.user._id,
+                  positions: [tile.x, tile.y]
+                }, function(err, building) {
+                  tile.building = building._id;
+                  tile.save();
+                  socket.emit('update_building', building);
+                });
+              });
+              
+              break;
+
+            case 4:
+
+              var cur_x = tile.x;
+              var cur_y = tile.y;
+              var x_is_impair = cur_x % 2;
+              var y_is_impair = cur_y % 2;
+              var in_x; 
+              var in_y;
+              if(!x_is_impair && !y_is_impair) {
+                in_x = [cur_x];
+                in_y = [cur_y-1, cur_y, cur_y+1];
+                in_x2 = [cur_x+1];
+                in_y2 = [cur_y];
+              } else if(!x_is_impair && y_is_impair) {
+                in_x = [cur_x+1];
+                in_y = [cur_y-1, cur_y, cur_y+1];
+                in_x2 = [cur_x];
+                in_y2 = [cur_y];
+              } else if(x_is_impair && y_is_impair) {
+                in_x = [cur_x+1];
+                in_y = [cur_y-1, cur_y, cur_y+1];
+                in_x2 = [cur_x];
+                in_y2 = [cur_y];
+              } else if(x_is_impair && !y_is_impair) {
+                in_x = [cur_x];
+                in_y = [cur_y-1, cur_y, cur_y+1];
+                in_x2 = [cur_x+1];
+                in_y2 = [cur_y];
+              } else {
+                console.log('WEIRD! Should not happen', cur_x, cur_y);
+              }
+              var coords = [];
+              for(var i=0; i<in_x.length; i++) {
+                for(var j=0; j<in_y.length; j++) {
+                  coords.push( [ in_x[i], in_y[j] ] );
+                }
+              }
+              for(var i=0; i<in_x2.length; i++) {
+                for(var j=0; j<in_y2.length; j++) {
+                  coords.push( [ in_x2[i], in_y2[j] ] );
+                }
+              }
+
+              Tile.find({ $or: [ {x: {$in: in_x }, y: {$in: in_y } }, {x: {$in: in_x2}, y: {$in: in_y2} } ], owner_name: socket.session.user.username }, 
+                function(err, tiles) {
+                  if(tiles.length > 3) {
+
+                    console.log(coords);
+                    Building.findOne({ positions: { $in: coords  } }, function(err, building) {
+                      if(err) {console.log(err)}
+
+                      if(!building) {
+                        User.check_can_afford(socket.session.user._id, building_template.price, function(user) {
+                          socket.emit('update_infos', user);
+                          Building.create({
+                            name: building_template.name, storage: building_template.storage, 
+                            consommation: building_template.consommation, user: socket.session.user._id,
+                            positions: coords
+                          }, function(err, building) {
+                            tiles.forEach(function(tile) {
+                              tile.building = building._id;
+                              tile.save();
+                            });
+                            socket.emit('update_building', building);
+                          });
+                        });
+                      }
+                    });
+                    
+                  }
+                }
+              );
+
+              break;
+
+            case 6:
+              break;
+          }
+        });
+     }
+    },
+
     update_tile: function(socket, tile){
       Tile.populate(tile, {path: 'crop'}, function (err, tile_populated) {
         socket.emit('update_tile', tile_populated);
@@ -284,34 +409,36 @@ UTILS = {
     },
 
     plant: function(tile, crop_name, socket) {
-      CropTemplate.findOne({ name: crop_name }, function (err, crop_template) {
-        User.check_can_afford(socket.session.user._id, crop_template.seed_price, function(user) {
-          socket.emit('update_infos', user);
-          crop_template._id = Mongoose.Types.ObjectId();
-          var crop = new Crop(crop_template);
-          crop.maturity = 0;
+      if(tile.crop.length < 1 && tile.building.length < 1) {
+        CropTemplate.findOne({ name: crop_name }, function (err, crop_template) {
+          User.check_can_afford(socket.session.user._id, crop_template.seed_price, function(user) {
+            socket.emit('update_infos', user);
+            crop_template._id = Mongoose.Types.ObjectId();
+            var crop = new Crop(crop_template);
+            crop.maturity = 0;
 
-          crop.save(function(err) {
-            if(err) { console.log(err);}
-
-            tile.crop = crop._id;
-            tile.save(function(err) {
+            crop.save(function(err) {
               if(err) { console.log(err);}
-              
-              UTILS.Map.update_actions(socket, tile);
+
+              tile.crop = crop._id;
+              tile.save(function(err) {
+                if(err) { console.log(err);}
+                
+                UTILS.Map.update_actions(socket, tile);
+                UTILS.Map.update_tile(socket, tile);
+              });
+            });
+
+            var maturity_interval = setInterval(crop.reload_maturity_routine, crop_template.maturation_time*1000, crop, function(tile) {
               UTILS.Map.update_tile(socket, tile);
+            }, function() {
+              clearInterval(maturity_interval);
+            }, function(tile) {
+              UTILS.Map.update_actions(socket, tile);
             });
           });
-
-          var maturity_interval = setInterval(crop.reload_maturity_routine, crop_template.maturation_time*1000, crop, function(tile) {
-            UTILS.Map.update_tile(socket, tile);
-          }, function() {
-            clearInterval(maturity_interval);
-          }, function(tile) {
-            UTILS.Map.update_actions(socket, tile);
-          });
         });
-      });
+      }
     },
 
     attack: function(tile, socket) {
@@ -348,7 +475,9 @@ require('./config/routes.js')(app);
 
 // Creates the HTTP server and the Socket.io
 var server = http.createServer(app);
-var io = require('./app/libs/sockets').listen(server);
+var io = require('./app/libs/sockets').listen(server,
+    function(out) { UTILS.Timeouts.deploy(out); }
+  );
 
 // Links the socket with the session
 io.set('authorization', function(data, accept) {
@@ -370,7 +499,7 @@ io.set('authorization', function(data, accept) {
 
 UTILS.Map.deploy_settings();
 UTILS.Map.generate();
-UTILS.Timeouts.deploy(io);
+
 
 
 // Models but not really models, needs to be clarified because not a Mongoose Model, neither a controller ...!
