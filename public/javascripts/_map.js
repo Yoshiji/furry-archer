@@ -20,6 +20,10 @@ Map = {
     $('#weather').css({'background-color': data.color});
   },
 
+  update_stocks: function(data) {
+    $('#stocks').empty().append(data.current + " / " + data.maximum);
+  },
+
   update_building: function(data) {
 
     switch(data.name) {
@@ -277,6 +281,11 @@ Map = {
     socket.on('update_infos', function(data) {
       if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_infos');
       self.update_infos(data);
+    });
+
+    socket.on('update_stocks', function(data) {
+     if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_stocks');
+     self.update_stocks(data);
     });
 
     socket.on('update_weather', function(data) {

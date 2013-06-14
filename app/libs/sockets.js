@@ -96,6 +96,13 @@ module.exports.listen = function(app){
             UTILS.Map.update_actions(socket, tile);
           });
 
+        } else if (action_cleaned.indexOf("harvest and store") > -1) {
+          tile.harvest_and_store(socket.session.user._id, tile, function(user) {
+            socket.emit('update_infos', user);
+          }, function(tile) {
+            UTILS.Map.update_tile(socket, tile);
+            UTILS.Map.update_actions(socket, tile);
+          });
         } else if ((action_cleaned.indexOf("attack") > -1) && (tile.owner_name != socket.session.user.username)) {
           UTILS.Map.attack(tile, socket);
 

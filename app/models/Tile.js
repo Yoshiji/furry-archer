@@ -62,8 +62,41 @@ module.exports = function (mongoose) {
     });
   }
 
+  TileSchema.methods.harvest_and_store = function(user_id, tile, cb_update_infos, cb_update_tile) {
+    Crop.findOne({_id: tile.crop[0]}, function(err, crop) {
+      if(err || !crop) { console.log(err, crop); return; }
+
+      if(crop.maturity > 80) {
+        var health = tile.health();
+        var productivity = crop.productivity;
+        var quantity = Math.ceil((health / 100 * productivity) || 1);
+
+        User.check_can_store(user_id, quantity, function(user) {
+          cb_update_infos(user);
+
+          var dead_at = new Date();
+          dead_at.setSeconds(dead_at.getSeconds() + crop.storability);
+          StoredCrop.create({
+            quantity: quantity,
+            dead_at: (dead_at),
+            user: user_id
+          }, function(err, stored_crop) {
+            console.log(err, stored_crop);
+          })
+          
+          Tile.update({_id: tile._id}, { $pull: { crop: tile.crop[0] } }, {}, function(err) {
+            Tile.findOne({_id: tile._id}, function(err, tile) {
+              cb_update_tile(tile);
+            });
+          });
+          Crop.remove({_id: tile.crop[0]}).exec();
+        });
+      }
+    })
+  }
+
   TileSchema.statics.raise_fertility_routine = function() {
-    console.log('Raising the Fertility periodically');
+    console.log('Routine: Raising the Fertility');
     
     Tile.find({crop: {$size: 0}}, function(err, tiles) {
       tiles.forEach(function(tile) {
@@ -75,7 +108,7 @@ module.exports = function (mongoose) {
   }
 
   TileSchema.statics.raise_humidity_routine = function() {
-    console.log('Raising the Humidity periodically');
+    console.log('Routine: Raising the Humidity');
     
     Tile.find({}, function(err, tiles) {
       tiles.forEach(function(tile) {

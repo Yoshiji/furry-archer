@@ -18,9 +18,9 @@ module.exports = function (mongoose) {
       CropTemplate.create(
       { name: init_crop_templates[i],
         maturation_time: 3,
-        decay_time: 10,
-        productivity: 10,
-        storability: 15,
+        decay_time: 10*(i+1),
+        productivity: 5*i,
+        storability: 15 + i*10,
         seed_price: i*2
       }, function (err, crop_template) {
         if(err)

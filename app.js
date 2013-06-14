@@ -65,11 +65,13 @@ UTILS = {
       Mongoose = mongoose;
       Tile = mongoose.model('Tile');
       User = mongoose.model('User');
+      StoredCrop = mongoose.model('StoredCrop');
 
       setInterval(Tile.raise_fertility_routine, 1000*60);
       setInterval(UTILS.Timeouts.generate_rain, 1000*60, io);
       setInterval(User.raise_health_routine, 1000*10);
       setInterval(UTILS.Timeouts.generate_random_disaster, 1000*120, io);
+      setInterval(StoredCrop.destroy_rotten_crop_routine, 1000*10, io);
     },
     generate_rain: function(io) {
       var random_percents = Math.floor((Math.random()*100)+1);
@@ -170,6 +172,7 @@ UTILS = {
       User = mongoose.model('User');
       Building = mongoose.model('Building');
       BuildingTemplate = mongoose.model('BuildingTemplate');
+      StoredCrop = mongoose.model('StoredCrop');
 
 
       CropTemplate.find(function (err, crop_templates) {
@@ -246,12 +249,13 @@ UTILS = {
         socket.emit('update_actions', available_actions);
 
       } else if (level == 2) {
-        available_actions = [["harvest and sell"]];
+        available_actions = [["harvest and sell"], ["harvest and store"]];
         if (tile && socket && (socket.session.user.username != tile.owner_name) && tile.owner_name != -1 && !tile.is_attacked) {
           available_actions.push(["attack"]);
         } else if (tile && tile.is_attacked) {
             available_actions.push(["fire"]);
         }
+
         socket.emit('update_actions', available_actions);
       }
     },
@@ -461,7 +465,7 @@ UTILS = {
               });
             });
 
-            var maturity_interval = setInterval(crop.reload_maturity_routine, crop_template.maturation_time*1000, crop, function(tile) {
+            var maturity_interval = setInterval(crop.reload_maturity_routine, crop_template.maturation_time*100, crop, function(tile) {
               UTILS.Map.update_tile(socket, tile);
             }, function() {
               clearInterval(maturity_interval);
