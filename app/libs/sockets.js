@@ -98,6 +98,8 @@ module.exports.listen = function(app){
         } else if (action_cleaned.indexOf("use") > -1) {
           var weapon_id = data.id;
           UTILS.Map.use_weapon(weapon_id, socket);
+        } else if ((action_cleaned.indexOf("fire") > -1)) {
+          UTILS.Map.fire(tile, socket);
         }
       });
   	});
