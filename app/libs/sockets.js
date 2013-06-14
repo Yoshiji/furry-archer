@@ -106,9 +106,13 @@ module.exports.listen = function(app){
         } else if (action_cleaned.indexOf("use") > -1) {
           var weapon_id = data.id;
           UTILS.Map.use_weapon(weapon_id, socket);
+          
+        } else if ((action_cleaned.indexOf("fire") > -1)) {
+          UTILS.Map.fire(tile, socket);
+
         } else if (action_cleaned.indexOf('build') > -1) {
           var building_name = action_cleaned.replace("build", "").trim();
-          UTILS.Map.build(tile, building_name, socket)
+          UTILS.Map.build(tile, building_name, socket);
         }
       });
   	});

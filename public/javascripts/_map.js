@@ -54,10 +54,22 @@ Map = {
       actions.append(str);
     }
 
-    $(".action", actions).click(function() {
+    $(".action", actions).click(function(event) {
       event.preventDefault();
       socket.emit("action", {action: $(this).data('action'), x: user.pos_x, y: user.pos_y});
       console.log((new Date()).toLocaleTimeString() + ': ACTION: ' + $(this).data('action'));
+    });
+  },
+
+
+  attack_alert: function(data, socket) {
+    var attacks = $("#attacks")
+    var str = '<p class="attack-alert"> Attack from: ' + data.attacker + ' at:' + data.x + '/' + data.y + '</p>';
+    attacks.append(str);
+    
+    $(".attack-alert", attacks).click(function(event) {
+      event.preventDefault();
+      $(this).remove();
     });
   },
 
@@ -280,6 +292,11 @@ Map = {
     socket.on('update_tile_sprite', function(data) {
       if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_tile_sprite');
       self.update_tile_sprite(data, this);
+    });
+
+    socket.on('attack_alert', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': attack_alert');
+      self.attack_alert(data, this);
     });
 
     socket.on('update_building', function(data) {

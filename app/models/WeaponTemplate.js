@@ -10,13 +10,13 @@ module.exports = function (mongoose) {
   });
 
   WeaponTemplateSchema.statics.generate = function () {
-    var init_weapon_templates = ['AK 47', 'Chainsaw', 'Baseball Bat'];
+    var init_weapon_templates = ['Fork', 'AK 47', 'Chainsaw', 'Baseball Bat'];
 
     for( var i = 0; i < init_weapon_templates.length; i++ ) {
       WeaponTemplate.create(
       { name: init_weapon_templates[i],
-        power: 10,
-        hit_ratio: 3,
+        power: 2,
+        hit_ratio: 70,
         hits_per_second: 2,
         price: 0
       }, function (err, weapon_template) {
