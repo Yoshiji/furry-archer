@@ -37,6 +37,27 @@ UTILS = {
     }
   },
 
+  Socket: {
+    by_username: function(sockets, username){
+      var returned_socket = false;
+      sockets.clients().forEach(function(socket){
+        if(socket && socket.session && socket.session.user.username == username) {
+          returned_socket = socket;
+        }
+      });
+      return returned_socket;
+    },
+    by_user_id: function(sockets, user_id){
+      var returned_socket = false;
+      sockets.clients().forEach(function(socket){
+        if(socket && socket.session && socket.session.user._id == user_id) {
+          returned_socket = socket;
+        }
+      });
+      return returned_socket;
+    }
+  },
+
   Timeouts: {
     CURRENT_WEATHER: {name: 'Sunny', color: '#F5DA81'},
 
