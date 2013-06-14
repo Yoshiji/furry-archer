@@ -4,7 +4,8 @@ module.exports.listen = function(app){
   var io = socketio.listen(app);
 
   io.set('log level', 1);
-	// Handle the connection and the events
+
+  // Handle the connection and the events
 	io.on('connection', function(socket) {
 	  UTILS.Routines.connection(socket);
 	  UTILS.Routines.disconnection(socket);
@@ -119,7 +120,7 @@ module.exports.listen = function(app){
 
         } else if (action_cleaned.indexOf('build') > -1) {
           var building_name = action_cleaned.replace("build", "").trim();
-          UTILS.Map.build(tile, building_name, socket);
+          Building.build(tile, building_name, socket);
         }
       });
   	});

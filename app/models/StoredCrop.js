@@ -10,7 +10,7 @@ module.exports = function (mongoose) {
   StoredCropSchema.statics.destroy_rotten_crop_routine = function(io) {
     StoredCrop.remove({dead_at: { $lt: new Date() } }).exec();
     io.sockets.clients().forEach(function(socket) {
-      console.log("Routine: Destroying rotton crop");
+      console.log("Routine: Destroying rotten crop");
       if(socket.session && socket.session.user)
         User.reload_stock( socket.session.user._id, socket )
     });
