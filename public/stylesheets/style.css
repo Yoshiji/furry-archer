@@ -153,23 +153,66 @@ form#login p label {
   text-align: left;
 }
 /*TWEAKS*/
-/* GAME */
-#panel-control {
-  float: left;
-  width: 150px;
-  height: 600px;
-  border: 1px solid black;
+/* CONTENT */
+#content {
+  width: 1200px;
+  margin: auto;
 }
-#panel-control #section-title {
+/* GAME */
+.panel-control {
+  width: 200px;
+  height: 600px;
+  font-size: 16px;
+}
+.panel-control #section-title {
   background: black;
   text-transform: uppercase;
   text-align: center;
   color: white;
-  font-size: 12px;
+  font-size: 14px;
   padding: 3px 0;
 }
-#panel-control #actions a,
-#panel-control #weapons a {
+.panel-control#left {
+  float: left;
+}
+.panel-control#left #weather,
+.panel-control#left #stock_value {
+  min-height: 35px;
+  vertical-align: middle;
+  text-align: center;
+  padding-top: 15px;
+}
+.panel-control#left #stock_value {
+  background-color: #0099FF;
+}
+.panel-control#right {
+  float: right;
+}
+.panel-control#right #infos {
+  min-height: 300px;
+  margin: 5px;
+}
+.panel-control#right #infos .value,
+.panel-control#right #infos .label {
+  height: 38px;
+  float: left;
+  padding-top: 13px;
+}
+.panel-control#right #infos .value {
+  width: 70px;
+  text-align: center;
+}
+.panel-control#right #infos .label {
+  width: 80px;
+}
+.panel-control#right #infos .icon {
+  width: 40px;
+  height: 40px;
+  float: left;
+  padding-top: 3px;
+}
+.panel-control #actions a,
+.panel-control #weapons a {
   display: block;
   text-align: center;
   text-decoration: none;
@@ -182,11 +225,6 @@ canvas#game_board {
   top: 0;
   left: 0;
   z-index: 10;
-}
-div#cr-stage {
-  border-top: 1px solid black;
-  border-right: 1px solid black;
-  border-bottom: 1px solid black;
 }
 div#game_hidder {
   position: absolute;

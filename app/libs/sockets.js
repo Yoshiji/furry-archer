@@ -1,14 +1,14 @@
 var socketio = require('socket.io');
 
-module.exports.listen = function(app, callback){
+module.exports.listen = function(app){
   var io = socketio.listen(app);
 
   io.set('log level', 1);
-	// Handle the connection and the events
+
+  // Handle the connection and the events
 	io.on('connection', function(socket) {
 	  UTILS.Routines.connection(socket);
 	  UTILS.Routines.disconnection(socket);
-    UTILS.Map.update_weapons(socket);
 
 	  socket.on('chat_message', function (data) {
 	    UTILS.Chat.broadcast(socket, data, socket.session.user.username);
@@ -96,6 +96,14 @@ module.exports.listen = function(app, callback){
             UTILS.Map.update_actions(socket, tile);
           });
 
+        } else if (action_cleaned.indexOf("harvest and store") > -1) {
+          tile.harvest_and_store(socket.session.user._id, tile, function(user) {
+            socket.emit('update_infos', user);
+            User.reload_stock(user._id, socket);
+          }, function(tile) {
+            UTILS.Map.update_tile(socket, tile);
+            UTILS.Map.update_actions(socket, tile);
+          });
         } else if ((action_cleaned.indexOf("attack") > -1) && (tile.owner_name != socket.session.user.username)) {
           UTILS.Map.attack(tile, socket);
 
@@ -112,13 +120,20 @@ module.exports.listen = function(app, callback){
 
         } else if (action_cleaned.indexOf('build') > -1) {
           var building_name = action_cleaned.replace("build", "").trim();
-          UTILS.Map.build(tile, building_name, socket);
+          Building.build(tile, building_name, socket);
+
+        } else if (action_cleaned.indexOf('sell all the stock') > -1) {
+          User.sell_stored_crops(socket.session.user._id, function(user) {
+            socket.emit('update_infos', user);
+            User.reload_stock(user._id, socket);
+          });
         }
       });
   	});
 
 	});
-  setTimeout(callback(io), 1000);
+
+  UTILS.Timeouts.deploy(io);
 
   return io;
 };

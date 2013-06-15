@@ -20,6 +20,14 @@ Map = {
     $('#weather').css({'background-color': data.color});
   },
 
+  update_stock_value: function(data) {
+    $('#stock_value').empty().append(data.value);
+  },
+
+  update_stocks: function(data) {
+    $('.stock.value').empty().append(data.current + ' / ' + data.maximum);
+  },
+
   update_building: function(data) {
 
     switch(data.name) {
@@ -104,16 +112,12 @@ Map = {
   },
 
   update_infos: function(user) {
-    var infos = $('#infos').empty();
+    var infos = $('#infos #old').empty();
     var data = [];
     var ignored_keys = [ '__v', 'email', 'password', '_id', 'pos_x', 'pos_y', 'username' ];
     var keys = Object.keys(user);
-
-    for (var i = 0; i < keys.length; i++) {
-      if(ignored_keys.indexOf(keys[i]) == -1) {
-        infos.append('<p><span>'+ keys[i] +":</span><span>"+ user[keys[i]] +"</span></p>");
-      }
-    }
+    $('.value.gold').empty().append(user.gold);
+    $('.value.level').empty().append(user.level);
   },
 
   update_tile: function(data, socket) {
@@ -123,7 +127,7 @@ Map = {
 
       if(data.type != "voided" && data.type != "water" && data.owner_name != '-1'){
         if(user.pos_x == data.x && user.pos_y == data.y) {
-          Crafty(user.id).update_debug_content(tile_settings);
+          Crafty(user.id).update_several_infos(tile_settings);
         }
         if(data.owner_name == user.username)
           data.type = "my_";
@@ -279,6 +283,11 @@ Map = {
       self.update_infos(data);
     });
 
+    socket.on('update_stocks', function(data) {
+     if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_stocks');
+     self.update_stocks(data);
+    });
+
     socket.on('update_weather', function(data) {
       if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_weather');
       self.update_weather(data);
@@ -303,6 +312,12 @@ Map = {
       if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_building');
       self.update_building(data);
     });
+
+    socket.on('update_stock_value', function(data) {
+      if(verbose) console.log((new Date()).toLocaleTimeString() + ': update_stock_value');
+      self.update_stock_value(data);
+    });
+
   },
 
   init_scenes: function(socket) {

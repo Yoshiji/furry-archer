@@ -29,6 +29,9 @@ UTILS = {
           socket.broadcast.emit('update_player', data);
         }
       });
+      UTILS.Map.update_weapons(socket);
+      UTILS.Timeouts.reload_stock_value(socket);
+      User.reload_stock(socket.session.user._id, socket);
     },
     disconnection: function(socket) {
       socket.on('disconnect', function (data) {
@@ -58,16 +61,43 @@ UTILS = {
 
   Timeouts: {
     CURRENT_WEATHER: {name: 'Sunny', color: '#F5DA81'},
+    CURRENT_STOCK_VALUE: 1.01,
 
     deploy: function(io) {
       Mongoose = mongoose;
       Tile = mongoose.model('Tile');
       User = mongoose.model('User');
+      StoredCrop = mongoose.model('StoredCrop');
 
       setInterval(Tile.raise_fertility_routine, 1000*60);
       setInterval(UTILS.Timeouts.generate_rain, 1000*60, io);
       setInterval(User.raise_health_routine, 1000*10);
       setInterval(UTILS.Timeouts.generate_random_disaster, 1000*120, io);
+      setInterval(StoredCrop.destroy_rotten_crop_routine, 1000*10, io);
+      setInterval(UTILS.Timeouts.reload_stock_value, 1000*30, io);
+    },
+    reload_stock_value: function(io) {
+      console.log('Routine: Reloading the Stock value');
+
+      var random = Math.floor((Math.random()*10)+4)/100;
+      var minus_or_plus = Math.round(Math.random());
+      var value = 1;
+
+      if(minus_or_plus) {
+        value = parseFloat(UTILS.Timeouts.CURRENT_STOCK_VALUE) + random;
+      } else {
+        value = parseFloat(UTILS.Timeouts.CURRENT_STOCK_VALUE) - random;
+      }
+
+      if(value < 0.1 || value > 2.5) {
+        value = 1.44;
+      }
+      UTILS.Timeouts.CURRENT_STOCK_VALUE = value.toFixed(2);
+
+      if(typeof(io.sockets) != 'undefined')
+        io.sockets.emit('update_stock_value', {value: UTILS.Timeouts.CURRENT_STOCK_VALUE})
+      else
+        io.emit('update_stock_value', {value: UTILS.Timeouts.CURRENT_STOCK_VALUE})
     },
     generate_rain: function(io) {
       var random_percents = Math.floor((Math.random()*100)+1);
@@ -168,8 +198,8 @@ UTILS = {
       User = mongoose.model('User');
       Building = mongoose.model('Building');
       BuildingTemplate = mongoose.model('BuildingTemplate');
-      
-      UTILS.Timeouts.deploy();
+      StoredCrop = mongoose.model('StoredCrop');
+
 
       CropTemplate.find(function (err, crop_templates) {
         if(crop_templates.length < 1)
@@ -193,7 +223,7 @@ UTILS = {
     },
 
     update_actions: function(socket, tile){
-      var available_actions = [["water"], ["fertilize", 1]];
+      var available_actions = [["sell all the stock"],["water"], ["fertilize", 1]];
       var level = 1; 
 
       // LEVEL DETERMINATION
@@ -245,12 +275,13 @@ UTILS = {
         socket.emit('update_actions', available_actions);
 
       } else if (level == 2) {
-        available_actions = [["harvest and sell"]];
+        available_actions = [["harvest and sell"], ["harvest and store"]];
         if (tile && socket && (socket.session.user.username != tile.owner_name) && tile.owner_name != -1 && !tile.is_attacked) {
           available_actions.push(["attack"]);
         } else if (tile && tile.is_attacked) {
             available_actions.push(["fire"]);
         }
+
         socket.emit('update_actions', available_actions);
       }
     },
@@ -307,6 +338,7 @@ UTILS = {
               user.save(function(err) {
                 if(err) { console.log(err);}
                 UTILS.Map.update_weapons(socket, user);
+                socket.emit('update_infos', user);
               });
             });
           });
@@ -326,111 +358,6 @@ UTILS = {
         });
 
       });
-    },
-
-    build: function(tile, building_name, socket) {
-      if(tile.crop.length < 1 && tile.building.length < 1) {
-        BuildingTemplate.findOne({name: building_name}, function(err, building_template) {
-          if(err) { console.log(err); }
-
-          switch(building_template.tile_size) {
-            case 1:
-
-              User.check_can_afford(socket.session.user._id, building_template.price, function(user) {
-                socket.emit('update_infos', user);
-                Building.create({
-                  name: building_template.name, storage: building_template.storage, 
-                  consommation: building_template.consommation, user: socket.session.user._id,
-                  positions: [tile.x, tile.y]
-                }, function(err, building) {
-                  tile.building = building._id;
-                  tile.save();
-                  socket.emit('update_building', building);
-                });
-              });
-              
-              break;
-
-            case 4:
-
-              var cur_x = tile.x;
-              var cur_y = tile.y;
-              var x_is_impair = cur_x % 2;
-              var y_is_impair = cur_y % 2;
-              var in_x; 
-              var in_y;
-              if(!x_is_impair && !y_is_impair) {
-                in_x = [cur_x];
-                in_y = [cur_y-1, cur_y, cur_y+1];
-                in_x2 = [cur_x+1];
-                in_y2 = [cur_y];
-              } else if(!x_is_impair && y_is_impair) {
-                in_x = [cur_x+1];
-                in_y = [cur_y-1, cur_y, cur_y+1];
-                in_x2 = [cur_x];
-                in_y2 = [cur_y];
-              } else if(x_is_impair && y_is_impair) {
-                in_x = [cur_x+1];
-                in_y = [cur_y-1, cur_y, cur_y+1];
-                in_x2 = [cur_x];
-                in_y2 = [cur_y];
-              } else if(x_is_impair && !y_is_impair) {
-                in_x = [cur_x];
-                in_y = [cur_y-1, cur_y, cur_y+1];
-                in_x2 = [cur_x+1];
-                in_y2 = [cur_y];
-              } else {
-                console.log('WEIRD! Should not happen', cur_x, cur_y);
-              }
-              var coords = [];
-              for(var i=0; i<in_x.length; i++) {
-                for(var j=0; j<in_y.length; j++) {
-                  coords.push( [ in_x[i], in_y[j] ] );
-                }
-              }
-              for(var i=0; i<in_x2.length; i++) {
-                for(var j=0; j<in_y2.length; j++) {
-                  coords.push( [ in_x2[i], in_y2[j] ] );
-                }
-              }
-
-              Tile.find({ $or: [ {x: {$in: in_x }, y: {$in: in_y } }, {x: {$in: in_x2}, y: {$in: in_y2} } ], owner_name: socket.session.user.username }, 
-                function(err, tiles) {
-                  if(tiles.length > 3) {
-
-                    console.log(coords);
-                    Building.findOne({ positions: { $in: coords  } }, function(err, building) {
-                      if(err) {console.log(err)}
-
-                      if(!building) {
-                        User.check_can_afford(socket.session.user._id, building_template.price, function(user) {
-                          socket.emit('update_infos', user);
-                          Building.create({
-                            name: building_template.name, storage: building_template.storage, 
-                            consommation: building_template.consommation, user: socket.session.user._id,
-                            positions: coords
-                          }, function(err, building) {
-                            tiles.forEach(function(tile) {
-                              tile.building = building._id;
-                              tile.save();
-                            });
-                            socket.emit('update_building', building);
-                          });
-                        });
-                      }
-                    });
-                    
-                  }
-                }
-              );
-
-              break;
-
-            case 6:
-              break;
-          }
-        });
-     }
     },
 
     update_tile: function(socket, tile){
@@ -460,7 +387,7 @@ UTILS = {
               });
             });
 
-            var maturity_interval = setInterval(crop.reload_maturity_routine, crop_template.maturation_time*1000, crop, function(tile) {
+            var maturity_interval = setInterval(crop.reload_maturity_routine, crop_template.maturation_time*100, crop, function(tile) {
               UTILS.Map.update_tile(socket, tile);
             }, function() {
               clearInterval(maturity_interval);
@@ -604,9 +531,10 @@ require('./config/routes.js')(app);
 
 // Creates the HTTP server and the Socket.io
 var server = http.createServer(app);
-var io = require('./app/libs/sockets').listen(server,
-    function(out) { UTILS.Timeouts.deploy(out); }
-  );
+var io = require('./app/libs/sockets').listen(server);
+UTILS.Map.deploy_settings();
+UTILS.Map.generate();
+server.listen(app.get('port'));
 
 // Links the socket with the session
 io.set('authorization', function(data, accept) {
@@ -626,8 +554,6 @@ io.set('authorization', function(data, accept) {
   });
 });
 
-UTILS.Map.deploy_settings();
-UTILS.Map.generate();
 
 
 
@@ -650,6 +576,3 @@ PlayerList = (function() {
 
   return PlayerList;
 })();
-
-
-server.listen(app.get('port'));

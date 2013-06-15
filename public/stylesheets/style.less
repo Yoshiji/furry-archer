@@ -120,22 +120,73 @@ form#signup, form#login{
 
 /*TWEAKS*/
 
+/* CONTENT */
+
+#content {
+  width: 1200px;
+  margin: auto;
+}
 
 
 /* GAME */
-#panel-control {
-  float:left;
-  width:150px;
+.panel-control {
+  
+  width:200px;
   height:600px;
-  border:1px solid black;
+  font-size: 16px;
+
   #section-title{
     background: black;
     text-transform: uppercase;
     text-align: center;
     color: white;
-    font-size: 12px;
+    font-size: 14px;
     padding: 3px 0;
   }
+
+  &#left {
+    float:left;
+
+    #weather, #stock_value {
+      min-height: 35px;
+      vertical-align: middle;
+      text-align: center;
+      padding-top: 15px;
+    }
+    #stock_value {
+      background-color: #0099FF;
+    }
+  }
+
+  &#right {
+    float:right;
+
+    #infos {
+      min-height: 300px;
+      margin: 5px;
+
+      .value, .label {
+        height: 38px;
+        float: left;
+        padding-top: 13px;
+      }
+      .value {
+        width: 70px;
+        text-align: center;
+      }
+      .label {
+        width: 80px;
+      }
+      .icon {
+        width: 40px;
+        height: 40px;
+        float: left;
+        padding-top: 3px;
+      }
+    }
+  }
+
+
   #actions, #weapons{
     a{
       display: block;
@@ -154,12 +205,6 @@ canvas#game_board{
   left: 0;
   z-index: 10;
 
-}
-
-div#cr-stage{
-  border-top: 1px solid black;
-  border-right: 1px solid black;
-  border-bottom: 1px solid black;
 }
 
 div#game_hidder{

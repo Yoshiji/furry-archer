@@ -59,14 +59,40 @@ module.exports = function (mongoose) {
         user.captured_tiles = 0;
         user.save();
       }
-      console.log('Restarting a new Capture Tile Cycle for all Users');
+      console.log('Routine: new Capture Tile Cycle for all Users');
+    });
+  }
+
+  UserSchema.statics.reload_stock = function(user_id, socket) {
+    User.findOne({_id: user_id}, function(err, user) {
+      if(!user || err) {console.log(err,"ERROR check can store"); return;}
+
+      Building.find({user: user_id}, function(err, buildings) {
+        if(err) {console.log(err);}
+
+        var max_capacity = 0;
+        buildings.forEach(function(building) {
+          max_capacity += building.storage;
+        });
+
+        StoredCrop.find({user: user_id, dead_at: { $gt: new Date() }}, function(err, crops) {
+          if(err) {console.log(err);}
+
+          var current_stock = 0;
+          crops.forEach(function(stored_crop) {
+            current_stock += stored_crop.quantity;
+          });
+
+          socket.emit('update_stocks', {current: current_stock, maximum: max_capacity});
+        });
+
+      });
     });
   }
 
   UserSchema.statics.check_can_afford = function(user_id, gold_amount, callback) {
     User.findOne({_id: user_id}, function(err, user) {
-      if(!user)
-        return;
+      if(!user || err) {console.log(err,"ERROR check can afford"); return;}
       if(user.gold >= gold_amount) {
         user.gold -= gold_amount;
         user.save(function(err) {
@@ -77,8 +103,60 @@ module.exports = function (mongoose) {
     });
   }
 
+  UserSchema.statics.sell_stored_crops = function(user_id, callback) {
+    User.findOne({_id: user_id}, function(err, user) {
+      if(!user || err) {console.log(err,"ERROR sell stored crops"); return;}
+
+      StoredCrop.find({user: user_id}, function(err, stored_crops) {
+        var amount = 0;
+        stored_crops.forEach(function(stored_crop) {
+          amount += stored_crop.quantity;
+        });
+        amount = Math.round(amount);
+        if(amount > 0) {
+          var gold_gained = UTILS.Timeouts.CURRENT_STOCK_VALUE * amount;
+          user.gold += Math.round(gold_gained);
+          user.save();
+          callback(user);
+          StoredCrop.remove({user: user_id}).exec();
+        }
+      })
+    })
+  }
+
+  UserSchema.statics.check_can_store = function(user_id, qty, callback) {
+    User.findOne({_id: user_id}, function(err, user) {
+      if(!user || err) {console.log(err,"ERROR check can store"); return;}
+
+      Building.find({user: user_id}, function(err, buildings) {
+        if(err) {console.log(err);}
+
+        var max_capacity = 0;
+        buildings.forEach(function(building) {
+          max_capacity += building.storage;
+        });
+
+        StoredCrop.find({user: user_id, dead_at: { $gt: new Date() }}, function(err, crops) {
+          if(err) {console.log(err);}
+
+          var current_stock = 0;
+          crops.forEach(function(stored_crop) {
+            current_stock += stored_crop.quantity;
+          });
+
+          if(current_stock+qty <= max_capacity) {
+            callback(user);
+          } else {
+            console.log('Max capacity reached!')
+          }
+        });
+      });
+    });
+  }
+
   UserSchema.statics.raise_health_routine = function() {
-    console.log('Raising the health of users not fighting');
+    console.log('Routing: Raising the health of users not fighting');
+    // TODO change 100 to the max health they can have depending on their level
     User.find({is_fighting: false}, function(err, users) {
 
       users.forEach(function(user) {
