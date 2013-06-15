@@ -27,6 +27,7 @@ module.exports = function (mongoose) {
                 tile.building = building._id;
                 tile.save();
                 socket.emit('update_building', building);
+                User.reload_stock(socket.session.user._id, socket);
               });
             });
             
@@ -96,6 +97,7 @@ module.exports = function (mongoose) {
                             tile.save();
                           });
                           socket.emit('update_building', building);
+                          User.reload_stock(socket.session.user._id, socket);
                         });
                       });
                     }

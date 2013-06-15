@@ -29,6 +29,9 @@ UTILS = {
           socket.broadcast.emit('update_player', data);
         }
       });
+      UTILS.Map.update_weapons(socket);
+      UTILS.Timeouts.reload_stock_value(socket);
+      User.reload_stock(socket.session.user._id, socket);
     },
     disconnection: function(socket) {
       socket.on('disconnect', function (data) {
@@ -60,6 +63,7 @@ UTILS = {
 
   Timeouts: {
     CURRENT_WEATHER: {name: 'Sunny', color: '#F5DA81'},
+    CURRENT_STOCK_VALUE: 1.01,
 
     deploy: function(io) {
       Mongoose = mongoose;
@@ -72,6 +76,30 @@ UTILS = {
       setInterval(User.raise_health_routine, 1000*10);
       setInterval(UTILS.Timeouts.generate_random_disaster, 1000*120, io);
       setInterval(StoredCrop.destroy_rotten_crop_routine, 1000*10, io);
+      setInterval(UTILS.Timeouts.reload_stock_value, 1000*30, io);
+    },
+    reload_stock_value: function(io) {
+      console.log('Routine: Reloading the Stock value');
+
+      var random = Math.floor((Math.random()*10)+4)/100;
+      var minus_or_plus = Math.round(Math.random());
+      var value = 1;
+
+      if(minus_or_plus) {
+        value = parseFloat(UTILS.Timeouts.CURRENT_STOCK_VALUE) + random;
+      } else {
+        value = parseFloat(UTILS.Timeouts.CURRENT_STOCK_VALUE) - random;
+      }
+
+      if(value < 0.1 || value > 2.5) {
+        value = 1.44;
+      }
+      UTILS.Timeouts.CURRENT_STOCK_VALUE = value.toFixed(2);
+
+      if(typeof(io.sockets) != 'undefined')
+        io.sockets.emit('update_stock_value', {value: UTILS.Timeouts.CURRENT_STOCK_VALUE})
+      else
+        io.emit('update_stock_value', {value: UTILS.Timeouts.CURRENT_STOCK_VALUE})
     },
     generate_rain: function(io) {
       var random_percents = Math.floor((Math.random()*100)+1);
@@ -80,7 +108,7 @@ UTILS = {
         console.log("Starts Raining")
         var rain = {name: 'Raining', color: '#D8D8D8'};
         UTILS.Timeouts.CURRENT_WEATHER = rain;
-        //io.sockets.emit('update_weather', rain);
+        io.sockets.emit('update_weather', rain);
 
         var rain_cycles = 5;
         for(var i = 0; i < rain_cycles; i++) {
@@ -91,25 +119,25 @@ UTILS = {
           console.log("End of Rain")
           var sunny = {name: 'Sunny', color: '#F5DA81'};
           UTILS.Timeouts.CURRENT_WEATHER = sunny;
-          //io.sockets.emit('update_weather', sunny);
+          io.sockets.emit('update_weather', sunny);
         }, 5000*rain_cycles);
       }
     },
     generate_random_disaster: function(io) {
-      //io.sockets.emit('disaster', { name: 'generating disaster!' });
+      io.sockets.emit('disaster', { name: 'generating disaster!' });
       var random_percents = Math.floor((Math.random()*100)+1);
       if(random_percents > 75) {
         if( Math.round(Math.random()) ) {
 
           if( Math.round(Math.random()) ) {
             console.log('!!! Meteor Showers');
-            //io.sockets.emit('disaster', { name: 'Meteor Shower' });
+            io.sockets.emit('disaster', { name: 'Meteor Shower' });
             setTimeout(function() {
               Crop.find({}, function(err, crops) {
                 crops.forEach(function(crop) {
                   Tile.findOne({crop: crop._id}, function(err, tile) {
                     tile.crop = null;
-                    //io.sockets.emit('update_tile', tile);
+                    io.sockets.emit('update_tile', tile);
                     Tile.update({crop: crop._id}, { $pull: { crop: crop._id } }).exec();
                   });
                   crop.remove();
@@ -119,14 +147,14 @@ UTILS = {
 
           } else {
             console.log('!!! Grasshoppers Invasion');
-            //io.sockets.emit('disaster', { name: 'Grasshoppers Invasion' });
+            io.sockets.emit('disaster', { name: 'Grasshoppers Invasion' });
             setTimeout(function() {
               Crop.update({}, { maturity: 0 }).exec();
             }, 2000)
           }
         } else {
           console.log('!!! Tornado');
-          //io.sockets.emit('disaster', { name: 'Tornado' });
+          io.sockets.emit('disaster', { name: 'Tornado' });
         }
       }
     }
@@ -197,7 +225,7 @@ UTILS = {
     },
 
     update_actions: function(socket, tile){
-      var available_actions = [["water"], ["fertilize", 1]];
+      var available_actions = [["sell all the stock"],["water"], ["fertilize", 1]];
       var level = 1; 
 
       // LEVEL DETERMINATION
@@ -312,6 +340,7 @@ UTILS = {
               user.save(function(err) {
                 if(err) { console.log(err);}
                 UTILS.Map.update_weapons(socket, user);
+                socket.emit('update_infos', user);
               });
             });
           });
