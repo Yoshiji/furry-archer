@@ -41,7 +41,6 @@ UTILS = {
     by_username: function(sockets, username){
       for(var i = 0, client_length = sockets.clients().length; i < client_length; i++){
         if(sockets.clients()[i] && sockets.clients()[i].session && sockets.clients()[i].session.user.username == username) {
-          console.log(sockets.clients()[i]);
           return sockets.clients()[i];
           break;
         }
@@ -50,7 +49,6 @@ UTILS = {
     by_user_id: function(sockets, user_id){
       for(var i = 0, client_length = sockets.clients().length; i < client_length; i++){
         if(sockets.clients()[i] && sockets.clients()[i].session && sockets.clients()[i].session.user._id == user_id) {
-          console.log(sockets.clients()[i]);
           return sockets.clients()[i];
           break;
         }
@@ -78,7 +76,7 @@ UTILS = {
         console.log("Starts Raining")
         var rain = {name: 'Raining', color: '#D8D8D8'};
         UTILS.Timeouts.CURRENT_WEATHER = rain;
-        //io.sockets.emit('update_weather', rain);
+        io.sockets.emit('update_weather', rain);
 
         var rain_cycles = 5;
         for(var i = 0; i < rain_cycles; i++) {
@@ -89,25 +87,25 @@ UTILS = {
           console.log("End of Rain")
           var sunny = {name: 'Sunny', color: '#F5DA81'};
           UTILS.Timeouts.CURRENT_WEATHER = sunny;
-          //io.sockets.emit('update_weather', sunny);
+          io.sockets.emit('update_weather', sunny);
         }, 5000*rain_cycles);
       }
     },
     generate_random_disaster: function(io) {
-      //io.sockets.emit('disaster', { name: 'generating disaster!' });
+      io.sockets.emit('disaster', { name: 'generating disaster!' });
       var random_percents = Math.floor((Math.random()*100)+1);
       if(random_percents > 75) {
         if( Math.round(Math.random()) ) {
 
           if( Math.round(Math.random()) ) {
             console.log('!!! Meteor Showers');
-            //io.sockets.emit('disaster', { name: 'Meteor Shower' });
+            io.sockets.emit('disaster', { name: 'Meteor Shower' });
             setTimeout(function() {
               Crop.find({}, function(err, crops) {
                 crops.forEach(function(crop) {
                   Tile.findOne({crop: crop._id}, function(err, tile) {
                     tile.crop = null;
-                    //io.sockets.emit('update_tile', tile);
+                    io.sockets.emit('update_tile', tile);
                     Tile.update({crop: crop._id}, { $pull: { crop: crop._id } }).exec();
                   });
                   crop.remove();
@@ -117,14 +115,14 @@ UTILS = {
 
           } else {
             console.log('!!! Grasshoppers Invasion');
-            //io.sockets.emit('disaster', { name: 'Grasshoppers Invasion' });
+            io.sockets.emit('disaster', { name: 'Grasshoppers Invasion' });
             setTimeout(function() {
               Crop.update({}, { maturity: 0 }).exec();
             }, 2000)
           }
         } else {
           console.log('!!! Tornado');
-          //io.sockets.emit('disaster', { name: 'Tornado' });
+          io.sockets.emit('disaster', { name: 'Tornado' });
         }
       }
     }
@@ -235,7 +233,7 @@ UTILS = {
             }
             socket.emit('update_actions', available_actions);
           });
-          
+
         });
 
       } else if (level == 1) {
@@ -475,23 +473,40 @@ UTILS = {
     },
 
     attack: function(tile, socket) {
-      User.update({ $or: [{_id: socket.session.user._id}, {username: tile.owner_name}]}, {$set: {is_fighting: true}}, {multi: true}, function(err, users){
-        if(err) console.log(err)
-        console.log(users[0]);
-        socket.emit('update_infos', users[0]);
-      });
-      tile.is_attacked = true;
-      tile.attacked_by = socket.session.user.username;
-      tile.save(function(err) {
+      User.findOne({_id: socket.session.user._id}, function(err, user){
         if(err) console.log(err);
-        UTILS.Map.update_actions(socket, tile);
-        UTILS.Map.update_tile(socket, tile);
 
-        // send alert if victim is connected
-        if(UTILS.Socket.by_username(io.sockets, tile.owner_name))
-          UTILS.Socket.by_username(io.sockets, tile.owner_name).emit("attack_alert", {attacker: socket.session.user.username, x: tile.x, y: tile.y});
+        Weapon.findOne({_id: { $in: user.weapons}, is_in_use: true}, function(err, weapon){
+          if(err) console.log(err);
+
+          if(weapon){
+
+            User.update({username: tile.owner_name}, {$set: {is_fighting: true}}, function(err, user_target){ if(err) console.log(err); });
+
+            user.is_fighting = true;
+            user.save(function(err) { 
+              if(err) console.log(err); 
+              socket.emit("update_infos", user);
+            });
+
+            tile.is_attacked = true;
+            tile.attacked_by = user.username;
+
+            tile.save(function(err) {
+              if(err) console.log(err);
+              UTILS.Map.update_actions(socket, tile);
+              UTILS.Map.update_tile(socket, tile);
+              UTILS.Map.update_tile(socket.broadcast, tile);
+
+              // send alert if victim is connected
+              if(UTILS.Socket.by_username(io.sockets, tile.owner_name))
+                UTILS.Socket.by_username(io.sockets, tile.owner_name).emit("attack_alert", {attacker: socket.session.user.username, x: tile.x, y: tile.y});
+            });
+          }
+        });
       });
     },
+
     fire: function(tile, socket){
       // Find weapon in use
       User.findOne({_id: socket.session.user._id}, function(err, user){
@@ -503,25 +518,40 @@ UTILS = {
           if(weapon){
             if (weapon.hit_ratio < Math.floor((Math.random()*100)+1)){
               var health_lost = weapon.power * weapon.hits_per_second;
-              if(socket.session.user.username == tile.owner_name && tile.attacked_by){
+              if(socket.session.user.username == tile.owner_name && tile.attacked_by && tile.attacked_by != "false"){
+                console.log("CHATTE", tile.attacked_by);
                 User.findOne({username: tile.attacked_by}, function(err, user_to_attack){
                   user_to_attack.health -= health_lost;
+                  if (user_to_attack.health < 0)
+                    user_to_attack.health = 0;
                   user_to_attack.save(function(err){
                     if(err) console.log(err);
 
-                    if(user_to_attack.health <= 0)
+                    if(user_to_attack.health <= 0){
                       UTILS.Map.end_fight(tile, user, user_to_attack, socket);
+                      console.log("ENDING FIGHT");
+
+                    if(UTILS.Socket.by_username(io.sockets, user_to_attack.username))
+                      UTILS.Socket.by_username(io.sockets, user_to_attack.username).emit("update_infos", user_to_attack);
+                    }
                   });
                 });
 
               } else if(tile.is_attacked) {
                 User.findOne({username: tile.owner_name}, function(err, user_to_attack){
                   user_to_attack.health -= health_lost;
+                  if (user_to_attack.health < 0)
+                    user_to_attack.health = 0;
                   user_to_attack.save(function(err){
                     if(err) console.log(err);
 
-                    if(user_to_attack.health <= 0)
+                    if(user_to_attack.health <= 0){
                       UTILS.Map.end_fight(tile, user, user_to_attack, socket);
+                      console.log("ENDING FIGHT");
+
+                    if(UTILS.Socket.by_username(io.sockets, user_to_attack.username))
+                      UTILS.Socket.by_username(io.sockets, user_to_attack.username).emit("update_infos", user_to_attack);
+                    }
                   });
                 });
               }
@@ -532,8 +562,9 @@ UTILS = {
     },
     
     end_fight: function(tile, user, user_to_attack, socket){
-      Tile.find({owner_name: user_to_attack.username, is_attacked: true}, {$set: {is_attacked: false, owner_name: this.attacked_by, attacked_by: false}}, function(err, tiles){
+      Tile.find({owner_name: user_to_attack.username, is_attacked: true}, function(err, tiles){
         if(err) console.log(err);
+          console.log("ENDING FIGHT 2", user_to_attack.username, tiles);
 
         if(tiles && tiles.length > 0){
           for(var i = 0; i < tiles.length; i++){
@@ -542,10 +573,13 @@ UTILS = {
             tiles[i].attacked_by = false;
             tiles[i].save(function(err){
               if(err) console.log(err);
-
-              socket.emit("update_tile", tiles[i]);
-              socket.broadcast.emit("update_tile", tiles[i]);
             });
+              user_to_attack.is_fighting = false;
+              user_to_attack.save(function(err){if(err) console.log(err);});
+              user.captured_new_tile(user, socket);
+              console.log("SENDING UPDATE TILE AFTER ENDING FIGHT", tiles[i]);
+              UTILS.Map.update_tile(socket, tiles[i]);
+              UTILS.Map.update_tile(socket.broadcast, tiles[i]);
           }
         }
       });

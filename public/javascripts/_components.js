@@ -1,7 +1,7 @@
 Crafty.c("Tile", {
 
   init: function() {
-    this.addComponent("2D, Canvas, SpriteAnimation")
+    this.addComponent("2D, Canvas, SpriteAnimation");
     this.addComponent("Collision").collision(new Crafty.polygon([0,84], [128,20], [256,84], [128,148]));
     this.addComponent("Socketed");
   }

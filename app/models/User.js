@@ -10,6 +10,7 @@ module.exports = function (mongoose) {
       gold: Number,
       level: Number,
       health: Number,
+      max_health: Number,
       is_fighting: Boolean,
       captured_tiles: Number,
       weapons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Weapon' }]
@@ -41,6 +42,7 @@ module.exports = function (mongoose) {
 
       if(owned_tiles > limit_to_next_level) {
         self.level += 1;
+        self.max_health = self.level * 100;
         console.log('The Use gained a level!');
       }
       self.captured_tiles += 1;
@@ -77,12 +79,15 @@ module.exports = function (mongoose) {
 
   UserSchema.statics.raise_health_routine = function() {
     console.log('Raising the health of users not fighting');
-    // TODO change 100 to the max health they can have depending on their level
     User.find({is_fighting: false}, function(err, users) {
+
       users.forEach(function(user) {
-        if(user.health < 100)
+        if(user.health < user.max_health){
           user.health += 5;
+          if(user.health > user.max_health)
+            user.health = user.max_health;
           user.save();
+        }
       });
     });
   }

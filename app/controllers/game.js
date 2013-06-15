@@ -81,7 +81,10 @@ exports.signup_post = function(req, res, next) {
               password: bcrypt.hashSync(req.param('password'), 8),
               gold: SETTINGS.gold_amount_at_starting,
               level: 0,
-              captured_tiles: 0
+              captured_tiles: 0,
+              health: 100,
+              max_health: 100,
+              is_fighting: false
               
             }, function (err, user) {
               if (err){
