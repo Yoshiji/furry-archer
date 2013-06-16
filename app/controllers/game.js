@@ -30,7 +30,7 @@ exports.login_post = function(req, res, next) {
       if(user && bcrypt.compareSync(req.param('password'), user.password)){
         req.session.user = {};
         req.session.user = user;
-        req.flash('notice', "You're logged Bitch!");
+        req.flash('notice', "You're logged!");
         res.redirect('game');
       }else{
         res.locals.flash = {}
@@ -44,7 +44,7 @@ exports.login_post = function(req, res, next) {
 exports.logout = function(req, res, next) {
   if(req.session.user){
     delete req.session.user
-    req.flash('notice', "Go away Bitch!");
+    req.flash('notice', "Bye Bye!");
   }else{
     req.flash('error', "You were not logged, please login now ...");
   }

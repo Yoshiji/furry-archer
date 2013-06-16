@@ -28,7 +28,7 @@ GameChat = (function() {
 
   GameChat.prototype.send_chat_message = function() {
   	var message = $('#message', this.new_message).val();
-    if(message == ''){ alert('Message vide, abrutis !');return; };
+    if(message == ''){ alert('Message vide !');return; };
     $('#message', this.new_message).val('');
   	this.socket.emit('chat_message', message);
   }
