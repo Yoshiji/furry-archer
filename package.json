@@ -9,7 +9,7 @@
     "express": "3.1.0",
     "jade": "*",
     "less-middleware": "*",
-    "mongoose": "3.6.1",
+    "mongoose": "3.6.11",
     "connect-mongo": "latest",
     "connect-flash": "latest",
     "mongodb": "latest",
