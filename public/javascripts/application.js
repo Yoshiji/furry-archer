@@ -1,10 +1,7 @@
-
 // Triggered when the DOM is ready
-$(document).ready(function() {
-
+$(document).ready(function () {
   handle_flash_messages();
   init_game();
-
 });
 
 // Implicit instanciation of GameChat and GameView
@@ -12,14 +9,13 @@ $(document).ready(function() {
 var game_logic = new GameLogic();
 
 // Should be called only when the DOM is ready
-function init_game() {  
+function init_game() {
   game_logic.init();
 }
 
-
 function handle_flash_messages() {
   $(".flash").delay(2000).fadeOut(1000, "easeInExpo");
-  $(".flash").click(function(){
+  $(".flash").click(function () {
     $(this).stop(true, true).fadeOut(300, "easeInExpo");
   });
 }

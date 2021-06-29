@@ -1,29 +1,25 @@
 // list of restricted urls
-var restricted = [
-'/game',
-'/game/'
-];
+var restricted = ["/game", "/game/"];
 
 // middleware enabled or not
 var enabled = true;
 
 // the middleware function
-module.exports = function(onoff) {
+module.exports = function (onoff) {
+  enabled = onoff == "on" ? true : false;
 
-  enabled = (onoff == 'on') ? true : false;
-
-  return function(req, res, next) {
-    if(req.session.flash){
+  return function (req, res, next) {
+    if (req.session.flash) {
       res.locals.flash = req.session.flash;
       delete req.session.flash;
     }
-    if(req.session.user){
+    if (req.session.user) {
       res.locals.user = req.session.user;
     }
-    if(enabled  && !req.session.user && restricted.indexOf(req.url) > -1){
+    if (enabled && !req.session.user && restricted.indexOf(req.url) > -1) {
       res.redirect("/game/login");
-    }else{
+    } else {
       next();
     }
-  }
+  };
 };

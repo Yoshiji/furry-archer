@@ -3,9 +3,9 @@ html(lang='en')
   head
     link(href='/stylesheets/reset.css', rel='stylesheet', type='text/css')
     link(href='/stylesheets/style.css', rel='stylesheet', type='text/css')
-    
+
     title Furry Archer
-    
+
     script(type='text/javascript', src='/libs/crafty-src.js')
     script(type='text/javascript', src='/libs/jquery-1.9.1.js')
     script(type='text/javascript', src='/libs/jquery.easing.1.3.js')
@@ -24,7 +24,7 @@ html(lang='en')
       .flash_container
         each message, type in locals.flash
           .flash(class=type)= message
-    
+
 
     div#content
 
@@ -34,7 +34,7 @@ html(lang='en')
 
         p#section-title Stock Value
         div#stock_value
-               
+
         p#section-title Attacks
         div#attacks
 
@@ -46,40 +46,40 @@ html(lang='en')
       div.panel-control#right
         p#section-title Informations
         div#infos
-          
+
           p.label.gold Gold
           img.icon(src="/images/gold.png")
           p.value.gold
-          
+
           p.label.stock Stock
           img.icon(src="/images/stock.png")
           p.value.stock
-          
+
           p.label.level Level
           img.icon(src="/images/level.png")
           p.value.level
 
           p.label.position Position
-          img.icon(src="/images/position.png")          
+          img.icon(src="/images/position.png")
           p.value.position
 
           p.label.fertility Fertility
-          img.icon(src="/images/fertility.png")          
+          img.icon(src="/images/fertility.png")
           p.value.fertility
 
           p.label.humidity Humidity
-          img.icon(src="/images/humidity.png")          
-          p.value.humidity     
+          img.icon(src="/images/humidity.png")
+          p.value.humidity
 
         p#section-title Weapons
         div#weapons
-          
+
 
       form#game_chat_form
         div#game_chat
-          p#header #{locals.user.username} - Online Chat - 
+          p#header #{locals.user.username} - Online Chat -
             a.logout.buttoned(href="/game/logout") logout
-                  
+
           div#conversation
             p#message_template.hidden
               span.author
@@ -88,4 +88,3 @@ html(lang='en')
           p#new_message
             input(type='text', value='message de bob', name='message', id='message')
 
-    
