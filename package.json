@@ -15,7 +15,7 @@
     "mongodb": "1.3.9",
     "socket.io": "0.9.17",
     "session.socket.io": "*",
-    "connect": "2.7.1",
+    "connect": "3.0.0",
     "bcrypt": "latest"
   }
 }
